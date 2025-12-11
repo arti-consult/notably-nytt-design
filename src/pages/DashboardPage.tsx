@@ -17,7 +17,8 @@ import {
   Pencil,
   Trash2,
   CheckSquare,
-  Square
+  Square,
+  Video
 } from 'lucide-react';
 import RecordingModal from '@/components/RecordingModal';
 import FileUploadModal from '@/components/FileUploadModal';
@@ -446,7 +447,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <button
             className="feature-card flex items-center"
             onClick={handleStartRecording}
@@ -473,6 +474,21 @@ export default function DashboardPage() {
               <h3 className="font-medium mb-1">Last opp opptak</h3>
               <p className="text-sm text-gray-600">
                 Last opp eksisterende lydopptak
+              </p>
+            </div>
+          </button>
+
+          <button
+            className="feature-card flex items-center"
+            onClick={() => toast.info('Direkteinvitasjon kommer snart!')}
+          >
+            <div className="feature-icon mr-4">
+              <Video className="h-5 w-5" />
+            </div>
+            <div className="text-left">
+              <h3 className="font-medium mb-1">Direkteinvitasjon</h3>
+              <p className="text-sm text-gray-600">
+                Send Notably til et møte umiddelbart
               </p>
             </div>
           </button>
