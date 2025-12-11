@@ -248,6 +248,9 @@ export default function DashboardPage() {
       );
     }
 
+    // Apply date filter
+    filtered = getFilteredRecordingsByDate(filtered);
+
     return filtered;
   };
 
@@ -383,8 +386,27 @@ export default function DashboardPage() {
                 {isBulkEditMode ? 'Avslutt redigering' : 'Rediger møter'}
               </button>
             </div>
-            <div className="mt-2 text-xs text-gray-500">
-              Søk i titler, etiketter og mapper
+            <div className="mt-3 flex items-center space-x-2">
+              <span className="text-xs text-gray-500 mr-1">Periode:</span>
+              {[
+                { value: 'total', label: 'Totalt' },
+                { value: 'day', label: 'I dag' },
+                { value: 'week', label: 'Denne uken' },
+                { value: 'month', label: 'Denne måneden' }
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setDateRange(option.value as 'total' | 'day' | 'week' | 'month')}
+                  className={cn(
+                    "px-3 py-1 rounded-full text-xs font-medium transition-colors",
+                    dateRange === option.value
+                      ? "bg-violet-600 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  )}
+                >
+                  {option.label}
+                </button>
+              ))}
             </div>
           </div>
         </div>
