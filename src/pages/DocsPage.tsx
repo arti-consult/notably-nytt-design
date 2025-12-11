@@ -77,7 +77,7 @@ const sections = [
       },
       {
         title: 'Automatisk opptak',
-        description: 'ARTI Notes kan automatisk bli med i planlagte møter fra kalenderen din.'
+        description: 'Notably kan automatisk bli med i planlagte møter fra kalenderen din.'
       },
       {
         title: 'Lydkvalitet',
@@ -163,7 +163,7 @@ export default function DocsPage() {
               <span className="gradient-text">Alt du trenger å vite</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              Utforsk vår omfattende dokumentasjon for å få mest mulig ut av ARTI Notes
+              Utforsk vår omfattende dokumentasjon for å få mest mulig ut av Notably
             </p>
             <div className="relative max-w-xl mx-auto">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -282,7 +282,7 @@ export default function DocsPage() {
               Fant du ikke det du lette etter?
             </h2>
             <p className="text-xl text-gray-600 mb-8">
-              Vi er her for å hjelpe deg med å få mest mulig ut av ARTI Notes
+              Vi er her for å hjelpe deg med å få mest mulig ut av Notably
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/contact" className="button-primary">

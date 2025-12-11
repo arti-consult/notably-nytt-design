@@ -16,12 +16,12 @@ const steps = [
   {
     icon: Calendar,
     title: 'Planlegg møtet',
-    description: 'Opprett møtet direkte i ARTI Notes eller bruk integrasjonene med Google Calendar og Microsoft Outlook.'
+    description: 'Opprett møtet direkte i Notably eller bruk integrasjonene med Google Calendar og Microsoft Outlook.'
   },
   {
     icon: Mic,
     title: 'Start opptak',
-    description: 'ARTI Notes starter automatisk opptak når møtet begynner, eller du kan starte manuelt med ett klikk.'
+    description: 'Notably starter automatisk opptak når møtet begynner, eller du kan starte manuelt med ett klikk.'
   },
   {
     icon: Sparkles,
@@ -43,7 +43,7 @@ export default function HowItWorksPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-6">
-              <span className="gradient-text">Slik fungerer ARTI Notes</span>
+              <span className="gradient-text">Slik fungerer Notably</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8">
               Fra møtestart til ferdig notat på få minutter
@@ -82,7 +82,7 @@ export default function HowItWorksPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold mb-6">
-                Se ARTI Notes i aksjon
+                Se Notably i aksjon
               </h2>
               <p className="text-gray-600 mb-8">
                 Opplev hvor enkelt det er å få profesjonelle møtenotater med AI-assistert transkribering.
@@ -132,7 +132,7 @@ export default function HowItWorksPage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Alt du trenger for effektive møter</h2>
             <p className="text-xl text-gray-600">
-              ARTI Notes gir deg verktøyene du trenger for å få mer ut av hvert møte
+              Notably gir deg verktøyene du trenger for å få mer ut av hvert møte
             </p>
           </div>
 
@@ -167,7 +167,7 @@ export default function HowItWorksPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">
-              Klar til å prøve ARTI Notes?
+              Klar til å prøve Notably?
             </h2>
             <p className="text-xl text-gray-600 mb-8">
               Start din 14-dagers gratis prøveperiode i dag

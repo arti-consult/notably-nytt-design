@@ -22,7 +22,7 @@ interface MockRecording {
 // Mock bruker for demo
 export const mockUser: MockUser = {
   id: 'demo-user',
-  email: 'demo@artinotes.no',
+  email: 'demo@notably.no',
   name: 'Demo Bruker',
   organization: 'Demo Organisasjon AS',
   created_at: new Date('2024-01-01').toISOString()

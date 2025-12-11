@@ -18,7 +18,7 @@ const testimonials = [
     name: "Anders Johansen",
     role: "Daglig leder, TechCorp AS",
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80",
-    content: "ARTI Notes har revolusjonert måten vi håndterer møter på. Automatisk transkribering sparer oss for timevis av arbeid hver uke.",
+    content: "Notably har revolusjonert måten vi håndterer møter på. Automatisk transkribering sparer oss for timevis av arbeid hver uke.",
     rating: 5
   },
   {
@@ -39,14 +39,14 @@ const testimonials = [
     name: "Kristine Hansen",
     role: "Styreleder, Digital AS",
     image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80",
-    content: "ARTI Notes er et must-have for enhver moderne bedrift. Spesielt imponert over hvor nøyaktig transkriberingen er på norsk.",
+    content: "Notably er et must-have for enhver moderne bedrift. Spesielt imponert over hvor nøyaktig transkriberingen er på norsk.",
     rating: 5
   },
   {
     name: "Erik Solheim",
     role: "CTO, FutureTech",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80",
-    content: "Integrasjonen med kalenderen vår er perfekt. ARTI Notes starter automatisk i alle møter, og AI-oppsummeringene er imponerende presise.",
+    content: "Integrasjonen med kalenderen vår er perfekt. Notably starter automatisk i alle møter, og AI-oppsummeringene er imponerende presise.",
     rating: 5
   },
   {
@@ -60,14 +60,14 @@ const testimonials = [
     name: "Lars Pedersen",
     role: "Administrerende Direktør, NordicTech",
     image: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80",
-    content: "ARTI Notes har transformert våre styremøter. Transkripsjonen er feilfri og oppsummeringene fanger alltid de viktigste punktene.",
+    content: "Notably har transformert våre styremøter. Transkripsjonen er feilfri og oppsummeringene fanger alltid de viktigste punktene.",
     rating: 5
   },
   {
     name: "Emma Nilsson",
     role: "Senior Konsulent, ConsultCo",
     image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80",
-    content: "Som konsulent har jeg mange møter hver dag. ARTI Notes gjør det enkelt å holde oversikt og følge opp handlingspunkter.",
+    content: "Som konsulent har jeg mange møter hver dag. Notably gjør det enkelt å holde oversikt og følge opp handlingspunkter.",
     rating: 5
   }
 ];
@@ -76,22 +76,22 @@ const faqs = [
   {
     icon: "🎯",
     question: "Hvordan fungerer automatisk transkribering?",
-    answer: "ARTI Notes bruker avansert AI-teknologi for å konvertere tale til tekst i sanntid. Systemet støtter både norsk og engelsk, og kan skille mellom ulike talere i møtet. Transkriberingen starter automatisk når møtet begynner og er tilgjengelig umiddelbart etter møtets slutt."
+    answer: "Notably bruker avansert AI-teknologi for å konvertere tale til tekst i sanntid. Systemet støtter både norsk og engelsk, og kan skille mellom ulike talere i møtet. Transkriberingen starter automatisk når møtet begynner og er tilgjengelig umiddelbart etter møtets slutt."
   },
   {
     icon: "🔒",
-    question: "Er ARTI Notes GDPR-kompatibel?",
-    answer: "Ja, ARTI Notes er fullt GDPR-kompatibel. Vi bruker ende-til-ende-kryptering for all dataoverføring, og alle data lagres på sikre servere i EU. Du har full kontroll over dine data og kan når som helst be om innsyn eller sletting."
+    question: "Er Notably GDPR-kompatibel?",
+    answer: "Ja, Notably er fullt GDPR-kompatibel. Vi bruker ende-til-ende-kryptering for all dataoverføring, og alle data lagres på sikre servere i EU. Du har full kontroll over dine data og kan når som helst be om innsyn eller sletting."
   },
   {
     icon: "🤝",
     question: "Hvilke møteplattformer støttes?",
-    answer: "ARTI Notes integreres sømløst med Microsoft Teams og Google Meet. Vi jobber kontinuerlig med å utvide støtten til flere plattformer. Systemet fungerer også utmerket for fysiske møter ved bruk av den innebygde opptaksfunksjonen."
+    answer: "Notably integreres sømløst med Microsoft Teams og Google Meet. Vi jobber kontinuerlig med å utvide støtten til flere plattformer. Systemet fungerer også utmerket for fysiske møter ved bruk av den innebygde opptaksfunksjonen."
   },
   {
     icon: "🚀",
     question: "Hvordan kommer jeg i gang?",
-    answer: "Det er enkelt å komme i gang med ARTI Notes. Registrer en konto, koble til din kalender og møteplattform, og du er klar til å begynne. Vi tilbyr en 14-dagers gratis prøveperiode der du får tilgang til alle funksjoner."
+    answer: "Det er enkelt å komme i gang med Notably. Registrer en konto, koble til din kalender og møteplattform, og du er klar til å begynne. Vi tilbyr en 14-dagers gratis prøveperiode der du får tilgang til alle funksjoner."
   },
   {
     icon: "💰",
@@ -222,7 +222,7 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Hva kundene våre sier</h2>
             <p className="text-xl text-gray-600">
-              Se hvordan ARTI Notes hjelper bedrifter med å effektivisere møtene sine
+              Se hvordan Notably hjelper bedrifter med å effektivisere møtene sine
             </p>
           </div>
 
@@ -273,7 +273,7 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Ofte stilte spørsmål</h2>
             <p className="text-xl text-gray-600">
-              Finn svar på de vanligste spørsmålene om ARTI Notes
+              Finn svar på de vanligste spørsmålene om Notably
             </p>
           </div>
 
@@ -326,7 +326,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">
-              Klar til å prøve ARTI Notes?
+              Klar til å prøve Notably?
             </h2>
             <p className="text-xl text-gray-600 mb-8">
               Start din 14-dagers gratis prøveperiode i dag

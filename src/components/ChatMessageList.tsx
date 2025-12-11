@@ -112,7 +112,7 @@ export default function ChatMessageList({
               message.role === 'user' ? "right-0" : "left-0"
             )}>
               <span className="text-gray-500">
-                {message.role === 'user' ? 'Deg' : 'ARTI Notes'}
+                {message.role === 'user' ? 'Deg' : 'Notably'}
               </span>
             </div>
             {message.content}
@@ -206,9 +206,9 @@ export default function ChatMessageList({
                   backgroundClip: 'text'
                 }}
               >
-                <span className="text-sm font-medium px-3 py-2">ARTI Notes skriver</span>
+                <span className="text-sm font-medium px-3 py-2">Notably skriver</span>
               </motion.div>
-              <span className="text-sm font-medium invisible px-3 py-2">ARTI Notes skriver</span>
+              <span className="text-sm font-medium invisible px-3 py-2">Notably skriver</span>
             </div>
             <motion.div
               animate={{ opacity: [0, 1, 0] }}

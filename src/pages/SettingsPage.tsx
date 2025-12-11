@@ -184,7 +184,7 @@ export default function SettingsPage() {
                   Automatisk transkripsjon av digitale møter
                 </h3>
                 <p className="text-sm text-violet-700 mt-1">
-                  La ARTI Notes automatisk bli med i dine digitale møter og transkribere dem.
+                  La Notably automatisk bli med i dine digitale møter og transkribere dem.
                   Koble til din kalender og møteplattform for å komme i gang.
                 </p>
               </div>

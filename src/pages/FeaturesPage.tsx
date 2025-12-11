@@ -69,7 +69,7 @@ export default function FeaturesPage() {
               <span className="gradient-text">Alle funksjonene du trenger</span>
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              ARTI Notes kombinerer det beste innen AI og transkribering for å gi deg en sømløs opplevelse.
+              Notably kombinerer det beste innen AI og transkribering for å gi deg en sømløs opplevelse.
             </p>
           </div>
         </div>

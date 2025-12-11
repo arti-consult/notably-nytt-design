@@ -42,13 +42,13 @@ export default function AboutPage() {
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/50 backdrop-blur-sm border border-violet-100 mb-8">
               <Building className="h-4 w-4 text-violet-600 mr-2" />
-              <span className="text-sm font-medium text-violet-600">ARTI Consult</span>
+              <span className="text-sm font-medium text-violet-600">Notably</span>
             </div>
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-6">
               <span className="gradient-text">Vi digitaliserer møtehverdagen</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              ARTI Notes er utviklet av ARTI Consult for å gjøre møter mer effektive og produktive.
+              Notably er utviklet for å gjøre møter mer effektive og produktive.
             </p>
           </div>
         </div>
@@ -60,11 +60,11 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold mb-6">
-                Om ARTI Consult
+                Om Notably
               </h2>
               <p className="text-lg text-gray-600 mb-6">
-                ARTI Consult er et norsk teknologiselskap som spesialiserer seg på 
-                innovative løsninger for bedrifter. Med ARTI Notes har vi skapt en 
+                Notably er et norsk teknologiselskap som spesialiserer seg på
+                innovative løsninger for bedrifter. Med Notably har vi skapt en 
                 banebrytende plattform som kombinerer kunstig intelligens med 
                 brukervennlig design for å revolusjonere måten møter gjennomføres på.
               </p>

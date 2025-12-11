@@ -25,8 +25,8 @@ const contactMethods = [
     icon: Mail,
     title: 'Send e-post',
     description: 'Vi svarer innen 24 timer',
-    action: 'kontakt@artinotes.no',
-    href: 'mailto:kontakt@artinotes.no'
+    action: 'kontakt@notably.no',
+    href: 'mailto:kontakt@notably.no'
   },
   {
     icon: Phone,
@@ -43,14 +43,14 @@ const offices = [
     address: 'Karl Johans gate 25',
     postal: '0159 Oslo',
     phone: '+47 XXX XX XXX',
-    email: 'oslo@artinotes.no'
+    email: 'oslo@notably.no'
   },
   {
     city: 'Bergen',
     address: 'Torgallmenningen 8',
     postal: '5014 Bergen',
     phone: '+47 XXX XX XXX',
-    email: 'bergen@artinotes.no'
+    email: 'bergen@notably.no'
   }
 ];
 

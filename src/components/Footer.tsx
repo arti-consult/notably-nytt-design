@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Mic } from 'lucide-react';
 
 const footerLinks = {
   product: [
@@ -31,9 +30,8 @@ export default function Footer() {
     <footer className="bg-gray-50 border-t border-gray-200/50">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-center mb-8">
-          <Link to="/" className="flex items-center space-x-2">
-            <Mic className="h-8 w-8 text-violet-600" />
-            <span className="text-xl font-medium tracking-tight">ARTI Notes</span>
+          <Link to="/" className="flex items-center">
+            <img src="/notably-logo.png" alt="Notably" className="h-10" />
           </Link>
         </div>
         
@@ -90,7 +88,7 @@ export default function Footer() {
         
         <div className="border-t border-gray-200/50 pt-8">
           <p className="text-sm text-gray-600 text-center">
-            © {new Date().getFullYear()} ARTI Notes av ARTI Consult. Alle rettigheter reservert.
+            © {new Date().getFullYear()} Notably. Alle rettigheter reservert.
           </p>
         </div>
       </div>

@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom';
-import { Mic, LogOut, User, Settings, Shield } from 'lucide-react';
+import { LogOut, User, Settings, Shield } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/contexts/AdminContext';
-import { cn } from '@/lib/utils';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -14,11 +13,8 @@ export default function Navbar() {
     <nav className="fixed w-full z-50 glass-nav">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="p-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600">
-              <Mic className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-semibold tracking-tight gradient-text">ARTI Notes</span>
+          <Link to="/" className="flex items-center">
+            <img src="/notably-logo.png" alt="Notably" className="h-8" />
           </Link>
           
           <div className="hidden md:flex items-center space-x-8">
