@@ -389,71 +389,6 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* Search Bar */}
-        <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
-          <div className="relative">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 relative">
-                <input
-                  type="search"
-                  placeholder="Søk i opptak, transkripsjoner, etiketter..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 pl-10 focus:border-violet-500 focus:ring-violet-500"
-                />
-                {searchQuery ? (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2"
-                  >
-                    <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  </button>
-                ) : (
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                )}
-              </div>
-              <button
-                onClick={() => {
-                  setIsBulkEditMode(!isBulkEditMode);
-                  if (!isBulkEditMode) {
-                    setSelectedRecordings(new Set());
-                  }
-                }}
-                className={cn(
-                  "ml-4 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                  isBulkEditMode
-                    ? "bg-violet-100 text-violet-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                )}
-              >
-                {isBulkEditMode ? 'Avslutt redigering' : 'Rediger møter'}
-              </button>
-            </div>
-            <div className="mt-3 flex items-center space-x-2">
-              <span className="text-xs text-gray-500 mr-1">Periode:</span>
-              {[
-                { value: 'total', label: 'Totalt' },
-                { value: 'day', label: 'I dag' },
-                { value: 'week', label: 'Denne uken' },
-                { value: 'month', label: 'Denne måneden' }
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setDateRange(option.value as 'total' | 'day' | 'week' | 'month')}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs font-medium transition-colors",
-                    dateRange === option.value
-                      ? "bg-violet-600 text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  )}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
         {/* Calendar Integration Widget */}
         {!isCalendarBannerDismissed && (
           <div className={cn(
@@ -571,6 +506,71 @@ export default function DashboardPage() {
             )}
           </div>
         )}
+
+        {/* Search Bar */}
+        <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+          <div className="relative">
+            <div className="flex items-center justify-between">
+              <div className="flex-1 relative">
+                <input
+                  type="search"
+                  placeholder="Søk i opptak, transkripsjoner, etiketter..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 pl-10 focus:border-violet-500 focus:ring-violet-500"
+                />
+                {searchQuery ? (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                  >
+                    <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  </button>
+                ) : (
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  setIsBulkEditMode(!isBulkEditMode);
+                  if (!isBulkEditMode) {
+                    setSelectedRecordings(new Set());
+                  }
+                }}
+                className={cn(
+                  "ml-4 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+                  isBulkEditMode
+                    ? "bg-violet-100 text-violet-700"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                )}
+              >
+                {isBulkEditMode ? 'Avslutt redigering' : 'Rediger møter'}
+              </button>
+            </div>
+            <div className="mt-3 flex items-center space-x-2">
+              <span className="text-xs text-gray-500 mr-1">Periode:</span>
+              {[
+                { value: 'total', label: 'Totalt' },
+                { value: 'day', label: 'I dag' },
+                { value: 'week', label: 'Denne uken' },
+                { value: 'month', label: 'Denne måneden' }
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setDateRange(option.value as 'total' | 'day' | 'week' | 'month')}
+                  className={cn(
+                    "px-3 py-1 rounded-full text-xs font-medium transition-colors",
+                    dateRange === option.value
+                      ? "bg-violet-600 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  )}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* Organization and Content */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
