@@ -18,7 +18,11 @@ import {
   Trash2,
   CheckSquare,
   Square,
-  Video
+  Video,
+  Calendar,
+  Settings,
+  ExternalLink,
+  CheckCircle
 } from 'lucide-react';
 import RecordingModal from '@/components/RecordingModal';
 import FileUploadModal from '@/components/FileUploadModal';
@@ -77,6 +81,45 @@ export default function DashboardPage() {
   const [dateRange, setDateRange] = useState<'total' | 'day' | 'week' | 'month'>('total');
   const [isBulkEditMode, setIsBulkEditMode] = useState(false);
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+  const [isCalendarConnected, setIsCalendarConnected] = useState(false);
+  const [isCalendarBannerDismissed, setIsCalendarBannerDismissed] = useState(false);
+
+  // Mock upcoming meetings (vises når kalender er tilkoblet)
+  const mockUpcomingMeetings = [
+    {
+      id: 'meeting-1',
+      title: 'Ukentlig team-møte',
+      startTime: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 timer fra nå
+      platform: 'Teams',
+      joinUrl: '#'
+    },
+    {
+      id: 'meeting-2',
+      title: 'Klientpresentasjon',
+      startTime: new Date(Date.now() + 5 * 60 * 60 * 1000), // 5 timer fra nå
+      platform: 'Teams',
+      joinUrl: '#'
+    },
+    {
+      id: 'meeting-3',
+      title: 'Sprint planning',
+      startTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // I morgen
+      platform: 'Google Meet',
+      joinUrl: '#'
+    }
+  ];
+
+  const formatMeetingTime = (date: Date) => {
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const isTomorrow = date.toDateString() === new Date(now.getTime() + 24 * 60 * 60 * 1000).toDateString();
+
+    const timeStr = date.toLocaleTimeString('no', { hour: '2-digit', minute: '2-digit' });
+
+    if (isToday) return `I dag ${timeStr}`;
+    if (isTomorrow) return `I morgen ${timeStr}`;
+    return date.toLocaleDateString('no', { weekday: 'short', day: 'numeric', month: 'short' }) + ` ${timeStr}`;
+  };
 
   // Last inn mock-data ved oppstart
   useEffect(() => {
@@ -410,6 +453,124 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Calendar Integration Widget */}
+        {!isCalendarBannerDismissed && (
+          <div className={cn(
+            "rounded-xl shadow-sm mb-6 overflow-hidden",
+            isCalendarConnected ? "bg-white" : "bg-gradient-to-r from-violet-50 to-fuchsia-50 border border-violet-100"
+          )}>
+            {!isCalendarConnected ? (
+              // Not connected state
+              <div className="p-5">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-4">
+                    <div className="p-3 bg-white rounded-xl shadow-sm">
+                      <Calendar className="h-6 w-6 text-violet-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-1">
+                        Koble til kalenderen din
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-4 max-w-lg">
+                        La Notably automatisk delta i dine digitale møter og transkribere dem.
+                        Støtter Microsoft 365 og Google Calendar.
+                      </p>
+                      <div className="flex flex-wrap gap-3">
+                        <button
+                          onClick={() => {
+                            setIsCalendarConnected(true);
+                            toast.success('Microsoft 365 kalender tilkoblet!');
+                          }}
+                          className="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-violet-300 transition-colors shadow-sm"
+                        >
+                          <svg className="h-4 w-4 mr-2" viewBox="0 0 23 23">
+                            <path fill="#f35325" d="M1 1h10v10H1z"/>
+                            <path fill="#81bc06" d="M12 1h10v10H12z"/>
+                            <path fill="#05a6f0" d="M1 12h10v10H1z"/>
+                            <path fill="#ffba08" d="M12 12h10v10H12z"/>
+                          </svg>
+                          Microsoft 365
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsCalendarConnected(true);
+                            toast.success('Google Calendar tilkoblet!');
+                          }}
+                          className="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-violet-300 transition-colors shadow-sm"
+                        >
+                          <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                          </svg>
+                          Google Calendar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setIsCalendarBannerDismissed(true)}
+                    className="p-1.5 hover:bg-white/50 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              // Connected state - show upcoming meetings
+              <div>
+                <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="h-5 w-5 text-violet-600" />
+                    <h3 className="font-medium">Kommende møter</h3>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Tilkoblet
+                    </span>
+                  </div>
+                  <Link
+                    to="/settings"
+                    className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Link>
+                </div>
+                <div className="divide-y divide-gray-50">
+                  {mockUpcomingMeetings.map((meeting, index) => (
+                    <div
+                      key={meeting.id}
+                      className="flex items-center justify-between px-5 py-3 hover:bg-gray-50/50 transition-colors"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={cn(
+                          "w-2 h-2 rounded-full",
+                          index === 0 ? "bg-green-500" : "bg-gray-300"
+                        )} />
+                        <div>
+                          <p className="font-medium text-sm">{meeting.title}</p>
+                          <p className="text-xs text-gray-500">
+                            {formatMeetingTime(meeting.startTime)} • {meeting.platform}
+                          </p>
+                        </div>
+                      </div>
+                      {index === 0 && (
+                        <button
+                          onClick={() => toast.info('Notably vil automatisk delta i dette møtet')}
+                          className="inline-flex items-center px-3 py-1.5 bg-violet-600 text-white rounded-lg text-xs font-medium hover:bg-violet-700 transition-colors"
+                        >
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          Bli med
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Organization and Content */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
