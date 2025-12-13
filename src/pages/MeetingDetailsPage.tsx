@@ -12,11 +12,11 @@ import {
   MessageSquare,
   Captions,
   Pencil,
-  RefreshCw,
   Check,
   X,
   ChevronDown,
-  Sparkles
+  Sparkles,
+  Wand2
 } from 'lucide-react';
 import DownloadModal from '@/components/DownloadModal';
 import PresentationModal from '@/components/PresentationModal';
@@ -69,13 +69,14 @@ interface MinutesSection {
 interface MeetingMinutes {
   sections: MinutesSection[];
   generatedAt: string;
+  isCustomPrompt?: boolean;  // True if generated from a custom prompt template
+  freetextContent?: string;  // The freetext content when using custom prompt template
 }
 
-type TabType = 'overview' | 'minutes' | 'ai' | 'transcription';
+type TabType = 'overview' | 'ai' | 'transcription';
 
 const tabs = [
   { id: 'overview' as const, label: 'Oversikt', icon: FileText },
-  { id: 'minutes' as const, label: 'Referat', icon: ClipboardList },
   { id: 'ai' as const, label: 'AI-assistent', icon: MessageSquare },
   { id: 'transcription' as const, label: 'Transkripsjon', icon: Captions },
 ];
@@ -98,8 +99,12 @@ export default function MeetingDetailsPage() {
   // Minutes editing state
   const [isEditingMinutes, setIsEditingMinutes] = useState(false);
   const [editedMinutes, setEditedMinutes] = useState<MinutesSection[]>([]);
+  const [editedFreetextContent, setEditedFreetextContent] = useState('');
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [currentTemplate, setCurrentTemplate] = useState<Template>(mockTemplates[0]);
+  const [pendingTemplate, setPendingTemplate] = useState<Template | null>(null);
+  const [showTemplateConfirm, setShowTemplateConfirm] = useState(false);
 
   // Audio player state (lifted up for mini-player)
   const [currentTimestamp, setCurrentTimestamp] = useState(0);
@@ -196,7 +201,11 @@ export default function MeetingDetailsPage() {
   // Minutes editing handlers
   const startEditingMinutes = () => {
     if (minutes) {
-      setEditedMinutes([...minutes.sections]);
+      if (minutes.isCustomPrompt) {
+        setEditedFreetextContent(minutes.freetextContent || '');
+      } else {
+        setEditedMinutes([...minutes.sections]);
+      }
       setIsEditingMinutes(true);
     }
   };
@@ -204,15 +213,24 @@ export default function MeetingDetailsPage() {
   const cancelEditingMinutes = () => {
     setIsEditingMinutes(false);
     setEditedMinutes([]);
+    setEditedFreetextContent('');
   };
 
   const saveMinutesEdits = () => {
-    if (minutes && editedMinutes.length > 0) {
-      setMinutes({
-        ...minutes,
-        sections: editedMinutes,
-        generatedAt: new Date().toISOString()
-      });
+    if (minutes) {
+      if (minutes.isCustomPrompt) {
+        setMinutes({
+          ...minutes,
+          freetextContent: editedFreetextContent,
+          generatedAt: new Date().toISOString()
+        });
+      } else if (editedMinutes.length > 0) {
+        setMinutes({
+          ...minutes,
+          sections: editedMinutes,
+          generatedAt: new Date().toISOString()
+        });
+      }
       setIsEditingMinutes(false);
       toast.success('Referat oppdatert');
     }
@@ -227,23 +245,104 @@ export default function MeetingDetailsPage() {
   const regenerateMinutes = async (template: Template) => {
     setShowTemplateSelector(false);
     setIsRegenerating(true);
+    setCurrentTemplate(template);
 
     // Simuler regenerering med ny mal
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Generer nye seksjoner basert på mal
-    const newSections: MinutesSection[] = template.sections.map(sectionTitle => ({
-      title: sectionTitle,
-      content: generateMockContent(sectionTitle, meeting?.title || '')
-    }));
+    if (template.isCustomPrompt) {
+      // Custom prompt template - generate freetext content
+      const mockFreetextContent = generateMockFreetextContent(template.customPrompt || '', meeting?.title || '');
+      setMinutes({
+        sections: [],
+        generatedAt: new Date().toISOString(),
+        isCustomPrompt: true,
+        freetextContent: mockFreetextContent
+      });
+    } else {
+      // Standard template - generate structured sections
+      const newSections: MinutesSection[] = template.sections.map(sectionTitle => ({
+        title: sectionTitle,
+        content: generateMockContent(sectionTitle, meeting?.title || '')
+      }));
 
-    setMinutes({
-      sections: newSections,
-      generatedAt: new Date().toISOString()
-    });
+      setMinutes({
+        sections: newSections,
+        generatedAt: new Date().toISOString(),
+        isCustomPrompt: false
+      });
+    }
 
     setIsRegenerating(false);
     toast.success(`Referat regenerert med "${template.name}"`);
+  };
+
+  // Mock freetext content generator for custom prompt templates
+  const generateMockFreetextContent = (prompt: string, meetingTitle: string): string => {
+    return `# Møtereferat: ${meetingTitle}
+
+Dette er et AI-generert møtereferat basert på din egendefinerte prompt.
+
+**Dato:** ${new Date().toLocaleDateString('no')}
+**Varighet:** ${formatDuration(meeting?.duration || 0)}
+**Deltakere:** ${participants.map(p => p.name).join(', ')}
+
+---
+
+## Hovedpunkter
+
+Møtet startet med en gjennomgang av de viktigste agendapunktene. Deltakerne diskuterte flere sentrale temaer som var relevante for prosjektets fremdrift.
+
+Det ble lagt særlig vekt på:
+- Statusoppdatering for pågående arbeid
+- Identifisering av utfordringer og blokkere
+- Planlegging av neste steg
+
+## Diskusjon
+
+Teamet hadde en grundig diskusjon om de ulike aspektene ved prosjektet. Det var bred enighet om prioriteringene fremover, og alle deltakere bidro med verdifulle innspill.
+
+Flere viktige punkter ble tatt opp:
+1. Ressursallokering for kommende fase
+2. Tidsplan og milepæler
+3. Kommunikasjon med interessenter
+
+## Konklusjon
+
+Møtet konkluderte med klare handlingspunkter og en felles forståelse av veien videre. Neste møte er planlagt for å følge opp fremdriften.
+
+---
+
+*Dette referatet ble generert basert på følgende instruksjoner:*
+> ${prompt.substring(0, 200)}${prompt.length > 200 ? '...' : ''}`;
+  };
+
+  // Handle template selection - show confirmation if different template
+  const handleTemplateSelect = (template: Template) => {
+    if (template.id === currentTemplate.id) {
+      // Same template, just close dropdown
+      setShowTemplateSelector(false);
+      return;
+    }
+    // Different template - show confirmation
+    setPendingTemplate(template);
+    setShowTemplateSelector(false);
+    setShowTemplateConfirm(true);
+  };
+
+  // Confirm template change and regenerate
+  const confirmTemplateChange = () => {
+    if (pendingTemplate) {
+      regenerateMinutes(pendingTemplate);
+    }
+    setShowTemplateConfirm(false);
+    setPendingTemplate(null);
+  };
+
+  // Cancel template change
+  const cancelTemplateChange = () => {
+    setShowTemplateConfirm(false);
+    setPendingTemplate(null);
   };
 
   // Mock content generator for demo
@@ -473,139 +572,196 @@ export default function MeetingDetailsPage() {
                         onSave={handleSaveSummary}
                       />
                     )}
-                  </div>
-                )}
 
-                {/* Minutes Tab */}
-                {activeTab === 'minutes' && (
-                  <div className="space-y-6">
-                    {isRegenerating ? (
-                      <div className="text-center py-12">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-violet-100 dark:bg-violet-900/30 mb-4">
-                          <Sparkles className="h-8 w-8 text-violet-600 dark:text-violet-400 animate-pulse" />
-                        </div>
-                        <p className="text-gray-900 dark:text-white font-medium mb-2">Genererer nytt referat...</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Dette tar vanligvis noen sekunder.
-                        </p>
-                      </div>
-                    ) : minutes ? (
-                      <>
-                        {/* Header med handlinger */}
-                        <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            Generert {new Date(minutes.generatedAt).toLocaleString('no')}
+                    {/* Meeting Minutes (Referat) - Integrated into Overview */}
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                      {isRegenerating ? (
+                        <div className="text-center py-12">
+                          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-violet-100 dark:bg-violet-900/30 mb-4">
+                            <Sparkles className="h-8 w-8 text-violet-600 dark:text-violet-400 animate-pulse" />
                           </div>
-                          <div className="flex items-center gap-2">
-                            {isEditingMinutes ? (
-                              <>
-                                <button
-                                  onClick={cancelEditingMinutes}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                                >
-                                  <X className="h-4 w-4" />
-                                  Avbryt
-                                </button>
-                                <button
-                                  onClick={saveMinutesEdits}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
-                                >
-                                  <Check className="h-4 w-4" />
-                                  Lagre
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button
-                                  onClick={startEditingMinutes}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                                >
-                                  <Pencil className="h-4 w-4" />
-                                  Rediger
-                                </button>
-                                <div className="relative">
+                          <p className="text-gray-900 dark:text-white font-medium mb-2">Genererer nytt referat...</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Dette tar vanligvis noen sekunder.
+                          </p>
+                        </div>
+                      ) : minutes ? (
+                        <>
+                          {/* Header med handlinger */}
+                          <div className="flex items-center justify-between pb-4 mb-4">
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                <ClipboardList className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                                Møtereferat
+                              </h3>
+                              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                                Generert {new Date(minutes.generatedAt).toLocaleString('no')}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {isEditingMinutes ? (
+                                <>
                                   <button
-                                    onClick={() => setShowTemplateSelector(!showTemplateSelector)}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30 rounded-lg transition-colors"
+                                    onClick={cancelEditingMinutes}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                                   >
-                                    <RefreshCw className="h-4 w-4" />
-                                    Regenerer
-                                    <ChevronDown className={cn("h-4 w-4 transition-transform", showTemplateSelector && "rotate-180")} />
+                                    <X className="h-4 w-4" />
+                                    Avbryt
                                   </button>
+                                  <button
+                                    onClick={saveMinutesEdits}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
+                                  >
+                                    <Check className="h-4 w-4" />
+                                    Lagre
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={startEditingMinutes}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                    Rediger
+                                  </button>
+                                  <div className="relative">
+                                    <button
+                                      onClick={() => setShowTemplateSelector(!showTemplateSelector)}
+                                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30 rounded-lg transition-colors border border-violet-200 dark:border-violet-800"
+                                    >
+                                      <FileText className="h-4 w-4" />
+                                      {currentTemplate.name}
+                                      <ChevronDown className={cn("h-4 w-4 transition-transform", showTemplateSelector && "rotate-180")} />
+                                    </button>
 
-                                  {/* Template selector dropdown */}
-                                  {showTemplateSelector && (
-                                    <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
-                                      <div className="p-3 border-b border-gray-100 dark:border-gray-800">
-                                        <p className="text-sm font-medium text-gray-900 dark:text-white">Velg mal</p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">Referatet regenereres med valgt mal</p>
+                                    {/* Template selector dropdown */}
+                                    {showTemplateSelector && (
+                                      <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+                                        <div className="p-3 border-b border-gray-100 dark:border-gray-800">
+                                          <p className="text-sm font-medium text-gray-900 dark:text-white">Bytt mal</p>
+                                          <p className="text-xs text-gray-500 dark:text-gray-400">Referatet regenereres med valgt mal</p>
+                                        </div>
+                                        <div className="max-h-64 overflow-y-auto">
+                                          {mockTemplates.map((template) => (
+                                            <button
+                                              key={template.id}
+                                              onClick={() => handleTemplateSelect(template)}
+                                              className={cn(
+                                                "w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-50 dark:border-gray-800 last:border-0",
+                                                currentTemplate.id === template.id && "bg-violet-50 dark:bg-violet-900/20"
+                                              )}
+                                            >
+                                              <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                  <p className="text-sm font-medium text-gray-900 dark:text-white">{template.name}</p>
+                                                  {template.isCustomPrompt && (
+                                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-700 dark:text-fuchsia-400">
+                                                      <Wand2 className="h-2.5 w-2.5 mr-0.5" />
+                                                      Prompt
+                                                    </span>
+                                                  )}
+                                                </div>
+                                                {currentTemplate.id === template.id && (
+                                                  <Check className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                                                )}
+                                              </div>
+                                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{template.description}</p>
+                                            </button>
+                                          ))}
+                                        </div>
                                       </div>
-                                      <div className="max-h-64 overflow-y-auto">
-                                        {mockTemplates.map((template) => (
-                                          <button
-                                            key={template.id}
-                                            onClick={() => regenerateMinutes(template)}
-                                            className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-50 dark:border-gray-800 last:border-0"
-                                          >
-                                            <p className="text-sm font-medium text-gray-900 dark:text-white">{template.name}</p>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{template.description}</p>
-                                          </button>
-                                        ))}
-                                      </div>
+                                    )}
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Innhold - redigeringsmodus eller visning */}
+                          {minutes.isCustomPrompt ? (
+                            /* Custom prompt template - freetext content */
+                            <>
+                              {/* Info banner for custom prompt */}
+                              <div className="mb-4 p-3 bg-gradient-to-r from-fuchsia-50 to-violet-50 dark:from-fuchsia-900/20 dark:to-violet-900/20 border border-fuchsia-200 dark:border-fuchsia-800/50 rounded-lg">
+                                <div className="flex items-start gap-2">
+                                  <Wand2 className="h-4 w-4 text-fuchsia-600 dark:text-fuchsia-400 flex-shrink-0 mt-0.5" />
+                                  <div>
+                                    <p className="text-sm font-medium text-fuchsia-900 dark:text-fuchsia-300">Egendefinert AI-referat</p>
+                                    <p className="text-xs text-fuchsia-700 dark:text-fuchsia-400 mt-0.5">
+                                      Generert fra din egendefinerte prompt - redigeres som fritekst
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {isEditingMinutes ? (
+                                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
+                                  <textarea
+                                    value={editedFreetextContent}
+                                    onChange={(e) => setEditedFreetextContent(e.target.value)}
+                                    rows={20}
+                                    className="w-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 dark:focus:ring-fuchsia-400 resize-y text-sm leading-relaxed font-mono"
+                                    placeholder="Skriv eller rediger møtereferatet..."
+                                  />
+                                </div>
+                              ) : (
+                                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-5">
+                                  <div className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+                                    {minutes.freetextContent}
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            /* Standard template - structured sections */
+                            isEditingMinutes ? (
+                              <div className="space-y-4">
+                                {editedMinutes.map((section, index) => (
+                                  <div key={index} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                                    <input
+                                      type="text"
+                                      value={section.title}
+                                      onChange={(e) => updateMinutesSection(index, 'title', e.target.value)}
+                                      className="w-full text-lg font-semibold text-gray-900 dark:text-white bg-transparent border-b border-gray-200 dark:border-gray-700 pb-2 mb-3 focus:outline-none focus:border-violet-500 dark:focus:border-violet-400"
+                                      placeholder="Seksjonstittel"
+                                    />
+                                    <textarea
+                                      value={section.content}
+                                      onChange={(e) => updateMinutesSection(index, 'content', e.target.value)}
+                                      rows={4}
+                                      className="w-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 resize-none"
+                                      placeholder="Seksjoninnhold"
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-5 space-y-5">
+                                {minutes.sections.map((section, index) => (
+                                  <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0 last:pb-0">
+                                    <h4 className="text-base font-semibold mb-2 text-gray-900 dark:text-white">
+                                      {section.title}
+                                    </h4>
+                                    <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line text-sm leading-relaxed">
+                                      {section.content}
                                     </div>
-                                  )}
-                                </div>
-                              </>
-                            )}
-                          </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )
+                          )}
+                        </>
+                      ) : (
+                        <div className="text-center py-8 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                          <ClipboardList className="h-10 w-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                          <p className="text-gray-500 dark:text-gray-400 mb-1">Referat genereres automatisk...</p>
+                          <p className="text-sm text-gray-400 dark:text-gray-500">
+                            Et detaljert møtereferat vil være tilgjengelig snart.
+                          </p>
                         </div>
-
-                        {/* Innhold - redigeringsmodus eller visning */}
-                        {isEditingMinutes ? (
-                          <div className="space-y-4">
-                            {editedMinutes.map((section, index) => (
-                              <div key={index} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-                                <input
-                                  type="text"
-                                  value={section.title}
-                                  onChange={(e) => updateMinutesSection(index, 'title', e.target.value)}
-                                  className="w-full text-lg font-semibold text-gray-900 dark:text-white bg-transparent border-b border-gray-200 dark:border-gray-700 pb-2 mb-3 focus:outline-none focus:border-violet-500 dark:focus:border-violet-400"
-                                  placeholder="Seksjonstittel"
-                                />
-                                <textarea
-                                  value={section.content}
-                                  onChange={(e) => updateMinutesSection(index, 'content', e.target.value)}
-                                  rows={4}
-                                  className="w-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 resize-none"
-                                  placeholder="Seksjoninnhold"
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="space-y-6">
-                            {minutes.sections.map((section, index) => (
-                              <div key={index} className="border-b border-gray-100 dark:border-gray-800 pb-4 last:border-0">
-                                <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
-                                  {section.title}
-                                </h3>
-                                <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
-                                  {section.content}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <div className="text-center py-12">
-                        <ClipboardList className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                        <p className="text-gray-500 dark:text-gray-400 mb-2">Referat genereres automatisk...</p>
-                        <p className="text-sm text-gray-400 dark:text-gray-500">
-                          Et detaljert møtereferat vil være tilgjengelig snart.
-                        </p>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -718,7 +874,7 @@ export default function MeetingDetailsPage() {
                 </button>
                 <button
                   onClick={() => setShowPresentationModal(true)}
-                  className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white justify-center py-3 flex items-center rounded-lg transition-all"
+                  className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 hover:shadow-lg hover:shadow-violet-500/25 hover:scale-[1.02] text-white justify-center py-3 flex items-center rounded-lg transition-all duration-200"
                 >
                   <Presentation className="h-5 w-5 mr-2" />
                   Lag presentasjon
@@ -827,6 +983,50 @@ export default function MeetingDetailsPage() {
         title="Slett opptak"
         message="Er du sikker på at du vil slette dette opptaket? Denne handlingen kan ikke angres."
       />
+
+      {/* Template Change Confirmation Modal */}
+      <AnimatePresence>
+        {showTemplateConfirm && pendingTemplate && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4"
+            onClick={cancelTemplateChange}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-sm w-full overflow-hidden"
+            >
+              <div className="p-5">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
+                  Bytte til "{pendingTemplate.name}"?
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Referatet genereres på nytt med denne malen.
+                </p>
+              </div>
+              <div className="px-5 py-3 bg-gray-50 dark:bg-gray-800/50 flex justify-end space-x-2">
+                <button
+                  onClick={cancelTemplateChange}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  Avbryt
+                </button>
+                <button
+                  onClick={confirmTemplateChange}
+                  className="px-4 py-1.5 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
+                >
+                  Bytt mal
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Hidden audio element for future real playback */}
       <audio ref={audioRef} className="hidden" />

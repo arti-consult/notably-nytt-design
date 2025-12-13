@@ -40,7 +40,7 @@ import { cn } from '@/lib/utils';
 import { useFolders } from '@/contexts/FolderContext';
 import { toast } from '@/components/ui/toast';
 import { mockRecordings, mockTags } from '@/lib/mockData';
-import { mockCalendarMeetings, getPlatformInfo } from '@/lib/mockCalendarMeetings';
+import { mockCalendarMeetings } from '@/lib/mockCalendarMeetings';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -555,164 +555,6 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* Feature Hub - Quick Access Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          {/* Calendar Card */}
-          <div className={cn(
-            "rounded-xl shadow-sm overflow-hidden transition-all hover:shadow-md",
-            isCalendarConnected
-              ? "bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800"
-              : "bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-gray-900 dark:to-gray-900/80 border border-violet-100 dark:border-violet-900/50"
-          )}>
-            <div className="p-5">
-              <div className="flex items-start justify-between mb-4">
-                <div className={cn(
-                  "p-3 rounded-xl",
-                  isCalendarConnected
-                    ? "bg-green-100 dark:bg-green-900/30"
-                    : "bg-white dark:bg-gray-800 shadow-sm dark:shadow-none dark:border dark:border-gray-700"
-                )}>
-                  <CalendarIcon className={cn(
-                    "h-6 w-6",
-                    isCalendarConnected ? "text-green-600 dark:text-green-400" : "text-violet-600 dark:text-violet-400"
-                  )} />
-                </div>
-                {isCalendarConnected && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Tilkoblet
-                  </span>
-                )}
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Kalender</h3>
-              {isCalendarConnected ? (
-                // Compact next meeting preview
-                (() => {
-                  const nextMeeting = getNextMeeting();
-                  if (nextMeeting) {
-                    const platformInfo = getPlatformInfo(nextMeeting.platform);
-                    const timeUntil = formatTimeUntilMeeting(nextMeeting);
-                    const isUrgent = timeUntil.includes('min') || timeUntil === 'Starter nå';
-
-                    return (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        <span className="truncate">{nextMeeting.title}</span>
-                        <span className="mx-1.5">•</span>
-                        <span className={cn(
-                          "font-medium",
-                          isUrgent ? "text-orange-600 dark:text-orange-400" : ""
-                        )}>
-                          {timeUntil}
-                        </span>
-                      </p>
-                    );
-                  }
-                  return (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                      Ingen kommende møter
-                    </p>
-                  );
-                })()
-              ) : (
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  Koble til for automatisk transkripsjon
-                </p>
-              )}
-              {!isCalendarConnected ? (
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => {
-                      setIsCalendarConnected(true);
-                      toast.success('Microsoft 365 kalender tilkoblet!');
-                    }}
-                    className="inline-flex items-center px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-violet-300 dark:hover:border-violet-500 transition-colors shadow-sm dark:shadow-none"
-                  >
-                    <svg className="h-3.5 w-3.5 mr-1.5" viewBox="0 0 23 23">
-                      <path fill="#f35325" d="M1 1h10v10H1z"/>
-                      <path fill="#81bc06" d="M12 1h10v10H12z"/>
-                      <path fill="#05a6f0" d="M1 12h10v10H1z"/>
-                      <path fill="#ffba08" d="M12 12h10v10H12z"/>
-                    </svg>
-                    Microsoft
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsCalendarConnected(true);
-                      toast.success('Google Calendar tilkoblet!');
-                    }}
-                    className="inline-flex items-center px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-violet-300 dark:hover:border-violet-500 transition-colors shadow-sm dark:shadow-none"
-                  >
-                    <svg className="h-3.5 w-3.5 mr-1.5" viewBox="0 0 24 24">
-                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                    </svg>
-                    Google
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={() => setShowCalendarMeetingsModal(true)}
-                    className="inline-flex items-center text-sm font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
-                  >
-                    Se alle møter
-                    <ArrowRight className="h-4 w-4 ml-1" />
-                  </button>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">
-                    {mockCalendarMeetings.filter(m => m.status === 'upcoming').length} totalt
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Templates Card */}
-          <Link
-            to="/templates"
-            className="rounded-xl shadow-sm overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50 dark:from-gray-900 dark:to-gray-900/80 border border-amber-100 dark:border-amber-900/50 transition-all hover:shadow-md hover:border-amber-200 dark:hover:border-amber-800 group"
-          >
-            <div className="p-5">
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-3 bg-white dark:bg-gray-800 shadow-sm dark:shadow-none dark:border dark:border-gray-700 rounded-xl">
-                  <FileText className="h-6 w-6 text-amber-600 dark:text-amber-400" />
-                </div>
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Maler</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Velg mal for møtereferater og eksport
-              </p>
-              <span className="inline-flex items-center text-sm font-medium text-amber-600 dark:text-amber-400 group-hover:text-amber-700 dark:group-hover:text-amber-300 transition-colors">
-                Se alle maler
-                <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </div>
-          </Link>
-
-          {/* Settings Card */}
-          <Link
-            to="/settings"
-            className="rounded-xl shadow-sm overflow-hidden bg-gradient-to-br from-slate-50 to-gray-100 dark:from-gray-900 dark:to-gray-900/80 border border-slate-200 dark:border-gray-800 transition-all hover:shadow-md hover:border-slate-300 dark:hover:border-gray-700 group"
-          >
-            <div className="p-5">
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-3 bg-white dark:bg-gray-800 shadow-sm dark:shadow-none dark:border dark:border-gray-700 rounded-xl">
-                  <Settings className="h-6 w-6 text-slate-600 dark:text-gray-400" />
-                </div>
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Innstillinger</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Profil, team og abonnement
-              </p>
-              <span className="inline-flex items-center text-sm font-medium text-slate-600 dark:text-gray-400 group-hover:text-slate-700 dark:group-hover:text-gray-300 transition-colors">
-                Administrer
-                <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </div>
-          </Link>
-        </div>
-
         {/* Search Bar */}
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-gray-800 p-4 mb-6">
           <div className="relative">
@@ -782,6 +624,148 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
           {/* Folders and Tags Sidebar */}
           <div className="lg:col-span-1 space-y-6">
+            {/* Meny - Quick Access */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-gray-800 overflow-hidden">
+              <div className="px-4 py-3 bg-gradient-to-r from-violet-50 to-fuchsia-50 dark:from-violet-900/20 dark:to-fuchsia-900/20 border-b border-violet-100 dark:border-violet-800/30">
+                <div className="flex items-center space-x-2">
+                  <div className="p-1 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-md">
+                    <Zap className="h-3.5 w-3.5 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Meny</h3>
+                </div>
+              </div>
+
+              {/* Calendar Mini Card */}
+              <div className={cn(
+                "p-3 border-b border-gray-100 dark:border-gray-800",
+                !isCalendarConnected && "bg-gradient-to-r from-violet-50/50 to-fuchsia-50/50 dark:from-violet-900/10 dark:to-fuchsia-900/10"
+              )}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <div className={cn(
+                      "p-1.5 rounded-lg",
+                      isCalendarConnected
+                        ? "bg-green-100 dark:bg-green-900/30"
+                        : "bg-white dark:bg-gray-800 shadow-sm dark:shadow-none"
+                    )}>
+                      <CalendarIcon className={cn(
+                        "h-4 w-4",
+                        isCalendarConnected ? "text-green-600 dark:text-green-400" : "text-violet-600 dark:text-violet-400"
+                      )} />
+                    </div>
+                    <span className="font-medium text-sm text-gray-900 dark:text-white">Kalender</span>
+                  </div>
+                  {isCalendarConnected && (
+                    <span className="flex items-center text-xs text-green-600 dark:text-green-400">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Tilkoblet
+                    </span>
+                  )}
+                </div>
+
+                {isCalendarConnected ? (
+                  // Connected state - show next meeting preview
+                  <>
+                    {(() => {
+                      const nextMeeting = getNextMeeting();
+                      if (nextMeeting) {
+                        const timeUntil = formatTimeUntilMeeting(nextMeeting);
+                        const isUrgent = timeUntil.includes('min') || timeUntil === 'Starter nå';
+                        return (
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 truncate">
+                            <span className="truncate">{nextMeeting.title}</span>
+                            <span className="mx-1">•</span>
+                            <span className={cn(isUrgent && "text-orange-600 dark:text-orange-400 font-medium")}>
+                              {timeUntil}
+                            </span>
+                          </p>
+                        );
+                      }
+                      return (
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">
+                          Ingen kommende møter
+                        </p>
+                      );
+                    })()}
+                    <button
+                      onClick={() => setShowCalendarMeetingsModal(true)}
+                      className="w-full text-xs font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 flex items-center justify-center py-1.5 rounded-lg bg-violet-50 dark:bg-violet-900/20 hover:bg-violet-100 dark:hover:bg-violet-900/30 transition-colors"
+                    >
+                      Se alle møter
+                      <ArrowRight className="h-3 w-3 ml-1" />
+                    </button>
+                  </>
+                ) : (
+                  // Not connected - show connection buttons
+                  <>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">
+                      Koble til for automatisk transkripsjon
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setIsCalendarConnected(true);
+                          toast.success('Microsoft 365 kalender tilkoblet!');
+                        }}
+                        className="flex-1 inline-flex items-center justify-center px-2 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-violet-300 dark:hover:border-violet-500 transition-colors"
+                      >
+                        <svg className="h-3 w-3 mr-1" viewBox="0 0 23 23">
+                          <path fill="#f35325" d="M1 1h10v10H1z"/>
+                          <path fill="#81bc06" d="M12 1h10v10H12z"/>
+                          <path fill="#05a6f0" d="M1 12h10v10H1z"/>
+                          <path fill="#ffba08" d="M12 12h10v10H12z"/>
+                        </svg>
+                        Microsoft
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsCalendarConnected(true);
+                          toast.success('Google Calendar tilkoblet!');
+                        }}
+                        className="flex-1 inline-flex items-center justify-center px-2 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-violet-300 dark:hover:border-violet-500 transition-colors"
+                      >
+                        <svg className="h-3 w-3 mr-1" viewBox="0 0 24 24">
+                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Google
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Maler Link Row */}
+              <Link
+                to="/templates"
+                className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group"
+              >
+                <div className="flex items-center space-x-2">
+                  <div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/30">
+                    <FileText className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <span className="font-medium text-sm text-gray-900 dark:text-white">Maler</span>
+                </div>
+                <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:translate-x-0.5 transition-all" />
+              </Link>
+
+              {/* Innstillinger Link Row */}
+              <Link
+                to="/settings"
+                className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group"
+              >
+                <div className="flex items-center space-x-2">
+                  <div className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800">
+                    <Settings className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                  </div>
+                  <span className="font-medium text-sm text-gray-900 dark:text-white">Innstillinger</span>
+                </div>
+                <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:translate-x-0.5 transition-all" />
+              </Link>
+            </div>
+
             {/* Folders */}
             <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-gray-800 p-4">
               <div className="flex items-center justify-between mb-4">

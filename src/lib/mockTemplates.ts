@@ -6,6 +6,8 @@ export interface Template {
   sections: string[];
   isDefault?: boolean;
   isCustom?: boolean;
+  isCustomPrompt?: boolean;  // True for fully custom AI prompt templates
+  customPrompt?: string;      // The user's custom prompt/instructions for AI
   icon: string;
 }
 
@@ -170,6 +172,31 @@ export const mockTemplates: Template[] = [
       'Avslutning'
     ],
     icon: '🎤'
+  },
+  {
+    id: 'custom-prompt-demo',
+    name: 'Teknisk deep-dive',
+    description: 'Min egendefinerte mal for tekniske møter',
+    category: 'standard',
+    sections: [],
+    icon: '🔬',
+    isCustom: true,
+    isCustomPrompt: true,
+    customPrompt: `Lag et detaljert teknisk møtereferat med følgende fokus:
+
+1. **Tekniske beslutninger**: List opp alle tekniske valg som ble tatt, med begrunnelse for hver beslutning.
+
+2. **Kodeeksempler**: Hvis noen kodeeksempler eller pseudokode ble diskutert, inkluder disse.
+
+3. **Arkitektur**: Beskriv eventuelle arkitekturendringer eller systemdesign som ble diskutert.
+
+4. **Teknisk gjeld**: Noter all teknisk gjeld som ble identifisert og prioriter den (høy/middels/lav).
+
+5. **Bugs og issues**: List opp alle bugs som ble nevnt med alvorlighetsgrad.
+
+6. **Action items**: Hvem skal gjøre hva, med tekniske detaljer der relevant.
+
+Skriv i en teknisk, presis stil. Unngå fyllord og vær konkret.`
   }
 ];
 
