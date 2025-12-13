@@ -21,7 +21,7 @@ export default function RootLayout() {
       <PageTransition>
         <Outlet />
       </PageTransition>
-      {!user && <Footer />}
+      <Footer />
     </div>
   );
 }

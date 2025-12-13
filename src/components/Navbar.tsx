@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LogOut, User, Settings, Shield, Mic, FileText, HelpCircle, Users, UserCircle } from 'lucide-react';
+import { LogOut, User, Settings, Shield, LayoutDashboard, HelpCircle, Users, UserCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/contexts/AdminContext';
@@ -50,20 +50,8 @@ export default function Navbar() {
                       : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                   )}
                 >
-                  <Mic className="h-4 w-4" />
-                  <span>Mine opptak</span>
-                </Link>
-                <Link
-                  to="/templates"
-                  className={cn(
-                    "text-sm font-medium transition-colors flex items-center space-x-1.5",
-                    isActiveLink('/templates')
-                      ? "text-violet-600 dark:text-violet-400"
-                      : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                  )}
-                >
-                  <FileText className="h-4 w-4" />
-                  <span>Maler</span>
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span>Dashboard</span>
                 </Link>
                 <Link
                   to="/support"

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   FileText,
   Clock,
@@ -17,14 +18,20 @@ import {
   CheckSquare,
   Square,
   Video,
-  Calendar,
+  Calendar as CalendarIcon,
   Settings,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  Sparkles,
+  Flame,
+  TrendingUp,
+  Zap,
+  Trophy
 } from 'lucide-react';
 import RecordingModal from '@/components/RecordingModal';
 import FileUploadModal from '@/components/FileUploadModal';
 import DirectInviteModal from '@/components/DirectInviteModal';
+import CalendarMeetingsModal from '@/components/CalendarMeetingsModal';
 import FolderRenameModal from '@/components/FolderRenameModal';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import TagEditor from '@/components/TagEditor';
@@ -33,8 +40,98 @@ import { cn } from '@/lib/utils';
 import { useFolders } from '@/contexts/FolderContext';
 import { toast } from '@/components/ui/toast';
 import { mockRecordings, mockTags } from '@/lib/mockData';
+import { mockCalendarMeetings, getPlatformInfo } from '@/lib/mockCalendarMeetings';
 
 const ITEMS_PER_PAGE = 10;
+
+// Tidsbasert hilsen
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return 'God morgen';
+  if (hour >= 12 && hour < 17) return 'God ettermiddag';
+  if (hour >= 17 && hour < 22) return 'God kveld';
+  return 'God natt';
+};
+
+const userName = 'Sander';
+
+// Gamification stats
+const userStats = {
+  totalRecordings: 45,
+  totalMinutesTranscribed: 1890, // 31t 30min
+  estimatedTimeSaved: 945, // 15t 45min
+  recordingsThisMonth: 12,
+  currentStreak: 5, // dager på rad
+};
+
+// Formater minutter til timer og minutter
+const formatMinutesToHours = (minutes: number) => {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (hours === 0) return `${mins} min`;
+  if (mins === 0) return `${hours}t`;
+  return `${hours}t ${mins}min`;
+};
+
+// Finn neste kommende møte
+const getNextMeeting = () => {
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+
+  // Finn møter i dag som ikke er fullført
+  const upcomingToday = mockCalendarMeetings
+    .filter(m => m.date === todayStr && m.status === 'upcoming')
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  if (upcomingToday.length > 0) {
+    return upcomingToday[0];
+  }
+
+  // Ellers finn neste møte i fremtiden
+  const futureMeetings = mockCalendarMeetings
+    .filter(m => m.date > todayStr && m.status === 'upcoming')
+    .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+
+  return futureMeetings.length > 0 ? futureMeetings[0] : null;
+};
+
+// Formater tid til neste møte
+const formatTimeUntilMeeting = (meeting: { date: string; time: string }) => {
+  const now = new Date();
+  // Time format is "14:00 - 15:30", extract start time
+  const startTime = meeting.time.split(' - ')[0];
+  const [hours, minutes] = startTime.split(':').map(Number);
+  const meetingDate = new Date(meeting.date);
+  meetingDate.setHours(hours, minutes, 0, 0);
+
+  const diffMs = meetingDate.getTime() - now.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+
+  if (diffMins < 0) return 'Startet';
+  if (diffMins === 0) return 'Starter nå';
+  if (diffMins < 60) return `om ${diffMins} min`;
+
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) {
+    const remainingMins = diffMins % 60;
+    if (remainingMins === 0) return `om ${diffHours}t`;
+    return `om ${diffHours}t ${remainingMins}min`;
+  }
+
+  // Mer enn 24 timer - vis dag
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+
+  const meetingDay = new Date(meeting.date);
+  meetingDay.setHours(0, 0, 0, 0);
+
+  if (meetingDay.getTime() === tomorrow.getTime()) {
+    return `i morgen kl. ${startTime}`;
+  }
+
+  return meetingDate.toLocaleDateString('nb-NO', { weekday: 'short', day: 'numeric' });
+};
 
 interface Recording {
   id: string;
@@ -83,6 +180,7 @@ export default function DashboardPage() {
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
   const [isCalendarConnected, setIsCalendarConnected] = useState(false);
   const [isCalendarBannerDismissed, setIsCalendarBannerDismissed] = useState(false);
+  const [showCalendarMeetingsModal, setShowCalendarMeetingsModal] = useState(false);
 
   // Mock upcoming meetings (vises når kalender er tilkoblet)
   const mockUpcomingMeetings = [
@@ -335,11 +433,79 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen pt-16 bg-gray-50/50 dark:bg-gray-950">
       <div className="max-w-7xl mx-auto p-6">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold mb-1 text-gray-900 dark:text-white">Mine opptak</h1>
-          <p className="text-gray-600 dark:text-gray-400">Her finner du alle dine møteopptak</p>
-        </div>
+        {/* Personlig velkomst med glassmorphism */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="mb-8 relative"
+        >
+          {/* Bakgrunns-gradient blob */}
+          <div className="absolute -top-10 -left-10 w-40 h-40 bg-gradient-to-br from-violet-400/30 to-fuchsia-400/30 dark:from-violet-600/20 dark:to-fuchsia-600/20 rounded-full blur-3xl" />
+          <div className="absolute -top-5 right-20 w-32 h-32 bg-gradient-to-br from-fuchsia-400/20 to-pink-400/20 dark:from-fuchsia-600/15 dark:to-pink-600/15 rounded-full blur-3xl" />
+
+          {/* Glassmorphism card */}
+          <div className="relative backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 rounded-2xl border border-white/50 dark:border-gray-700/50 shadow-lg shadow-violet-500/5 dark:shadow-violet-500/10 p-6 overflow-hidden">
+            {/* Subtil shimmer-effekt */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" style={{ animationDelay: '1s' }} />
+
+            <div className="relative flex items-center justify-between">
+              <div>
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="flex items-center gap-2 mb-1"
+                >
+                  <Sparkles className="h-5 w-5 text-violet-500 dark:text-violet-400" />
+                  <span className="text-sm font-medium text-violet-600 dark:text-violet-400">Velkommen tilbake</span>
+                </motion.div>
+                <motion.h1
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white"
+                >
+                  {getGreeting()}, {userName}!
+                </motion.h1>
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                  className="flex flex-wrap items-center gap-3 mt-2"
+                >
+                  {/* Tid spart - hovedstat */}
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-100/80 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
+                    <Zap className="h-3.5 w-3.5" />
+                    <span className="text-sm font-medium">{formatMinutesToHours(userStats.estimatedTimeSaved)} spart</span>
+                  </div>
+
+                  {/* Streak */}
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-100/80 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400">
+                    <Flame className="h-3.5 w-3.5" />
+                    <span className="text-sm font-medium">{userStats.currentStreak} dager streak</span>
+                  </div>
+
+                  {/* Denne måneden */}
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-100/80 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400">
+                    <TrendingUp className="h-3.5 w-3.5" />
+                    <span className="text-sm font-medium">{userStats.recordingsThisMonth} opptak i desember</span>
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Trophy ikon - matcher gamification stats */}
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.5, type: 'spring' }}
+                className="hidden md:flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-orange-500/30"
+              >
+                <Trophy className="h-7 w-7 text-white" />
+              </motion.div>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -406,7 +572,7 @@ export default function DashboardPage() {
                     ? "bg-green-100 dark:bg-green-900/30"
                     : "bg-white dark:bg-gray-800 shadow-sm dark:shadow-none dark:border dark:border-gray-700"
                 )}>
-                  <Calendar className={cn(
+                  <CalendarIcon className={cn(
                     "h-6 w-6",
                     isCalendarConnected ? "text-green-600 dark:text-green-400" : "text-violet-600 dark:text-violet-400"
                   )} />
@@ -419,12 +585,39 @@ export default function DashboardPage() {
                 )}
               </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Kalender</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                {isCalendarConnected
-                  ? `${mockUpcomingMeetings.length} kommende møter`
-                  : "Koble til for automatisk transkripsjon"
-                }
-              </p>
+              {isCalendarConnected ? (
+                // Compact next meeting preview
+                (() => {
+                  const nextMeeting = getNextMeeting();
+                  if (nextMeeting) {
+                    const platformInfo = getPlatformInfo(nextMeeting.platform);
+                    const timeUntil = formatTimeUntilMeeting(nextMeeting);
+                    const isUrgent = timeUntil.includes('min') || timeUntil === 'Starter nå';
+
+                    return (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        <span className="truncate">{nextMeeting.title}</span>
+                        <span className="mx-1.5">•</span>
+                        <span className={cn(
+                          "font-medium",
+                          isUrgent ? "text-orange-600 dark:text-orange-400" : ""
+                        )}>
+                          {timeUntil}
+                        </span>
+                      </p>
+                    );
+                  }
+                  return (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      Ingen kommende møter
+                    </p>
+                  );
+                })()
+              ) : (
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Koble til for automatisk transkripsjon
+                </p>
+              )}
               {!isCalendarConnected ? (
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -459,13 +652,18 @@ export default function DashboardPage() {
                   </button>
                 </div>
               ) : (
-                <Link
-                  to="/settings"
-                  className="inline-flex items-center text-sm font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
-                >
-                  Se møter
-                  <ArrowRight className="h-4 w-4 ml-1" />
-                </Link>
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={() => setShowCalendarMeetingsModal(true)}
+                    className="inline-flex items-center text-sm font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
+                  >
+                    Se alle møter
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </button>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                    {mockCalendarMeetings.filter(m => m.status === 'upcoming').length} totalt
+                  </span>
+                </div>
               )}
             </div>
           </div>
@@ -902,6 +1100,15 @@ export default function DashboardPage() {
         onConfirm={handleBulkDelete}
         title="Slett opptak"
         message={`Er du sikker på at du vil slette ${selectedRecordings.size} opptak? Denne handlingen kan ikke angres.`}
+      />
+
+      <CalendarMeetingsModal
+        isOpen={showCalendarMeetingsModal}
+        onClose={() => setShowCalendarMeetingsModal(false)}
+        onInviteAssistant={(meeting) => {
+          setShowCalendarMeetingsModal(false);
+          setShowDirectInviteModal(true);
+        }}
       />
     </div>
   );
