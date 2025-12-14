@@ -117,6 +117,116 @@ export const organizationPlans = [
   }
 ];
 
+// Invoice types and mock data
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  date: string;
+  dueDate: string;
+  amount: number;
+  currency: string;
+  status: 'paid' | 'pending' | 'overdue';
+  description: string;
+  seats: number;
+  pdfUrl?: string;
+}
+
+export const mockInvoices: Invoice[] = [
+  {
+    id: 'inv-2024-12',
+    invoiceNumber: 'NOT-2024-0012',
+    date: '2024-12-01',
+    dueDate: '2024-12-15',
+    amount: 2495,
+    currency: 'NOK',
+    status: 'paid',
+    description: 'Enterprise - 5 seter (desember 2024)',
+    seats: 5,
+    pdfUrl: '#'
+  },
+  {
+    id: 'inv-2024-11',
+    invoiceNumber: 'NOT-2024-0011',
+    date: '2024-11-01',
+    dueDate: '2024-11-15',
+    amount: 2495,
+    currency: 'NOK',
+    status: 'paid',
+    description: 'Enterprise - 5 seter (november 2024)',
+    seats: 5,
+    pdfUrl: '#'
+  },
+  {
+    id: 'inv-2024-10',
+    invoiceNumber: 'NOT-2024-0010',
+    date: '2024-10-01',
+    dueDate: '2024-10-15',
+    amount: 1996,
+    currency: 'NOK',
+    status: 'paid',
+    description: 'Enterprise - 4 seter (oktober 2024)',
+    seats: 4,
+    pdfUrl: '#'
+  },
+  {
+    id: 'inv-2024-09',
+    invoiceNumber: 'NOT-2024-0009',
+    date: '2024-09-01',
+    dueDate: '2024-09-15',
+    amount: 1996,
+    currency: 'NOK',
+    status: 'paid',
+    description: 'Enterprise - 4 seter (september 2024)',
+    seats: 4,
+    pdfUrl: '#'
+  },
+  {
+    id: 'inv-2024-08',
+    invoiceNumber: 'NOT-2024-0008',
+    date: '2024-08-01',
+    dueDate: '2024-08-15',
+    amount: 1497,
+    currency: 'NOK',
+    status: 'paid',
+    description: 'Enterprise - 3 seter (august 2024)',
+    seats: 3,
+    pdfUrl: '#'
+  },
+  {
+    id: 'inv-2024-07',
+    invoiceNumber: 'NOT-2024-0007',
+    date: '2024-07-01',
+    dueDate: '2024-07-15',
+    amount: 1497,
+    currency: 'NOK',
+    status: 'paid',
+    description: 'Enterprise - 3 seter (juli 2024)',
+    seats: 3,
+    pdfUrl: '#'
+  }
+];
+
+// Seat subscription info
+export interface SeatSubscription {
+  totalSeats: number;
+  usedSeats: number;
+  pricePerSeat: number;
+  currency: string;
+  billingCycle: 'monthly' | 'yearly';
+  nextBillingDate: string;
+  plan: string;
+}
+
+export const mockSeatSubscription: SeatSubscription = {
+  totalSeats: 10,
+  usedSeats: 5,
+  pricePerSeat: 499,
+  currency: 'NOK',
+  billingCycle: 'monthly',
+  nextBillingDate: '2026-01-15',
+  plan: 'Enterprise'
+};
+
 export const formatLastActive = (dateString: string): string => {
   const date = new Date(dateString);
   const now = new Date();

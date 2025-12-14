@@ -77,18 +77,18 @@ export default function FileUploadModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md border border-gray-200 dark:border-gray-800">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-md border border-gray-200">
         {/* Header */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+        <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900 dark:text-white">Last opp lydopptak</h3>
+            <h3 className="font-semibold text-gray-900">Last opp lydopptak</h3>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+              className="p-2 hover:bg-gray-100 rounded-full"
               disabled={isUploading}
             >
-              <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              <X className="h-5 w-5 text-gray-500" />
             </button>
           </div>
         </div>
@@ -96,7 +96,7 @@ export default function FileUploadModal({
         {/* Content */}
         <div className="p-6">
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm flex items-center">
+            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm flex items-center">
               <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
               {error}
             </div>
@@ -105,15 +105,15 @@ export default function FileUploadModal({
           <div className="space-y-4">
             {/* Fil velger */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Velg lydfil
               </label>
               <label
                 className={cn(
                   "block w-full border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors",
                   selectedFile
-                    ? "border-violet-500 bg-violet-50 dark:bg-violet-900/20"
-                    : "border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600"
+                    ? "border-violet-500 bg-violet-50"
+                    : "border-gray-300 hover:border-gray-400"
                 )}
               >
                 <input
@@ -125,14 +125,14 @@ export default function FileUploadModal({
                 />
                 <Upload className={cn(
                   "h-8 w-8 mx-auto mb-2",
-                  selectedFile ? "text-violet-500 dark:text-violet-400" : "text-gray-400"
+                  selectedFile ? "text-violet-500" : "text-gray-400"
                 )} />
                 {selectedFile ? (
-                  <span className="text-sm text-violet-600 dark:text-violet-400">
+                  <span className="text-sm text-violet-600">
                     {selectedFile.name}
                   </span>
                 ) : (
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className="text-sm text-gray-500">
                     Klikk for å velge fil eller dra og slipp
                   </span>
                 )}
@@ -141,7 +141,7 @@ export default function FileUploadModal({
 
             {/* Tittel */}
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
                 Tittel
               </label>
               <input
@@ -149,7 +149,7 @@ export default function FileUploadModal({
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-violet-500 focus:ring-violet-500"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-violet-500 focus:ring-violet-500"
                 placeholder="Gi opptaket en tittel"
                 disabled={isUploading}
               />
@@ -158,11 +158,11 @@ export default function FileUploadModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+        <div className="p-4 border-t border-gray-200">
           <div className="flex justify-end space-x-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
               disabled={isUploading}
             >
               Avbryt
@@ -173,7 +173,7 @@ export default function FileUploadModal({
               className={cn(
                 "px-4 py-2 rounded-lg text-white transition-colors",
                 isUploading || !selectedFile || !title.trim()
-                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                  ? "bg-gray-400 cursor-not-allowed"
                   : "bg-violet-600 hover:bg-violet-700"
               )}
             >

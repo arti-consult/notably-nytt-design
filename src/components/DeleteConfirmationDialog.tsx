@@ -37,37 +37,37 @@ export default function DeleteConfirmationDialog({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md border border-gray-200 dark:border-gray-800">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-md border border-gray-200">
+        <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-red-600 dark:text-red-400">
+            <div className="flex items-center space-x-2 text-red-600">
               <AlertTriangle className="h-5 w-5" />
               <h3 className="font-semibold">{title}</h3>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+              className="p-2 hover:bg-gray-100 rounded-full"
               disabled={isLoading}
             >
-              <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              <X className="h-5 w-5 text-gray-500" />
             </button>
           </div>
         </div>
 
         <div className="p-6">
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm">
+            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
               {error}
             </div>
           )}
 
-          <p className="text-gray-600 dark:text-gray-400">{message}</p>
+          <p className="text-gray-600">{message}</p>
 
           <div className="mt-6 flex justify-end space-x-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
               disabled={isLoading}
             >
               Avbryt
@@ -78,7 +78,7 @@ export default function DeleteConfirmationDialog({
               className={cn(
                 "px-4 py-2 rounded-lg text-white transition-colors",
                 isLoading
-                  ? "bg-red-400 dark:bg-red-600/50 cursor-not-allowed"
+                  ? "bg-red-400 cursor-not-allowed"
                   : "bg-red-600 hover:bg-red-700"
               )}
             >

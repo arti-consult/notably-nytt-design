@@ -137,7 +137,7 @@ export default function MiniAudioPlayer({
 
   return (
     <div className={cn(
-      "bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800",
+      "bg-white border-t border-gray-200",
       className
     )}>
       <div className="max-w-7xl mx-auto px-4 py-3">
@@ -151,7 +151,7 @@ export default function MiniAudioPlayer({
               "p-3 rounded-full text-white transition-all flex-shrink-0 shadow-lg",
               isReady
                 ? "bg-gradient-to-br from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 hover:shadow-violet-500/25 hover:scale-105"
-                : "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                : "bg-gray-400 cursor-not-allowed"
             )}
             aria-label={isPlaying ? 'Pause' : 'Spill av'}
           >
@@ -169,8 +169,8 @@ export default function MiniAudioPlayer({
             className={cn(
               "p-2 rounded-full transition-colors flex-shrink-0 hidden sm:flex",
               isReady
-                ? "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
-                : "text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                ? "hover:bg-gray-100 text-gray-600"
+                : "text-gray-300 cursor-not-allowed"
             )}
             aria-label="Spol 10 sekunder tilbake"
             title="-10s"
@@ -184,21 +184,21 @@ export default function MiniAudioPlayer({
             <div className="flex items-center gap-2 mb-2 min-h-[24px]">
               {currentSpeaker && (
                 <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <div className="p-1 bg-violet-100 dark:bg-violet-900/50 rounded-full">
-                    <Mic className="h-3 w-3 text-violet-600 dark:text-violet-400" />
+                  <div className="p-1 bg-violet-100 rounded-full">
+                    <Mic className="h-3 w-3 text-violet-600" />
                   </div>
-                  <span className="text-xs font-medium text-violet-600 dark:text-violet-400">
+                  <span className="text-xs font-medium text-violet-600">
                     {currentSpeaker}
                   </span>
                 </div>
               )}
               {currentTranscript && (
-                <p className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                <p className="text-sm text-gray-700 truncate">
                   "{currentTranscript}"
                 </p>
               )}
               {!currentTranscript && !currentSpeaker && (
-                <p className="text-sm text-gray-400 dark:text-gray-500 italic">
+                <p className="text-sm text-gray-400 italic">
                   Klikk play for å starte avspilling
                 </p>
               )}
@@ -224,8 +224,8 @@ export default function MiniAudioPlayer({
                     className={cn(
                       "flex-1 rounded-full transition-colors",
                       (i / waveformBars) * 100 <= progress
-                        ? "bg-violet-500 dark:bg-violet-400"
-                        : "bg-gray-200 dark:bg-gray-700"
+                        ? "bg-violet-500"
+                        : "bg-gray-200"
                     )}
                     style={{ height: `${height}%` }}
                   />
@@ -235,7 +235,7 @@ export default function MiniAudioPlayer({
               {/* Hover time indicator */}
               {hoverTime !== null && (
                 <div
-                  className="absolute -top-8 transform -translate-x-1/2 bg-gray-900 dark:bg-gray-700 text-white text-xs px-2 py-1 rounded shadow-lg pointer-events-none z-10"
+                  className="absolute -top-8 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg pointer-events-none z-10"
                   style={{ left: hoverX }}
                 >
                   {formatTime(hoverTime)}
@@ -244,7 +244,7 @@ export default function MiniAudioPlayer({
 
               {/* Progress indicator line */}
               <div
-                className="absolute top-0 bottom-0 w-0.5 bg-white dark:bg-gray-200 shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-0 bottom-0 w-0.5 bg-white shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-opacity"
                 style={{ left: `${progress}%` }}
               />
             </div>
@@ -257,8 +257,8 @@ export default function MiniAudioPlayer({
             className={cn(
               "p-2 rounded-full transition-colors flex-shrink-0 hidden sm:flex",
               isReady
-                ? "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
-                : "text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                ? "hover:bg-gray-100 text-gray-600"
+                : "text-gray-300 cursor-not-allowed"
             )}
             aria-label="Spol 10 sekunder fremover"
             title="+10s"
@@ -267,8 +267,8 @@ export default function MiniAudioPlayer({
           </button>
 
           {/* Time display */}
-          <div className="flex-shrink-0 text-sm tabular-nums text-gray-600 dark:text-gray-400 hidden md:block">
-            <span className="font-medium text-gray-900 dark:text-white">{formatTime(currentTime)}</span>
+          <div className="flex-shrink-0 text-sm tabular-nums text-gray-600 hidden md:block">
+            <span className="font-medium text-gray-900">{formatTime(currentTime)}</span>
             <span className="mx-1">/</span>
             <span>{formatTime(duration)}</span>
           </div>
@@ -280,8 +280,8 @@ export default function MiniAudioPlayer({
             className={cn(
               "px-2 py-1 rounded-lg text-sm font-medium transition-colors flex-shrink-0",
               isReady
-                ? "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-                : "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                : "bg-gray-100 text-gray-400 cursor-not-allowed"
             )}
             aria-label="Endre avspillingshastighet"
             title="Klikk for å endre hastighet"
@@ -297,15 +297,15 @@ export default function MiniAudioPlayer({
               className={cn(
                 "p-1.5 rounded-full transition-colors",
                 isReady
-                  ? "hover:bg-gray-100 dark:hover:bg-gray-800"
+                  ? "hover:bg-gray-100"
                   : "cursor-not-allowed"
               )}
               aria-label={volume > 0 ? 'Demp lyd' : 'Slå på lyd'}
             >
               {volume > 0 ? (
-                <Volume2 className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                <Volume2 className="h-4 w-4 text-gray-600" />
               ) : (
-                <VolumeX className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                <VolumeX className="h-4 w-4 text-gray-600" />
               )}
             </button>
             <input
@@ -316,7 +316,7 @@ export default function MiniAudioPlayer({
               value={volume}
               onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
               disabled={!isReady}
-              className="w-20 h-1 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-violet-600"
+              className="w-20 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-600"
               aria-label="Volum"
             />
           </div>
@@ -329,8 +329,8 @@ export default function MiniAudioPlayer({
               className={cn(
                 "p-2 rounded-full transition-colors flex-shrink-0",
                 isReady
-                  ? "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400"
-                  : "text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                  ? "hover:bg-gray-100 text-gray-600 hover:text-violet-600"
+                  : "text-gray-300 cursor-not-allowed"
               )}
               aria-label="Last ned lydklipp"
               title="Last ned lydklipp"
@@ -341,7 +341,7 @@ export default function MiniAudioPlayer({
         </div>
 
         {/* Mobile time display */}
-        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1 md:hidden">
+        <div className="flex justify-between text-xs text-gray-500 mt-1 md:hidden">
           <span>{formatTime(currentTime)}</span>
           <span>{formatTime(duration)}</span>
         </div>

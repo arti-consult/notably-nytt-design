@@ -96,7 +96,7 @@ export default function CalendarMeetingsModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
         onClick={(e) => e.target === e.currentTarget && onClose()}
       >
         <motion.div
@@ -104,34 +104,34 @@ export default function CalendarMeetingsModal({
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
           transition={{ type: 'spring', duration: 0.4 }}
-          className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden"
+          className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden"
         >
           {/* Header */}
-          <div className="p-5 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
+          <div className="p-5 border-b border-gray-200 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2.5 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-xl shadow-lg">
                   <Calendar className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h2 className="text-lg font-semibold text-gray-900">
                     Kommende møter
                   </h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-500">
                     {filteredMeetings.length} møter synkronisert
                   </p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
-                <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                <X className="h-5 w-5 text-gray-500" />
               </button>
             </div>
 
             {/* Filter tabs */}
-            <div className="flex space-x-1 mt-4 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
+            <div className="flex space-x-1 mt-4 p-1 bg-gray-100 rounded-xl">
               {[
                 { id: 'today', label: 'I dag' },
                 { id: 'week', label: 'Denne uken' },
@@ -143,8 +143,8 @@ export default function CalendarMeetingsModal({
                   className={cn(
                     "flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all",
                     filter === tab.id
-                      ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-500 hover:text-gray-700"
                   )}
                 >
                   {tab.label}
@@ -157,13 +157,13 @@ export default function CalendarMeetingsModal({
           <div className="flex-1 overflow-y-auto p-5 space-y-6">
             {sortedDates.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Calendar className="h-8 w-8 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">
+                <h3 className="text-lg font-medium text-gray-900 mb-1">
                   Ingen møter
                 </h3>
-                <p className="text-gray-500 dark:text-gray-400">
+                <p className="text-gray-500">
                   {filter === 'today'
                     ? 'Ingen møter planlagt for i dag'
                     : filter === 'week'
@@ -176,11 +176,11 @@ export default function CalendarMeetingsModal({
                 <div key={dateKey}>
                   {/* Date header */}
                   <div className="flex items-center space-x-2 mb-3">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+                    <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
                       {formatMeetingDate(dateKey)}
                     </h3>
-                    <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
-                    <span className="text-xs text-gray-400 dark:text-gray-500">
+                    <div className="flex-1 h-px bg-gray-200" />
+                    <span className="text-xs text-gray-400">
                       {groupedMeetings[dateKey].length} møte{groupedMeetings[dateKey].length !== 1 ? 'r' : ''}
                     </span>
                   </div>
@@ -199,8 +199,8 @@ export default function CalendarMeetingsModal({
                           className={cn(
                             "p-4 rounded-xl border transition-all",
                             meeting.status === 'completed'
-                              ? "bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700"
-                              : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-600 hover:shadow-md"
+                              ? "bg-gray-50 border-gray-200"
+                              : "bg-white border-gray-200 hover:border-violet-300 hover:shadow-md"
                           )}
                         >
                           <div className="flex items-start justify-between">
@@ -210,25 +210,25 @@ export default function CalendarMeetingsModal({
                                 <h4 className={cn(
                                   "font-medium truncate",
                                   meeting.status === 'completed'
-                                    ? "text-gray-500 dark:text-gray-400"
-                                    : "text-gray-900 dark:text-white"
+                                    ? "text-gray-500"
+                                    : "text-gray-900"
                                 )}>
                                   {meeting.title}
                                 </h4>
                                 {meeting.status === 'completed' && (
-                                  <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400">
+                                  <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-100 text-emerald-600">
                                     Fullført
                                   </span>
                                 )}
                                 {meeting.status === 'in-progress' && (
-                                  <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 animate-pulse">
+                                  <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-600 animate-pulse">
                                     Pågår nå
                                   </span>
                                 )}
                               </div>
 
                               {/* Time and details */}
-                              <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                              <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
                                 <span className="flex items-center space-x-1">
                                   <Clock className="h-3.5 w-3.5" />
                                   <span>{meeting.time}</span>
@@ -253,8 +253,8 @@ export default function CalendarMeetingsModal({
                                   className={cn(
                                     "flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
                                     isAutoRecordOn
-                                      ? "bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400"
-                                      : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
+                                      ? "bg-violet-100 text-violet-600"
+                                      : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                                   )}
                                 >
                                   <Sparkles className="h-3.5 w-3.5" />
@@ -266,9 +266,9 @@ export default function CalendarMeetingsModal({
                                   href={meeting.meetingLink}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                                 >
-                                  <ExternalLink className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                                  <ExternalLink className="h-4 w-4 text-gray-600" />
                                 </a>
                               </div>
                             )}
@@ -294,15 +294,15 @@ export default function CalendarMeetingsModal({
           </div>
 
           {/* Footer */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 flex-shrink-0">
+          <div className="p-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
             <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+              <div className="flex items-center space-x-2 text-gray-500">
                 <Check className="h-4 w-4 text-emerald-500" />
                 <span>Synkronisert med Google Calendar</span>
               </div>
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors font-medium"
+                className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors font-medium"
               >
                 Lukk
               </button>

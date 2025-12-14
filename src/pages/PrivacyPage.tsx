@@ -247,46 +247,46 @@ For personvernspørsmål kontakt legal@notably.no. Vi svarer innen 30 dager.`
 
 export default function PrivacyPage() {
   return (
-    <main className="pt-16 min-h-screen bg-gray-50 dark:bg-gray-950">
+    <main className="pt-16 min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-8">
           <Link
             to="/"
-            className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
+            className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
             Tilbake
           </Link>
           <div className="flex items-center space-x-3 mb-4">
-            <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
-              <Shield className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+            <div className="p-2 bg-violet-100 rounded-lg">
+              <Shield className="h-6 w-6 text-violet-600" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Personvernerklæring</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Personvernerklæring</h1>
           </div>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600">
             Sist oppdatert: 28. oktober 2025
           </p>
         </div>
 
         {/* Introduction */}
-        <div className="bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-violet-900/20 dark:to-fuchsia-900/20 rounded-xl p-6 mb-8 border border-violet-100 dark:border-violet-800/50">
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+        <div className="bg-gradient-to-br from-violet-50 to-fuchsia-50 rounded-xl p-6 mb-8 border border-violet-100">
+          <p className="text-gray-700 leading-relaxed">
             Notably AI fanger, transkriberer og oppsummerer møtene dine samtidig som vi følger GDPR og globale personvernkrav. Denne erklæringen forklarer hvordan vi behandler personopplysninger, hvilke partnere vi bruker, og hvilke kontrollmuligheter du har.
           </p>
         </div>
 
         {/* Table of Contents */}
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-gray-800 p-6 mb-8">
-          <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Innholdsfortegnelse</h2>
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+          <h2 className="font-semibold text-gray-900 mb-4">Innholdsfortegnelse</h2>
           <nav className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {sections.map((section, index) => (
               <a
                 key={section.id}
                 href={`#${section.id}`}
-                className="flex items-center text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors py-1"
+                className="flex items-center text-gray-600 hover:text-violet-600 transition-colors py-1"
               >
-                <span className="text-violet-600 dark:text-violet-400 mr-2 text-sm w-5">{index + 1}.</span>
+                <span className="text-violet-600 mr-2 text-sm w-5">{index + 1}.</span>
                 <span className="text-sm">{section.title}</span>
                 {(section as any).isGoogle && (
                   <GoogleIcon className="h-3.5 w-3.5 ml-1.5 flex-shrink-0" />
@@ -305,42 +305,42 @@ export default function PrivacyPage() {
             <section
               key={section.id}
               id={section.id}
-              className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-gray-800 p-6 scroll-mt-24"
+              className="bg-white rounded-xl shadow-sm p-6 scroll-mt-24"
             >
               <div className="flex items-center space-x-3 mb-4">
-                <div className="p-2 bg-violet-50 dark:bg-violet-900/30 rounded-lg">
+                <div className="p-2 bg-violet-50 rounded-lg">
                   {(section as any).isGoogle ? (
                     <GoogleIcon className="h-5 w-5" />
                   ) : (section as any).isMicrosoft ? (
                     <MicrosoftIcon className="h-5 w-5" />
                   ) : (
-                    <section.icon className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                    <section.icon className="h-5 w-5 text-violet-600" />
                   )}
                 </div>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-xl font-semibold text-gray-900">
                   {index + 1}. {section.title}
                 </h2>
               </div>
-              <div className="prose prose-gray dark:prose-invert max-w-none">
+              <div className="prose prose-gray max-w-none">
                 {section.content.split('\n\n').map((paragraph, pIndex) => (
                   <div key={pIndex} className="mb-4">
                     {paragraph.split('\n').map((line, lIndex) => {
                       if (line.startsWith('**') && line.endsWith('**')) {
                         return (
-                          <h3 key={lIndex} className="font-semibold text-gray-900 dark:text-white mt-4 mb-2">
+                          <h3 key={lIndex} className="font-semibold text-gray-900 mt-4 mb-2">
                             {line.replace(/\*\*/g, '')}
                           </h3>
                         );
                       }
                       if (line.startsWith('- ')) {
                         return (
-                          <li key={lIndex} className="text-gray-600 dark:text-gray-300 ml-4">
+                          <li key={lIndex} className="text-gray-600 ml-4">
                             {line.substring(2).replace(/\*\*/g, '')}
                           </li>
                         );
                       }
                       return (
-                        <p key={lIndex} className="text-gray-600 dark:text-gray-300">
+                        <p key={lIndex} className="text-gray-600">
                           {line}
                         </p>
                       );
@@ -353,28 +353,28 @@ export default function PrivacyPage() {
         </div>
 
         {/* Contact Footer */}
-        <div className="mt-12 bg-gray-100 dark:bg-gray-800/50 rounded-xl p-6 text-center">
+        <div className="mt-12 bg-gray-100 rounded-xl p-6 text-center">
           <div className="flex items-center justify-center space-x-2 mb-3">
-            <Mail className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-            <span className="font-medium text-gray-900 dark:text-white">Kontakt oss</span>
+            <Mail className="h-5 w-5 text-violet-600" />
+            <span className="font-medium text-gray-900">Kontakt oss</span>
           </div>
-          <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
+          <p className="text-gray-600 text-sm mb-2">
             For personvernspørsmål, kontakt{' '}
-            <a href="mailto:legal@notably.no" className="text-violet-600 dark:text-violet-400 hover:underline">
+            <a href="mailto:legal@notably.no" className="text-violet-600 hover:underline">
               legal@notably.no
             </a>
           </p>
-          <p className="text-gray-500 dark:text-gray-500 text-xs">
+          <p className="text-gray-500 text-xs">
             Vi svarer innen 30 dager.
           </p>
         </div>
 
         {/* Terms Link */}
-        <div className="mt-8 text-center text-gray-500 dark:text-gray-400 text-sm">
+        <div className="mt-8 text-center text-gray-500 text-sm">
           <p>Ved å bruke Notably godtar du denne personvernerklæringen.</p>
           <p className="mt-2">
             Se også våre{' '}
-            <Link to="/terms" className="text-violet-600 dark:text-violet-400 hover:underline">
+            <Link to="/terms" className="text-violet-600 hover:underline">
               vilkår for bruk
             </Link>
             .

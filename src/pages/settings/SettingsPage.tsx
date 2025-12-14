@@ -9,7 +9,6 @@ import {
   Users,
   Shield,
   Bell,
-  Volume2,
   Globe,
   Clock,
   Lock,
@@ -41,17 +40,21 @@ import {
   Mic,
   Languages,
   FileText,
-  Sun,
-  Moon,
   Sparkles,
-  UserCircle
+  UserCircle,
+  Plus,
+  Minus,
+  Receipt,
+  TrendingUp,
+  AlertCircle,
+  UserMinus,
+  ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { mockUser, mockFolders } from '@/lib/mockData';
+import { mockUser } from '@/lib/mockData';
 import { mockTemplates } from '@/lib/mockTemplates';
-import { mockOrganization, formatLastActive, OrganizationMember } from '@/lib/mockOrganization';
+import { mockOrganization, formatLastActive, OrganizationMember, mockInvoices, mockSeatSubscription, Invoice } from '@/lib/mockOrganization';
 import { useDemoUser, mockDemoUsers } from '@/contexts/DemoUserContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { toast } from '@/components/ui/toast';
 import ChangePasswordModal from '@/components/ChangePasswordModal';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -77,14 +80,14 @@ interface ToggleSettingProps {
 
 function ToggleSetting({ icon: Icon, title, description, enabled, onChange }: ToggleSettingProps) {
   return (
-    <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 last:border-0">
+    <div className="flex items-center justify-between p-4 border-b border-gray-100 last:border-0">
       <div className="flex items-start space-x-3">
         <div className="p-1">
-          <Icon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+          <Icon className="h-5 w-5 text-gray-500" />
         </div>
         <div>
-          <h3 className="font-medium text-gray-900 dark:text-white">{title}</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
+          <h3 className="font-medium text-gray-900">{title}</h3>
+          <p className="text-sm text-gray-600">{description}</p>
         </div>
       </div>
       <button
@@ -147,27 +150,27 @@ function ProfileTab() {
   const currentUserData = mockDemoUsers[mode];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="font-semibold text-gray-900 dark:text-white">Min profil</h2>
+    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-200">
+        <h2 className="font-semibold text-gray-900">Min profil</h2>
       </div>
       <div className="p-6 space-y-6">
         {/* Avatar */}
         <div className="flex items-center space-x-4">
           <div className={cn(
             "h-20 w-20 rounded-full flex items-center justify-center",
-            isSolo && "bg-emerald-100 dark:bg-emerald-900/50",
-            isMember && "bg-amber-100 dark:bg-amber-900/50",
-            isAdmin && "bg-violet-100 dark:bg-violet-900/50"
+            isSolo && "bg-emerald-100",
+            isMember && "bg-amber-100",
+            isAdmin && "bg-violet-100"
           )}>
-            {isSolo && <UserCircle className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />}
-            {isMember && <Users className="h-10 w-10 text-amber-600 dark:text-amber-400" />}
-            {isAdmin && <User className="h-10 w-10 text-violet-600 dark:text-violet-400" />}
+            {isSolo && <UserCircle className="h-10 w-10 text-emerald-600" />}
+            {isMember && <Users className="h-10 w-10 text-amber-600" />}
+            {isAdmin && <User className="h-10 w-10 text-violet-600" />}
           </div>
           <div>
-            <h3 className="font-semibold text-lg text-gray-900 dark:text-white">{currentUserData.name}</h3>
-            <p className="text-gray-600 dark:text-gray-400">{currentUserData.email}</p>
-            <button className="text-sm text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 mt-1">
+            <h3 className="font-semibold text-lg text-gray-900">{currentUserData.name}</h3>
+            <p className="text-gray-600">{currentUserData.email}</p>
+            <button className="text-sm text-violet-600 hover:text-violet-700 mt-1">
               Endre profilbilde
             </button>
           </div>
@@ -176,18 +179,18 @@ function ProfileTab() {
         {/* Form fields */}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Navn
             </label>
             <input
               type="text"
               defaultValue={currentUserData.name}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-violet-500 focus:ring-violet-500"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:border-violet-500 focus:ring-violet-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               E-post
             </label>
             <div className="flex items-center space-x-2">
@@ -197,10 +200,10 @@ function ProfileTab() {
                   type="email"
                   value={currentUserData.email}
                   disabled
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400"
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 bg-gray-50 text-gray-600"
                 />
               </div>
-              <button className="px-4 py-2 text-sm text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-medium">
+              <button className="px-4 py-2 text-sm text-violet-600 hover:text-violet-700 font-medium">
                 Endre
               </button>
             </div>
@@ -208,25 +211,25 @@ function ProfileTab() {
 
           {/* Organization info - only for org users */}
           {!isSolo && (
-            <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="pt-4 border-t border-gray-100">
               <div className={cn(
                 "flex items-center space-x-3 p-4 rounded-lg",
-                isAdmin ? "bg-violet-50 dark:bg-violet-900/30" : "bg-amber-50 dark:bg-amber-900/30"
+                isAdmin ? "bg-violet-50" : "bg-amber-50"
               )}>
                 <Building className={cn(
                   "h-5 w-5",
-                  isAdmin ? "text-violet-600 dark:text-violet-400" : "text-amber-600 dark:text-amber-400"
+                  isAdmin ? "text-violet-600" : "text-amber-600"
                 )} />
                 <div>
                   <p className={cn(
                     "font-medium",
-                    isAdmin ? "text-violet-900 dark:text-violet-200" : "text-amber-900 dark:text-amber-200"
+                    isAdmin ? "text-violet-900" : "text-amber-900"
                   )}>
                     {mockOrganization.name}
                   </p>
                   <p className={cn(
                     "text-sm",
-                    isAdmin ? "text-violet-700 dark:text-violet-400" : "text-amber-700 dark:text-amber-400"
+                    isAdmin ? "text-violet-700" : "text-amber-700"
                   )}>
                     {isAdmin ? 'Administrator' : 'Medlem'}
                   </p>
@@ -237,15 +240,15 @@ function ProfileTab() {
 
           {/* Create org CTA - only for Solo users */}
           {isSolo && (
-            <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
-              <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
+            <div className="pt-4 border-t border-gray-100">
+              <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border border-emerald-200">
                 <div className="flex items-start space-x-3">
-                  <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg">
-                    <Sparkles className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                  <div className="p-2 bg-emerald-100 rounded-lg">
+                    <Sparkles className="h-5 w-5 text-emerald-600" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-medium text-emerald-900 dark:text-emerald-200">Samarbeid med teamet ditt</h4>
-                    <p className="text-sm text-emerald-700 dark:text-emerald-400 mt-1">
+                    <h4 className="font-medium text-emerald-900">Samarbeid med teamet ditt</h4>
+                    <p className="text-sm text-emerald-700 mt-1">
                       Opprett en organisasjon for å dele møtenotater, maler og mapper med kollegene dine.
                     </p>
                     <button className="mt-3 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors">
@@ -318,24 +321,24 @@ function StyledDropdown({ value, options, onChange, icon: Icon }: StyledDropdown
         className={cn(
           "w-full flex items-center justify-between px-4 py-3 border rounded-xl transition-all text-left",
           isOpen
-            ? "bg-white dark:bg-gray-700 border-violet-300 dark:border-violet-600 ring-2 ring-violet-100 dark:ring-violet-900/50 shadow-md"
-            : "bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600"
+            ? "bg-white border-violet-300 ring-2 ring-violet-100 shadow-md"
+            : "bg-gray-50 hover:bg-gray-100 border-gray-200"
         )}
       >
         <div className="flex items-center space-x-3">
           {Icon && (
             <div className={cn(
               "p-1.5 rounded-lg shadow-sm transition-colors",
-              isOpen ? "bg-violet-100 dark:bg-violet-900/50" : "bg-white dark:bg-gray-600"
+              isOpen ? "bg-violet-100" : "bg-white"
             )}>
-              <Icon className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+              <Icon className="h-4 w-4 text-violet-600" />
             </div>
           )}
-          <span className="font-medium text-gray-900 dark:text-white">{selectedOption?.label}</span>
+          <span className="font-medium text-gray-900">{selectedOption?.label}</span>
         </div>
         <ChevronLeft className={cn(
           "h-4 w-4 transition-transform duration-200",
-          isOpen ? "rotate-90 text-violet-500" : "-rotate-90 text-gray-400 dark:text-gray-500"
+          isOpen ? "rotate-90 text-violet-500" : "-rotate-90 text-gray-400"
         )} />
       </button>
 
@@ -361,7 +364,7 @@ function StyledDropdown({ value, options, onChange, icon: Icon }: StyledDropdown
               left: position.left,
               width: position.width,
             }}
-            className="z-[9999] bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 py-2 max-h-80 overflow-y-auto scrollbar-thin"
+            className="z-[9999] bg-white rounded-xl shadow-2xl border border-gray-200 py-2 max-h-80 overflow-y-auto scrollbar-thin"
           >
             {options.map((option) => (
               <button
@@ -370,25 +373,25 @@ function StyledDropdown({ value, options, onChange, icon: Icon }: StyledDropdown
                 className={cn(
                   "w-full flex items-center px-4 py-3 text-left transition-colors",
                   option.value === value
-                    ? "bg-violet-50 dark:bg-violet-900/30"
-                    : "hover:bg-gray-50 dark:hover:bg-gray-700"
+                    ? "bg-violet-50"
+                    : "hover:bg-gray-50"
                 )}
               >
                 <div className="flex-1">
                   <span className={cn(
                     "font-medium",
-                    option.value === value ? "text-violet-700 dark:text-violet-300" : "text-gray-900 dark:text-white"
+                    option.value === value ? "text-violet-700" : "text-gray-900"
                   )}>{option.label}</span>
                   {option.description && (
                     <p className={cn(
                       "text-xs mt-0.5",
-                      option.value === value ? "text-violet-600/70 dark:text-violet-400/70" : "text-gray-500 dark:text-gray-400"
+                      option.value === value ? "text-violet-600/70" : "text-gray-500"
                     )}>{option.description}</p>
                   )}
                 </div>
                 {option.value === value && (
-                  <div className="p-1 bg-violet-100 dark:bg-violet-900/50 rounded-full ml-3">
-                    <Check className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
+                  <div className="p-1 bg-violet-100 rounded-full ml-3">
+                    <Check className="h-3.5 w-3.5 text-violet-600" />
                   </div>
                 )}
               </button>
@@ -411,11 +414,9 @@ function PreferencesTab() {
   // Interface settings
   const [language, setLanguage] = useState('no');
   const [timezone, setTimezone] = useState('Europe/Oslo');
-  const { theme, toggleTheme } = useTheme();
 
   // Notification settings
   const [notifications, setNotifications] = useState(true);
-  const [soundEffects, setSoundEffects] = useState(true);
 
   const templateOptions = mockTemplates.map(t => ({
     value: t.id,
@@ -452,29 +453,29 @@ function PreferencesTab() {
   return (
     <div className="space-y-6">
       {/* Recording Settings */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700">
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-100">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-gradient-to-br from-violet-100 to-fuchsia-100 dark:from-violet-900/50 dark:to-fuchsia-900/50 rounded-xl">
-              <Mic className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+            <div className="p-2.5 bg-gradient-to-br from-violet-100 to-fuchsia-100 rounded-xl">
+              <Mic className="h-5 w-5 text-violet-600" />
             </div>
             <div>
-              <h2 className="font-semibold text-gray-900 dark:text-white">Opptak</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Hvordan Notably håndterer møtene dine</p>
+              <h2 className="font-semibold text-gray-900">Opptak</h2>
+              <p className="text-sm text-gray-500">Hvordan Notably håndterer møtene dine</p>
             </div>
           </div>
         </div>
 
         <div className="p-6 space-y-8">
           {/* Auto-record toggle - redesigned as a card */}
-          <div className="p-5 bg-gradient-to-r from-violet-50/50 to-fuchsia-50/50 dark:from-violet-900/30 dark:to-fuchsia-900/30 rounded-xl border border-violet-100 dark:border-violet-800">
+          <div className="p-5 bg-gradient-to-r from-violet-50/50 to-fuchsia-50/50 rounded-xl border border-violet-100">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-1">
-                  <Calendar className="h-4 w-4 text-violet-600 dark:text-violet-400" />
-                  <h3 className="font-semibold text-gray-900 dark:text-white">Automatisk opptak</h3>
+                  <Calendar className="h-4 w-4 text-violet-600" />
+                  <h3 className="font-semibold text-gray-900">Automatisk opptak</h3>
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600">
                   Notably deltar automatisk på møter fra kalenderen din og lager notater for deg.
                 </p>
               </div>
@@ -499,8 +500,8 @@ function PreferencesTab() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h3 className="font-medium text-gray-900 dark:text-white">Mal for notater</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Velg hvordan notatene dine skal struktureres</p>
+                <h3 className="font-medium text-gray-900">Mal for notater</h3>
+                <p className="text-sm text-gray-500">Velg hvordan notatene dine skal struktureres</p>
               </div>
             </div>
             <StyledDropdown
@@ -515,8 +516,8 @@ function PreferencesTab() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h3 className="font-medium text-gray-900 dark:text-white">Språk i møter</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Hvilket språk snakkes det i møtene dine?</p>
+                <h3 className="font-medium text-gray-900">Språk i møter</h3>
+                <p className="text-sm text-gray-500">Hvilket språk snakkes det i møtene dine?</p>
               </div>
             </div>
             <StyledDropdown
@@ -530,15 +531,15 @@ function PreferencesTab() {
       </div>
 
       {/* Interface Settings */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700">
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-100">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900/50 dark:to-cyan-900/50 rounded-xl">
-              <Globe className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div className="p-2.5 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl">
+              <Globe className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <h2 className="font-semibold text-gray-900 dark:text-white">Visning</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Tilpass hvordan appen ser ut for deg</p>
+              <h2 className="font-semibold text-gray-900">Visning</h2>
+              <p className="text-sm text-gray-500">Tilpass hvordan appen ser ut for deg</p>
             </div>
           </div>
         </div>
@@ -547,8 +548,8 @@ function PreferencesTab() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h3 className="font-medium text-gray-900 dark:text-white">Språk i appen</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Velg hvilket språk menyer og knapper vises på</p>
+                <h3 className="font-medium text-gray-900">Språk i appen</h3>
+                <p className="text-sm text-gray-500">Velg hvilket språk menyer og knapper vises på</p>
               </div>
             </div>
             <StyledDropdown
@@ -563,8 +564,8 @@ function PreferencesTab() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h3 className="font-medium text-gray-900 dark:text-white">Tidssone</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Påvirker når møter vises i kalenderen</p>
+                <h3 className="font-medium text-gray-900">Tidssone</h3>
+                <p className="text-sm text-gray-500">Påvirker når møter vises i kalenderen</p>
               </div>
             </div>
             <StyledDropdown
@@ -575,68 +576,19 @@ function PreferencesTab() {
             />
           </div>
 
-          {/* Dark Mode Toggle */}
-          <div className="pt-2">
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-gray-800 dark:to-slate-800 rounded-xl border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center space-x-4">
-                <div className={cn(
-                  "p-2.5 rounded-xl transition-all duration-300",
-                  theme === 'dark'
-                    ? "bg-violet-500/20 shadow-lg shadow-violet-500/20"
-                    : "bg-amber-100"
-                )}>
-                  {theme === 'dark' ? (
-                    <Moon className="h-5 w-5 text-violet-400" />
-                  ) : (
-                    <Sun className="h-5 w-5 text-amber-500" />
-                  )}
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900 dark:text-white">
-                    {theme === 'dark' ? 'Mørk modus' : 'Lys modus'}
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {theme === 'dark' ? 'Skift til lyst tema' : 'Skift til mørkt tema'}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={toggleTheme}
-                className={cn(
-                  "relative inline-flex h-7 w-14 items-center rounded-full transition-all duration-300 shadow-inner",
-                  theme === 'dark'
-                    ? "bg-violet-600"
-                    : "bg-gray-300"
-                )}
-              >
-                <span
-                  className={cn(
-                    "inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-all duration-300 flex items-center justify-center",
-                    theme === 'dark' ? "translate-x-8" : "translate-x-1"
-                  )}
-                >
-                  {theme === 'dark' ? (
-                    <Moon className="h-3 w-3 text-violet-600" />
-                  ) : (
-                    <Sun className="h-3 w-3 text-amber-500" />
-                  )}
-                </span>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Notification Settings */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700">
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-100">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/50 dark:to-orange-900/50 rounded-xl">
-              <Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <div className="p-2.5 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl">
+              <Bell className="h-5 w-5 text-amber-600" />
             </div>
             <div>
-              <h2 className="font-semibold text-gray-900 dark:text-white">Varsler</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Bestem hvordan du vil bli oppdatert</p>
+              <h2 className="font-semibold text-gray-900">Varsler</h2>
+              <p className="text-sm text-gray-500">Bestem hvordan du vil bli oppdatert</p>
             </div>
           </div>
         </div>
@@ -646,13 +598,6 @@ function PreferencesTab() {
           description="Få beskjed når notater er klare eller noe viktig skjer"
           enabled={notifications}
           onChange={setNotifications}
-        />
-        <ToggleSetting
-          icon={Volume2}
-          title="Lydeffekter"
-          description="Hør en lyd når handlinger fullføres"
-          enabled={soundEffects}
-          onChange={setSoundEffects}
         />
       </div>
     </div>
@@ -748,8 +693,429 @@ function BillingTabTeamMember() {
   );
 }
 
+// Manage Seats Modal
+interface ManageSeatsModalProps {
+  onClose: () => void;
+}
+
+function ManageSeatsModal({ onClose }: ManageSeatsModalProps) {
+  const [seatCount, setSeatCount] = useState(mockSeatSubscription.totalSeats);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const originalSeats = mockSeatSubscription.totalSeats;
+  const usedSeats = mockSeatSubscription.usedSeats;
+  const pricePerSeat = mockSeatSubscription.pricePerSeat;
+
+  const seatDifference = seatCount - originalSeats;
+  const monthlyCost = seatCount * pricePerSeat;
+  const previousCost = originalSeats * pricePerSeat;
+  const costDifference = monthlyCost - previousCost;
+
+  const handleAdjustSeats = async () => {
+    if (seatCount === originalSeats) {
+      onClose();
+      return;
+    }
+
+    setIsProcessing(true);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setIsProcessing(false);
+
+    if (seatDifference > 0) {
+      toast.success(`${seatDifference} ${seatDifference === 1 ? 'sete' : 'seter'} lagt til!`);
+    } else {
+      toast.success(`${Math.abs(seatDifference)} ${Math.abs(seatDifference) === 1 ? 'sete' : 'seter'} fjernet.`);
+    }
+    onClose();
+  };
+
+  const canDecrease = seatCount > usedSeats;
+  const canIncrease = seatCount < 100;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden"
+      >
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-violet-50 to-fuchsia-50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2.5 bg-white rounded-xl shadow-sm">
+                <Users className="h-5 w-5 text-violet-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Administrer seter</h2>
+                <p className="text-sm text-gray-600">Juster antall brukerplasser</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/80 rounded-lg transition-colors"
+            >
+              <X className="h-5 w-5 text-gray-500" />
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-6">
+          {/* Current Usage */}
+          <div className="bg-gray-50 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-medium text-gray-700">Nåværende bruk</span>
+              <span className="text-sm text-gray-500">{usedSeats} av {originalSeats} seter i bruk</span>
+            </div>
+            <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full transition-all duration-500"
+                style={{ width: `${(usedSeats / originalSeats) * 100}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+              <span>{originalSeats - usedSeats} ledige seter</span>
+              <span>{Math.round((usedSeats / originalSeats) * 100)}% utnyttelse</span>
+            </div>
+          </div>
+
+          {/* Seat Adjustment */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Velg antall seter
+            </label>
+            <div className="flex items-center justify-center space-x-6">
+              <button
+                onClick={() => canDecrease && setSeatCount(prev => prev - 1)}
+                disabled={!canDecrease}
+                className={cn(
+                  "p-3 rounded-xl border-2 transition-all",
+                  canDecrease
+                    ? "border-gray-200 hover:border-red-300 hover:bg-red-50 text-gray-700 hover:text-red-600"
+                    : "border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed"
+                )}
+              >
+                <Minus className="h-5 w-5" />
+              </button>
+
+              <div className="text-center">
+                <div className="text-4xl font-bold text-gray-900">{seatCount}</div>
+                <div className="text-sm text-gray-500">seter</div>
+              </div>
+
+              <button
+                onClick={() => canIncrease && setSeatCount(prev => prev + 1)}
+                disabled={!canIncrease}
+                className={cn(
+                  "p-3 rounded-xl border-2 transition-all",
+                  canIncrease
+                    ? "border-gray-200 hover:border-green-300 hover:bg-green-50 text-gray-700 hover:text-green-600"
+                    : "border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed"
+                )}
+              >
+                <Plus className="h-5 w-5" />
+              </button>
+            </div>
+
+            {!canDecrease && seatCount === usedSeats && (
+              <p className="text-center text-xs text-amber-600 mt-2 flex items-center justify-center">
+                <AlertCircle className="h-3.5 w-3.5 mr-1" />
+                Du kan ikke ha færre seter enn aktive brukere
+              </p>
+            )}
+          </div>
+
+          {/* Price Summary */}
+          <div className="bg-gradient-to-r from-violet-50 to-fuchsia-50 rounded-xl p-4 border border-violet-100">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-600">Månedlig kostnad</span>
+              <span className="text-lg font-semibold text-gray-900">
+                {monthlyCost.toLocaleString('no')} kr
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">{seatCount} seter × {pricePerSeat} kr</span>
+              {seatDifference !== 0 && (
+                <span className={cn(
+                  "font-medium flex items-center",
+                  seatDifference > 0 ? "text-green-600" : "text-red-600"
+                )}>
+                  <TrendingUp className={cn("h-3.5 w-3.5 mr-1", seatDifference < 0 && "rotate-180")} />
+                  {seatDifference > 0 ? '+' : ''}{costDifference.toLocaleString('no')} kr/mnd
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Team Members Preview - if reducing seats */}
+          {seatDifference < 0 && (
+            <div className="border border-amber-200 bg-amber-50 rounded-xl p-4">
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-amber-900">
+                    Du fjerner {Math.abs(seatDifference)} {Math.abs(seatDifference) === 1 ? 'sete' : 'seter'}
+                  </p>
+                  <p className="text-xs text-amber-700 mt-1">
+                    Sørg for at du ikke har flere aktive brukere enn tilgjengelige seter.
+                    Endringen trer i kraft ved neste faktureringsperiode.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            Avbryt
+          </button>
+          <button
+            onClick={handleAdjustSeats}
+            disabled={seatCount === originalSeats || isProcessing}
+            className={cn(
+              "px-5 py-2 rounded-xl text-sm font-medium transition-all flex items-center",
+              seatCount !== originalSeats && !isProcessing
+                ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white hover:shadow-lg"
+                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+            )}
+          >
+            {isProcessing ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Oppdaterer...
+              </>
+            ) : seatCount === originalSeats ? (
+              'Ingen endringer'
+            ) : (
+              <>
+                <Check className="h-4 w-4 mr-2" />
+                Bekreft endring
+              </>
+            )}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// Invoices Modal
+interface InvoicesModalProps {
+  onClose: () => void;
+}
+
+function InvoicesModal({ onClose }: InvoicesModalProps) {
+  const [selectedYear, setSelectedYear] = useState(2024);
+  const years = [2024, 2023];
+
+  const filteredInvoices = mockInvoices.filter(inv => {
+    const year = new Date(inv.date).getFullYear();
+    return year === selectedYear;
+  });
+
+  const totalPaid = filteredInvoices
+    .filter(inv => inv.status === 'paid')
+    .reduce((sum, inv) => sum + inv.amount, 0);
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('no', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  const handleDownload = (invoice: Invoice) => {
+    toast.success(`Laster ned ${invoice.invoiceNumber}.pdf`);
+  };
+
+  const getStatusBadge = (status: Invoice['status']) => {
+    switch (status) {
+      case 'paid':
+        return (
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Betalt
+          </span>
+        );
+      case 'pending':
+        return (
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+            <Clock className="h-3 w-3 mr-1" />
+            Venter
+          </span>
+        );
+      case 'overdue':
+        return (
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+            <AlertCircle className="h-3 w-3 mr-1" />
+            Forfalt
+          </span>
+        );
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col"
+      >
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-teal-50 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2.5 bg-white rounded-xl shadow-sm">
+                <Receipt className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Fakturahistorikk</h2>
+                <p className="text-sm text-gray-600">Se og last ned tidligere fakturaer</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/80 rounded-lg transition-colors"
+            >
+              <X className="h-5 w-5 text-gray-500" />
+            </button>
+          </div>
+        </div>
+
+        {/* Summary and Filters */}
+        <div className="px-6 py-4 border-b border-gray-100 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500">Total betalt i {selectedYear}</p>
+              <p className="text-2xl font-bold text-gray-900">{totalPaid.toLocaleString('no')} kr</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              {years.map(year => (
+                <button
+                  key={year}
+                  onClick={() => setSelectedYear(year)}
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+                    selectedYear === year
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  )}
+                >
+                  {year}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Invoice List */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {filteredInvoices.length > 0 ? (
+            <div className="space-y-3">
+              {filteredInvoices.map((invoice, index) => (
+                <motion.div
+                  key={invoice.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="group bg-white border border-gray-200 rounded-xl p-4 hover:border-emerald-300 hover:shadow-md transition-all"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-2.5 bg-gray-100 rounded-lg group-hover:bg-emerald-100 transition-colors">
+                        <FileText className="h-5 w-5 text-gray-600 group-hover:text-emerald-600 transition-colors" />
+                      </div>
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <p className="font-medium text-gray-900">{invoice.invoiceNumber}</p>
+                          {getStatusBadge(invoice.status)}
+                        </div>
+                        <p className="text-sm text-gray-500 mt-0.5">{invoice.description}</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Fakturadato: {formatDate(invoice.date)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="text-right">
+                        <p className="font-semibold text-gray-900">{invoice.amount.toLocaleString('no')} kr</p>
+                        <p className="text-xs text-gray-500">{invoice.seats} seter</p>
+                      </div>
+                      <button
+                        onClick={() => handleDownload(invoice)}
+                        className="p-2 hover:bg-emerald-100 rounded-lg transition-colors text-gray-500 hover:text-emerald-600"
+                        title="Last ned PDF"
+                      >
+                        <Download className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Receipt className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500">Ingen fakturaer for {selectedYear}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-500">
+              {filteredInvoices.length} {filteredInvoices.length === 1 ? 'faktura' : 'fakturaer'} i {selectedYear}
+            </p>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => toast.success('Laster ned alle fakturaer som ZIP...')}
+                className="px-4 py-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors flex items-center"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Last ned alle
+              </button>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-lg text-sm font-medium transition-colors"
+              >
+                Lukk
+              </button>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // Billing Tab - Admin/Solo View (full control)
 function BillingTabAdmin({ isOrgAdmin = false }: { isOrgAdmin?: boolean }) {
+  const [showSeatsModal, setShowSeatsModal] = useState(false);
+  const [showInvoicesModal, setShowInvoicesModal] = useState(false);
   const plans = [
     { id: 'basic', name: 'Basic', price: 299, features: ['Ubegrenset møter', 'Transkripsjon NO/EN', 'AI-oppsummering'] },
     { id: 'pro', name: 'Pro', price: 499, features: ['Alt i Basic', 'Prioritert transkripsjon', 'Kalender-integrasjon'], current: !isOrgAdmin },
@@ -790,10 +1156,16 @@ function BillingTabAdmin({ isOrgAdmin = false }: { isOrgAdmin?: boolean }) {
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-4">
-            <button className="button-secondary">
+            <button
+              onClick={() => isOrgAdmin && setShowSeatsModal(true)}
+              className="button-secondary"
+            >
               {isOrgAdmin ? 'Administrer seter' : 'Endre plan'}
             </button>
-            <button className="button-secondary">
+            <button
+              onClick={() => setShowInvoicesModal(true)}
+              className="button-secondary"
+            >
               Se fakturaer
             </button>
           </div>
@@ -863,6 +1235,16 @@ function BillingTabAdmin({ isOrgAdmin = false }: { isOrgAdmin?: boolean }) {
           </div>
         </div>
       )}
+
+      {/* Modals */}
+      <AnimatePresence>
+        {showSeatsModal && (
+          <ManageSeatsModal onClose={() => setShowSeatsModal(false)} />
+        )}
+        {showInvoicesModal && (
+          <InvoicesModal onClose={() => setShowInvoicesModal(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -872,23 +1254,23 @@ function BillingTabSolo() {
   return (
     <div className="space-y-6">
       {/* Current Plan */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="font-semibold text-gray-900 dark:text-white">Mitt abonnement</h2>
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="font-semibold text-gray-900">Mitt abonnement</h2>
         </div>
         <div className="p-6">
-          <div className="flex items-center justify-between p-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-xl border border-emerald-100 dark:border-emerald-800">
+          <div className="flex items-center justify-between p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-100">
             <div className="flex items-center space-x-4">
-              <div className="p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-                <Crown className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+              <div className="p-3 bg-white rounded-xl shadow-sm">
+                <Crown className="h-6 w-6 text-emerald-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg text-gray-900 dark:text-white">Pro-plan</h3>
-                <p className="text-gray-600 dark:text-gray-400">199 kr/mnd • Fornyes 15. jan 2026</p>
+                <h3 className="font-semibold text-lg text-gray-900">Pro-plan</h3>
+                <p className="text-gray-600">199 kr/mnd • Fornyes 15. jan 2026</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-700">
                 <CheckCircle className="h-4 w-4 mr-1" />
                 Aktiv
               </span>
@@ -907,22 +1289,22 @@ function BillingTabSolo() {
       </div>
 
       {/* Payment Method */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="font-semibold text-gray-900 dark:text-white">Betalingsmetode</h2>
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="font-semibold text-gray-900">Betalingsmetode</h2>
         </div>
         <div className="p-6">
-          <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <CreditCard className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <div className="p-2 bg-gray-100 rounded-lg">
+                <CreditCard className="h-5 w-5 text-gray-600" />
               </div>
               <div>
-                <p className="font-medium text-gray-900 dark:text-white">•••• •••• •••• 4242</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Utløper 12/26</p>
+                <p className="font-medium text-gray-900">•••• •••• •••• 4242</p>
+                <p className="text-sm text-gray-500">Utløper 12/26</p>
               </div>
             </div>
-            <button className="text-sm text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-medium">
+            <button className="text-sm text-violet-600 hover:text-violet-700 font-medium">
               Endre
             </button>
           </div>
@@ -930,9 +1312,9 @@ function BillingTabSolo() {
       </div>
 
       {/* All Plans */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="font-semibold text-gray-900 dark:text-white">Tilgjengelige planer</h2>
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="font-semibold text-gray-900">Tilgjengelige planer</h2>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -946,25 +1328,25 @@ function BillingTabSolo() {
                 className={cn(
                   "p-4 rounded-lg border-2 transition-colors",
                   plan.current
-                    ? "border-emerald-600 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30"
-                    : "border-gray-200 dark:border-gray-700 hover:border-emerald-200 dark:hover:border-emerald-800"
+                    ? "border-emerald-600 bg-emerald-50"
+                    : "border-gray-200 hover:border-emerald-200"
                 )}
               >
-                <h3 className="font-semibold text-gray-900 dark:text-white">{plan.name}</h3>
-                <p className="text-2xl font-bold mt-1 text-gray-900 dark:text-white">
+                <h3 className="font-semibold text-gray-900">{plan.name}</h3>
+                <p className="text-2xl font-bold mt-1 text-gray-900">
                   {plan.price} kr
-                  <span className="text-sm font-normal text-gray-500 dark:text-gray-400">/mnd</span>
+                  <span className="text-sm font-normal text-gray-500">/mnd</span>
                 </p>
                 <ul className="mt-3 space-y-1">
                   {plan.features.map((feature, i) => (
-                    <li key={i} className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+                    <li key={i} className="text-sm text-gray-600 flex items-center">
                       <Check className="h-4 w-4 text-emerald-500 mr-1" />
                       {feature}
                     </li>
                   ))}
                 </ul>
                 {plan.current && (
-                  <p className="mt-3 text-sm text-emerald-600 dark:text-emerald-400 font-medium">Nåværende plan</p>
+                  <p className="mt-3 text-sm text-emerald-600 font-medium">Nåværende plan</p>
                 )}
               </div>
             ))}
@@ -973,14 +1355,14 @@ function BillingTabSolo() {
       </div>
 
       {/* Team CTA */}
-      <div className="bg-gradient-to-r from-violet-50 to-fuchsia-50 dark:from-violet-900/30 dark:to-fuchsia-900/30 rounded-xl p-6 border border-violet-100 dark:border-violet-800">
+      <div className="bg-gradient-to-r from-violet-50 to-fuchsia-50 rounded-xl p-6 border border-violet-100">
         <div className="flex items-start space-x-4">
-          <div className="p-3 bg-violet-100 dark:bg-violet-900/50 rounded-xl">
-            <Users className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+          <div className="p-3 bg-violet-100 rounded-xl">
+            <Users className="h-6 w-6 text-violet-600" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-lg text-violet-900 dark:text-violet-200">Trenger du team-funksjonalitet?</h3>
-            <p className="text-violet-700 dark:text-violet-400 mt-1">
+            <h3 className="font-semibold text-lg text-violet-900">Trenger du team-funksjonalitet?</h3>
+            <p className="text-violet-700 mt-1">
               Oppgrader til Team-planen for å invitere kollegaer, dele mapper og samarbeide om møtenotater.
             </p>
             <button className="mt-4 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium transition-colors">
@@ -1079,25 +1461,67 @@ function MemberCardReadOnly({ member, isCurrentUser, showActions, onRemove, onCh
   );
 }
 
+// Interface for invitation row
+interface InviteRow {
+  id: string;
+  email: string;
+  role: 'admin' | 'member';
+}
+
 interface InviteMemberModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onInvite: (email: string, role: 'admin' | 'member') => void;
+  onInvite: (invitations: { email: string; role: 'admin' | 'member' }[]) => void;
 }
 
+// Email validation helper
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
+};
+
 function InviteMemberModal({ isOpen, onClose, onInvite }: InviteMemberModalProps) {
-  const [email, setEmail] = useState('');
-  const [role, setRole] = useState<'admin' | 'member'>('member');
+  const [rows, setRows] = useState<InviteRow[]>([
+    { id: '1', email: '', role: 'member' }
+  ]);
+
+  const addRow = () => {
+    setRows([...rows, { id: Date.now().toString(), email: '', role: 'member' }]);
+  };
+
+  const removeRow = (id: string) => {
+    if (rows.length > 1) {
+      setRows(rows.filter(r => r.id !== id));
+    }
+  };
+
+  const updateRow = (id: string, field: 'email' | 'role', value: string) => {
+    setRows(rows.map(r => r.id === id ? { ...r, [field]: value } : r));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      onInvite(email, role);
-      setEmail('');
-      setRole('member');
-      onClose();
+
+    // Filter valid emails
+    const validInvitations = rows
+      .filter(r => r.email.trim() && isValidEmail(r.email.trim()))
+      .map(r => ({ email: r.email.trim().toLowerCase(), role: r.role }));
+
+    if (validInvitations.length > 0) {
+      onInvite(validInvitations);
+      handleClose();
+    } else {
+      toast.error('Vennligst fyll inn minst én gyldig e-postadresse');
     }
   };
+
+  const handleClose = () => {
+    setRows([{ id: '1', email: '', role: 'member' }]);
+    onClose();
+  };
+
+  // Count valid emails
+  const validCount = rows.filter(r => r.email.trim() && isValidEmail(r.email.trim())).length;
 
   if (!isOpen) return null;
 
@@ -1108,76 +1532,147 @@ function InviteMemberModal({ isOpen, onClose, onInvite }: InviteMemberModalProps
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-        onClick={onClose}
+        onClick={handleClose}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="bg-white rounded-2xl shadow-xl max-w-md w-full"
+          className="bg-white rounded-2xl shadow-xl max-w-xl w-full max-h-[85vh] flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="p-6 border-b border-gray-100">
+          {/* Header */}
+          <div className="p-6 border-b border-gray-100 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-violet-100 rounded-lg">
+                <div className="p-2 bg-violet-100 rounded-xl">
                   <UserPlus className="h-5 w-5 text-violet-600" />
                 </div>
-                <h2 className="text-xl font-bold">Inviter nytt medlem</h2>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Inviter medlemmer</h2>
+                  <p className="text-sm text-gray-500">Inviter nye medlemmer til teamet ditt</p>
+                </div>
               </div>
-              <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
-                <X className="h-5 w-5" />
+              <button onClick={handleClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <X className="h-5 w-5 text-gray-500" />
               </button>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">E-postadresse</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:border-violet-500 focus:ring-violet-500"
-                  placeholder="kollega@firma.no"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Rolle</label>
-              <div className="grid grid-cols-2 gap-3">
-                {(['member', 'admin'] as const).map((r) => (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => setRole(r)}
-                    className={cn(
-                      "flex items-center p-3 rounded-lg border-2 transition-colors",
-                      role === r ? "border-violet-600 bg-violet-50" : "border-gray-200 hover:border-gray-300"
-                    )}
+          {/* Content */}
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+            <div className="p-6 space-y-3 overflow-y-auto flex-1">
+              {/* Invitation rows */}
+              <AnimatePresence mode="popLayout">
+                {rows.map((row, index) => (
+                  <motion.div
+                    key={row.id}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    layout
+                    className="flex items-center gap-3"
                   >
-                    {r === 'admin' ? <Shield className={cn("h-5 w-5 mr-2", role === r ? "text-violet-600" : "text-gray-400")} /> : <User className={cn("h-5 w-5 mr-2", role === r ? "text-violet-600" : "text-gray-400")} />}
-                    <div className="text-left">
-                      <div className={cn("font-medium", role === r ? "text-violet-900" : "text-gray-900")}>
-                        {r === 'admin' ? 'Administrator' : 'Medlem'}
-                      </div>
-                      <div className="text-xs text-gray-500">{r === 'admin' ? 'Full tilgang' : 'Standard tilgang'}</div>
+                    {/* Email input */}
+                    <div className="flex-1 relative">
+                      <input
+                        type="email"
+                        value={row.email}
+                        onChange={(e) => updateRow(row.id, 'email', e.target.value)}
+                        placeholder="navn@eksempel.no"
+                        className={cn(
+                          "w-full px-4 py-3 rounded-xl border-2 transition-all text-sm",
+                          "focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100",
+                          row.email && !isValidEmail(row.email)
+                            ? "border-red-300 bg-red-50"
+                            : row.email && isValidEmail(row.email)
+                            ? "border-emerald-300 bg-emerald-50/50"
+                            : "border-gray-200"
+                        )}
+                        autoFocus={index === rows.length - 1 && rows.length > 1}
+                      />
+                      {row.email && isValidEmail(row.email) && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <Check className="h-4 w-4 text-emerald-500" />
+                        </div>
+                      )}
                     </div>
-                  </button>
+
+                    {/* Role dropdown */}
+                    <select
+                      value={row.role}
+                      onChange={(e) => updateRow(row.id, 'role', e.target.value as 'admin' | 'member')}
+                      className="px-3 py-3 rounded-xl border-2 border-gray-200 bg-white text-sm font-medium text-gray-700 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100 cursor-pointer appearance-none pr-8 min-w-[120px]"
+                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '16px' }}
+                    >
+                      <option value="member">Medlem</option>
+                      <option value="admin">Admin</option>
+                    </select>
+
+                    {/* Remove button */}
+                    <button
+                      type="button"
+                      onClick={() => removeRow(row.id)}
+                      disabled={rows.length === 1}
+                      className={cn(
+                        "p-2 rounded-lg transition-all",
+                        rows.length === 1
+                          ? "text-gray-300 cursor-not-allowed"
+                          : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+                      )}
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </motion.div>
                 ))}
-              </div>
+              </AnimatePresence>
+
+              {/* Add row button */}
+              <motion.button
+                type="button"
+                onClick={addRow}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                className="w-full py-3 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-violet-300 hover:text-violet-600 hover:bg-violet-50/50 transition-all flex items-center justify-center gap-2 text-sm font-medium"
+              >
+                <Plus className="h-4 w-4" />
+                Legg til medlem
+              </motion.button>
             </div>
 
-            <div className="flex justify-end space-x-3 pt-4">
-              <button type="button" onClick={onClose} className="button-secondary">Avbryt</button>
-              <button type="submit" className="button-primary inline-flex items-center">
-                <Send className="h-4 w-4 mr-2" />
-                Send invitasjon
-              </button>
+            {/* Footer */}
+            <div className="p-6 border-t border-gray-100 bg-gray-50 flex items-center justify-between flex-shrink-0">
+              <div className="text-sm text-gray-500">
+                {validCount > 0 ? (
+                  <span className="text-violet-600 font-medium">
+                    {validCount} {validCount === 1 ? 'invitasjon' : 'invitasjoner'} klar
+                  </span>
+                ) : (
+                  <span>Fyll inn e-postadresser</span>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="px-5 py-2.5 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  Avbryt
+                </button>
+                <button
+                  type="submit"
+                  disabled={validCount === 0}
+                  className={cn(
+                    "px-5 py-2.5 rounded-xl text-sm font-medium transition-all inline-flex items-center gap-2",
+                    validCount > 0
+                      ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white hover:from-violet-500 hover:to-fuchsia-500 shadow-lg shadow-violet-500/25"
+                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  )}
+                >
+                  <Send className="h-4 w-4" />
+                  Send invitasjon{validCount > 1 ? 'er' : ''}
+                </button>
+              </div>
             </div>
           </form>
         </motion.div>
@@ -1195,19 +1690,23 @@ function TeamTab() {
   // Get current user from members
   const currentUser = members.find(m => m.id === currentUserId) || members[0];
 
-  const sharedFoldersList = mockFolders.filter(f => mockOrganization.sharedFolders.includes(f.id));
-
-  const handleInvite = (email: string, role: 'admin' | 'member') => {
-    const newInvitation = {
-      id: `inv-${Date.now()}`,
-      email,
-      role,
+  const handleInvite = (invitations: { email: string; role: 'admin' | 'member' }[]) => {
+    const newInvitations = invitations.map((inv, index) => ({
+      id: `inv-${Date.now()}-${index}`,
+      email: inv.email,
+      role: inv.role,
       invitedBy: currentUser?.name || 'Ukjent',
       invitedAt: new Date().toISOString(),
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-    };
-    setPendingInvitations([...pendingInvitations, newInvitation]);
-    toast.success(`Invitasjon sendt til ${email}`);
+    }));
+
+    setPendingInvitations([...pendingInvitations, ...newInvitations]);
+
+    if (invitations.length === 1) {
+      toast.success(`Invitasjon sendt til ${invitations[0].email}`);
+    } else {
+      toast.success(`${invitations.length} invitasjoner sendt!`);
+    }
   };
 
   const handleRemoveMember = (memberId: string) => {
@@ -1235,7 +1734,7 @@ function TeamTab() {
           </div>
           <div>
             <h2 className="font-semibold text-lg">{mockOrganization.name}</h2>
-            <p className="text-gray-600">{members.length} medlemmer • Business plan</p>
+            <p className="text-gray-600">{members.length} medlemmer{pendingInvitations.length > 0 && ` • ${pendingInvitations.length} ventende`}</p>
           </div>
         </div>
         {isOrgAdmin && (
@@ -1262,45 +1761,6 @@ function TeamTab() {
           </div>
         </div>
       )}
-
-      {/* Stats - show different stats based on role */}
-      <div className={cn("grid gap-4", isOrgAdmin ? "grid-cols-3" : "grid-cols-2")}>
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-violet-50 rounded-lg">
-              <Users className="h-5 w-5 text-violet-600" />
-            </div>
-            <div>
-              <div className="text-xl font-bold">{members.length}</div>
-              <div className="text-sm text-gray-600">Medlemmer</div>
-            </div>
-          </div>
-        </div>
-        {isOrgAdmin && (
-          <div className="bg-white rounded-xl shadow-sm p-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-amber-50 rounded-lg">
-                <Mail className="h-5 w-5 text-amber-600" />
-              </div>
-              <div>
-                <div className="text-xl font-bold">{pendingInvitations.length}</div>
-                <div className="text-sm text-gray-600">Ventende</div>
-              </div>
-            </div>
-          </div>
-        )}
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-green-50 rounded-lg">
-              <Folder className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <div className="text-xl font-bold">{sharedFoldersList.length}</div>
-              <div className="text-sm text-gray-600">Delte mapper</div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Members */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -1717,10 +2177,6 @@ function SecurityTab() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const handleExportData = () => {
-    toast.success('Din dataeksport er startet. Du vil motta en e-post når den er klar.');
-  };
-
   const handleDeleteAccount = () => {
     toast.error('Kontoen din er slettet. Du blir nå logget ut.');
     setShowDeleteConfirm(false);
@@ -1758,22 +2214,6 @@ function SecurityTab() {
           <h2 className="font-semibold">Personvern og data</h2>
         </div>
         <div className="p-6 space-y-4">
-          <button
-            onClick={handleExportData}
-            className="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-violet-200 hover:bg-violet-50/50 transition-colors"
-          >
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-violet-100 rounded-lg">
-                <Download className="h-5 w-5 text-violet-600" />
-              </div>
-              <div className="text-left">
-                <h3 className="font-medium">Eksporter data</h3>
-                <p className="text-sm text-gray-600">Last ned alle dine opptak og data (GDPR)</p>
-              </div>
-            </div>
-            <ChevronLeft className="h-5 w-5 text-gray-400 rotate-180" />
-          </button>
-
           <Link
             to="/privacy"
             className="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-violet-200 hover:bg-violet-50/50 transition-colors"
@@ -1889,24 +2329,24 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen pt-16 bg-gray-50 dark:bg-gray-900 transition-colors">
+    <div className="min-h-screen pt-16 bg-gray-50 transition-colors">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <Link
             to="/dashboard"
-            className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
+            className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
             Tilbake til dashboard
           </Link>
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl">
-              <SettingsIcon className="h-6 w-6 text-slate-600 dark:text-slate-400" />
+            <div className="p-2 bg-slate-100 rounded-xl">
+              <SettingsIcon className="h-6 w-6 text-slate-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Innstillinger</h1>
-              <p className="text-gray-600 dark:text-gray-400">
+              <h1 className="text-2xl font-bold text-gray-900">Innstillinger</h1>
+              <p className="text-gray-600">
                 {isSolo ? 'Administrer profil og preferanser' : 'Administrer profil, preferanser og team'}
               </p>
             </div>
@@ -1914,7 +2354,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm mb-6 p-1">
+        <div className="bg-white rounded-xl shadow-sm mb-6 p-1">
           <div className="flex space-x-1 overflow-x-auto">
             {visibleTabs.map((tab) => {
               const Icon = tab.icon;
@@ -1925,8 +2365,8 @@ export default function SettingsPage() {
                   className={cn(
                     "flex items-center space-x-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
                     effectiveTab === tab.id
-                      ? "bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      ? "bg-violet-100 text-violet-700"
+                      : "text-gray-600 hover:bg-gray-100"
                   )}
                 >
                   <Icon className="h-4 w-4" />

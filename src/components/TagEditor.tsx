@@ -104,28 +104,28 @@ export default function TagEditor({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md flex flex-col max-h-[90vh] border border-gray-200 dark:border-gray-800">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-md flex flex-col max-h-[90vh] border border-gray-200">
+        <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900 dark:text-white">Rediger etiketter</h3>
+            <h3 className="font-semibold text-gray-900">Rediger etiketter</h3>
             <button
               onClick={handleClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+              className="p-2 hover:bg-gray-100 rounded-full"
               disabled={isLoading}
             >
-              <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              <X className="h-5 w-5 text-gray-500" />
             </button>
           </div>
         </div>
 
         <div className="p-6 overflow-y-auto flex-1">
-          <p className="text-xs text-amber-600 dark:text-amber-400 mb-4">
+          <p className="text-xs text-amber-600 mb-4">
             Demo-modus: Endringer lagres kun lokalt
           </p>
 
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm">
+            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
               {error}
             </div>
           )}
@@ -136,7 +136,7 @@ export default function TagEditor({
               {tags.map((tag) => (
                 <div
                   key={tag.id}
-                  className="flex items-center justify-between p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+                  className="flex items-center justify-between p-2 rounded-lg border border-gray-200 bg-gray-50"
                 >
                   {editingIndex === tag.id ? (
                     <input
@@ -146,7 +146,7 @@ export default function TagEditor({
                         setEditingValue(e.target.value);
                         setError(null);
                       }}
-                      className="flex-1 px-3 py-1 rounded-md border border-violet-300 dark:border-violet-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-violet-500 focus:ring-violet-500 mr-2"
+                      className="flex-1 px-3 py-1 rounded-md border border-violet-300 bg-white text-gray-900 focus:border-violet-500 focus:ring-violet-500 mr-2"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
@@ -160,13 +160,13 @@ export default function TagEditor({
                       autoFocus
                     />
                   ) : (
-                    <span className="text-gray-700 dark:text-gray-300">{tag.name}</span>
+                    <span className="text-gray-700">{tag.name}</span>
                   )}
                   <div className="flex items-center space-x-1">
                     {editingIndex === tag.id ? (
                       <button
                         onClick={handleEditTag}
-                        className="p-1.5 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg"
+                        className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg"
                         disabled={isLoading}
                       >
                         <Check className="h-4 w-4" />
@@ -174,7 +174,7 @@ export default function TagEditor({
                     ) : (
                       <button
                         onClick={() => startEditing(tag)}
-                        className="p-1.5 text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30 rounded-lg"
+                        className="p-1.5 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg"
                         disabled={isLoading}
                       >
                         <Pencil className="h-4 w-4" />
@@ -182,7 +182,7 @@ export default function TagEditor({
                     )}
                     <button
                       onClick={() => setTagToDelete(tag)}
-                      className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg"
+                      className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
                       disabled={isLoading}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -202,7 +202,7 @@ export default function TagEditor({
                   setError(null);
                 }}
                 placeholder="Skriv inn ny etikett..."
-                className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-violet-500 focus:ring-violet-500"
+                className="flex-1 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-violet-500 focus:ring-violet-500"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -213,7 +213,7 @@ export default function TagEditor({
               />
               <button
                 onClick={handleAddTag}
-                className="p-2 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30 rounded-lg"
+                className="p-2 text-violet-600 hover:bg-violet-50 rounded-lg"
                 disabled={isLoading || !newTag.trim()}
               >
                 <Plus className="h-5 w-5" />
@@ -222,14 +222,14 @@ export default function TagEditor({
           </div>
         </div>
 
-        <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+        <div className="p-4 border-t border-gray-200">
           <div className="flex justify-end">
             <button
               onClick={handleClose}
               className={cn(
                 "px-4 py-2 rounded-lg text-white transition-colors",
                 isLoading
-                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                  ? "bg-gray-400 cursor-not-allowed"
                   : "bg-violet-600 hover:bg-violet-700"
               )}
             >

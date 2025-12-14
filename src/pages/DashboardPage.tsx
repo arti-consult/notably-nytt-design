@@ -431,7 +431,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen pt-16 bg-gray-50/50 dark:bg-gray-950">
+    <div className="min-h-screen pt-16 bg-gray-50/50">
       <div className="max-w-7xl mx-auto p-6">
         {/* Personlig velkomst med glassmorphism */}
         <motion.div
@@ -441,11 +441,11 @@ export default function DashboardPage() {
           className="mb-8 relative"
         >
           {/* Bakgrunns-gradient blob */}
-          <div className="absolute -top-10 -left-10 w-40 h-40 bg-gradient-to-br from-violet-400/30 to-fuchsia-400/30 dark:from-violet-600/20 dark:to-fuchsia-600/20 rounded-full blur-3xl" />
-          <div className="absolute -top-5 right-20 w-32 h-32 bg-gradient-to-br from-fuchsia-400/20 to-pink-400/20 dark:from-fuchsia-600/15 dark:to-pink-600/15 rounded-full blur-3xl" />
+          <div className="absolute -top-10 -left-10 w-40 h-40 bg-gradient-to-br from-violet-400/30 to-fuchsia-400/30 rounded-full blur-3xl" />
+          <div className="absolute -top-5 right-20 w-32 h-32 bg-gradient-to-br from-fuchsia-400/20 to-pink-400/20 rounded-full blur-3xl" />
 
           {/* Glassmorphism card */}
-          <div className="relative backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 rounded-2xl border border-white/50 dark:border-gray-700/50 shadow-lg shadow-violet-500/5 dark:shadow-violet-500/10 p-6 overflow-hidden">
+          <div className="relative backdrop-blur-xl bg-white/70 rounded-2xl border border-white/50 shadow-lg shadow-violet-500/5 p-6 overflow-hidden">
             {/* Subtil shimmer-effekt */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" style={{ animationDelay: '1s' }} />
 
@@ -457,14 +457,14 @@ export default function DashboardPage() {
                   transition={{ duration: 0.5, delay: 0.2 }}
                   className="flex items-center gap-2 mb-1"
                 >
-                  <Sparkles className="h-5 w-5 text-violet-500 dark:text-violet-400" />
-                  <span className="text-sm font-medium text-violet-600 dark:text-violet-400">Velkommen tilbake</span>
+                  <Sparkles className="h-5 w-5 text-violet-500" />
+                  <span className="text-sm font-medium text-violet-600">Velkommen tilbake</span>
                 </motion.div>
                 <motion.h1
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: 0.3 }}
-                  className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white"
+                  className="text-2xl md:text-3xl font-bold text-gray-900"
                 >
                   {getGreeting()}, {userName}!
                 </motion.h1>
@@ -475,19 +475,19 @@ export default function DashboardPage() {
                   className="flex flex-wrap items-center gap-3 mt-2"
                 >
                   {/* Tid spart - hovedstat */}
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-100/80 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-100/80 text-emerald-700">
                     <Zap className="h-3.5 w-3.5" />
                     <span className="text-sm font-medium">{formatMinutesToHours(userStats.estimatedTimeSaved)} spart</span>
                   </div>
 
                   {/* Streak */}
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-100/80 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-100/80 text-orange-700">
                     <Flame className="h-3.5 w-3.5" />
                     <span className="text-sm font-medium">{userStats.currentStreak} dager streak</span>
                   </div>
 
                   {/* Denne måneden */}
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-100/80 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-100/80 text-violet-700">
                     <TrendingUp className="h-3.5 w-3.5" />
                     <span className="text-sm font-medium">{userStats.recordingsThisMonth} opptak i desember</span>
                   </div>
@@ -517,8 +517,8 @@ export default function DashboardPage() {
               <Mic className="h-5 w-5" />
             </div>
             <div className="text-left">
-              <h3 className="font-medium mb-1 text-gray-900 dark:text-white">Start opptak</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <h3 className="font-medium mb-1 text-gray-900">Start opptak</h3>
+              <p className="text-sm text-gray-600">
                 Begynn å ta opp et møte nå
               </p>
             </div>
@@ -532,8 +532,8 @@ export default function DashboardPage() {
               <FileText className="h-5 w-5" />
             </div>
             <div className="text-left">
-              <h3 className="font-medium mb-1 text-gray-900 dark:text-white">Last opp opptak</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <h3 className="font-medium mb-1 text-gray-900">Last opp opptak</h3>
+              <p className="text-sm text-gray-600">
                 Last opp eksisterende lydopptak
               </p>
             </div>
@@ -547,8 +547,8 @@ export default function DashboardPage() {
               <Video className="h-5 w-5" />
             </div>
             <div className="text-left">
-              <h3 className="font-medium mb-1 text-gray-900 dark:text-white">Direkteinvitasjon</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <h3 className="font-medium mb-1 text-gray-900">Direkteinvitasjon</h3>
+              <p className="text-sm text-gray-600">
                 Send Notably til et møte umiddelbart
               </p>
             </div>
@@ -556,7 +556,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Search Bar */}
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-gray-800 p-4 mb-6">
+        <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
           <div className="relative">
             <div className="flex items-center justify-between">
               <div className="flex-1 relative">
@@ -565,14 +565,14 @@ export default function DashboardPage() {
                   placeholder="Søk i opptak, transkripsjoner, etiketter..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 pl-10 focus:border-violet-500 dark:focus:border-violet-500 focus:ring-violet-500"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 pl-10 focus:border-violet-500 focus:ring-violet-500"
                 />
                 {searchQuery ? (
                   <button
                     onClick={() => setSearchQuery('')}
                     className="absolute right-3 top-1/2 -translate-y-1/2"
                   >
-                    <X className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   </button>
                 ) : (
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -588,15 +588,15 @@ export default function DashboardPage() {
                 className={cn(
                   "ml-4 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                   isBulkEditMode
-                    ? "bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300"
-                    : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    ? "bg-violet-100 text-violet-700"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 )}
               >
                 {isBulkEditMode ? 'Avslutt redigering' : 'Rediger møter'}
               </button>
             </div>
             <div className="mt-3 flex items-center space-x-2">
-              <span className="text-xs text-gray-500 dark:text-gray-400 mr-1">Periode:</span>
+              <span className="text-xs text-gray-500 mr-1">Periode:</span>
               {[
                 { value: 'total', label: 'Totalt' },
                 { value: 'day', label: 'I dag' },
@@ -610,7 +610,7 @@ export default function DashboardPage() {
                     "px-3 py-1 rounded-full text-xs font-medium transition-colors",
                     dateRange === option.value
                       ? "bg-violet-600 text-white"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   )}
                 >
                   {option.label}
@@ -625,38 +625,38 @@ export default function DashboardPage() {
           {/* Folders and Tags Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             {/* Meny - Quick Access */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-gray-800 overflow-hidden">
-              <div className="px-4 py-3 bg-gradient-to-r from-violet-50 to-fuchsia-50 dark:from-violet-900/20 dark:to-fuchsia-900/20 border-b border-violet-100 dark:border-violet-800/30">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="px-4 py-3 bg-gradient-to-r from-violet-50 to-fuchsia-50 border-b border-violet-100">
                 <div className="flex items-center space-x-2">
                   <div className="p-1 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-md">
                     <Zap className="h-3.5 w-3.5 text-white" />
                   </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">Meny</h3>
+                  <h3 className="font-semibold text-gray-900">Meny</h3>
                 </div>
               </div>
 
               {/* Calendar Mini Card */}
               <div className={cn(
-                "p-3 border-b border-gray-100 dark:border-gray-800",
-                !isCalendarConnected && "bg-gradient-to-r from-violet-50/50 to-fuchsia-50/50 dark:from-violet-900/10 dark:to-fuchsia-900/10"
+                "p-3 border-b border-gray-100",
+                !isCalendarConnected && "bg-gradient-to-r from-violet-50/50 to-fuchsia-50/50"
               )}>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <div className={cn(
                       "p-1.5 rounded-lg",
                       isCalendarConnected
-                        ? "bg-green-100 dark:bg-green-900/30"
-                        : "bg-white dark:bg-gray-800 shadow-sm dark:shadow-none"
+                        ? "bg-green-100"
+                        : "bg-white shadow-sm"
                     )}>
                       <CalendarIcon className={cn(
                         "h-4 w-4",
-                        isCalendarConnected ? "text-green-600 dark:text-green-400" : "text-violet-600 dark:text-violet-400"
+                        isCalendarConnected ? "text-green-600" : "text-violet-600"
                       )} />
                     </div>
-                    <span className="font-medium text-sm text-gray-900 dark:text-white">Kalender</span>
+                    <span className="font-medium text-sm text-gray-900">Kalender</span>
                   </div>
                   {isCalendarConnected && (
-                    <span className="flex items-center text-xs text-green-600 dark:text-green-400">
+                    <span className="flex items-center text-xs text-green-600">
                       <CheckCircle className="h-3 w-3 mr-1" />
                       Tilkoblet
                     </span>
@@ -672,24 +672,24 @@ export default function DashboardPage() {
                         const timeUntil = formatTimeUntilMeeting(nextMeeting);
                         const isUrgent = timeUntil.includes('min') || timeUntil === 'Starter nå';
                         return (
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 truncate">
+                          <p className="text-xs text-gray-600 mb-2 truncate">
                             <span className="truncate">{nextMeeting.title}</span>
                             <span className="mx-1">•</span>
-                            <span className={cn(isUrgent && "text-orange-600 dark:text-orange-400 font-medium")}>
+                            <span className={cn(isUrgent && "text-orange-600 font-medium")}>
                               {timeUntil}
                             </span>
                           </p>
                         );
                       }
                       return (
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">
+                        <p className="text-xs text-gray-500 mb-2">
                           Ingen kommende møter
                         </p>
                       );
                     })()}
                     <button
                       onClick={() => setShowCalendarMeetingsModal(true)}
-                      className="w-full text-xs font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 flex items-center justify-center py-1.5 rounded-lg bg-violet-50 dark:bg-violet-900/20 hover:bg-violet-100 dark:hover:bg-violet-900/30 transition-colors"
+                      className="w-full text-xs font-medium text-violet-600 hover:text-violet-700 flex items-center justify-center py-1.5 rounded-lg bg-violet-50 hover:bg-violet-100 transition-colors"
                     >
                       Se alle møter
                       <ArrowRight className="h-3 w-3 ml-1" />
@@ -698,7 +698,7 @@ export default function DashboardPage() {
                 ) : (
                   // Not connected - show connection buttons
                   <>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">
+                    <p className="text-xs text-gray-500 mb-2">
                       Koble til for automatisk transkripsjon
                     </p>
                     <div className="flex gap-2">
@@ -707,7 +707,7 @@ export default function DashboardPage() {
                           setIsCalendarConnected(true);
                           toast.success('Microsoft 365 kalender tilkoblet!');
                         }}
-                        className="flex-1 inline-flex items-center justify-center px-2 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-violet-300 dark:hover:border-violet-500 transition-colors"
+                        className="flex-1 inline-flex items-center justify-center px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-violet-300 transition-colors"
                       >
                         <svg className="h-3 w-3 mr-1" viewBox="0 0 23 23">
                           <path fill="#f35325" d="M1 1h10v10H1z"/>
@@ -722,7 +722,7 @@ export default function DashboardPage() {
                           setIsCalendarConnected(true);
                           toast.success('Google Calendar tilkoblet!');
                         }}
-                        className="flex-1 inline-flex items-center justify-center px-2 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-violet-300 dark:hover:border-violet-500 transition-colors"
+                        className="flex-1 inline-flex items-center justify-center px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-violet-300 transition-colors"
                       >
                         <svg className="h-3 w-3 mr-1" viewBox="0 0 24 24">
                           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -740,39 +740,39 @@ export default function DashboardPage() {
               {/* Maler Link Row */}
               <Link
                 to="/templates"
-                className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group"
+                className="flex items-center justify-between px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors group"
               >
                 <div className="flex items-center space-x-2">
-                  <div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/30">
-                    <FileText className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  <div className="p-1.5 rounded-lg bg-amber-100">
+                    <FileText className="h-4 w-4 text-amber-600" />
                   </div>
-                  <span className="font-medium text-sm text-gray-900 dark:text-white">Maler</span>
+                  <span className="font-medium text-sm text-gray-900">Maler</span>
                 </div>
-                <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:translate-x-0.5 transition-all" />
+                <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
               </Link>
 
               {/* Innstillinger Link Row */}
               <Link
                 to="/settings"
-                className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group"
+                className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors group"
               >
                 <div className="flex items-center space-x-2">
-                  <div className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800">
-                    <Settings className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                  <div className="p-1.5 rounded-lg bg-slate-100">
+                    <Settings className="h-4 w-4 text-slate-600" />
                   </div>
-                  <span className="font-medium text-sm text-gray-900 dark:text-white">Innstillinger</span>
+                  <span className="font-medium text-sm text-gray-900">Innstillinger</span>
                 </div>
-                <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:translate-x-0.5 transition-all" />
+                <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
               </Link>
             </div>
 
             {/* Folders */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-gray-800 p-4">
+            <div className="bg-white rounded-xl shadow-sm p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium text-gray-900 dark:text-white">Mapper</h3>
+                <h3 className="font-medium text-gray-900">Mapper</h3>
                 <button
                   onClick={() => setShowNewFolderInput(true)}
-                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-gray-600 dark:text-gray-400"
+                  className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600"
                 >
                   <FolderPlus className="h-4 w-4" />
                 </button>
@@ -785,7 +785,7 @@ export default function DashboardPage() {
                     value={newFolderName}
                     onChange={(e) => setNewFolderName(e.target.value)}
                     placeholder="Mappenavn..."
-                    className="flex-1 px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-violet-500 focus:ring-violet-500"
+                    className="flex-1 px-3 py-1.5 text-sm rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-violet-500 focus:ring-violet-500"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleAddFolder();
                       if (e.key === 'Escape') setShowNewFolderInput(false);
@@ -799,7 +799,7 @@ export default function DashboardPage() {
                   </button>
                   <button
                     onClick={() => setShowNewFolderInput(false)}
-                    className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-gray-600 dark:text-gray-400"
+                    className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -812,8 +812,8 @@ export default function DashboardPage() {
                   className={cn(
                     "w-full flex items-center px-3 py-2 rounded-lg text-sm transition-colors",
                     !activeFolder
-                      ? "bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      ? "bg-violet-50 text-violet-600"
+                      : "text-gray-600 hover:bg-gray-50"
                   )}
                 >
                   <Folder className="h-4 w-4 mr-2" />
@@ -830,8 +830,8 @@ export default function DashboardPage() {
                       className={cn(
                         "w-full flex items-center px-3 py-2 rounded-lg text-sm transition-colors",
                         activeFolder === folder.id
-                          ? "bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400"
-                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+                          ? "bg-violet-50 text-violet-600"
+                          : "text-gray-600 hover:bg-gray-50"
                       )}
                     >
                       <Folder className="h-4 w-4 mr-2" />
@@ -850,17 +850,17 @@ export default function DashboardPage() {
                       <MoreVertical className="h-4 w-4 text-gray-400" />
                     </button>
                     {activeFolderMenu === folder.id && (
-                      <div className="absolute right-0 top-0 mt-8 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-10">
+                      <div className="absolute right-0 top-0 mt-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
                         <button
                           onClick={() => handleFolderAction(folder.id, folder.name, 'rename')}
-                          className="w-full flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                          className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                         >
                           <Pencil className="h-4 w-4 mr-2" />
                           Endre navn
                         </button>
                         <button
                           onClick={() => handleFolderAction(folder.id, folder.name, 'delete')}
-                          className="w-full flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
+                          className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
                           Slett mappe
@@ -873,12 +873,12 @@ export default function DashboardPage() {
             </div>
 
             {/* Tags */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-gray-800 p-4">
+            <div className="bg-white rounded-xl shadow-sm p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium text-gray-900 dark:text-white">Etiketter</h3>
+                <h3 className="font-medium text-gray-900">Etiketter</h3>
                 <button
                   onClick={() => setShowTagEditor(true)}
-                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-gray-600 dark:text-gray-400"
+                  className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600"
                 >
                   <Edit2 className="h-4 w-4" />
                 </button>
@@ -892,7 +892,7 @@ export default function DashboardPage() {
                       "inline-flex items-center px-3 py-1 rounded-full text-sm transition-colors",
                       activeTags.has(tag.id)
                         ? "bg-violet-600 text-white"
-                        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     )}
                   >
                     <TagIcon className="h-3 w-3 mr-1" />
@@ -908,13 +908,13 @@ export default function DashboardPage() {
             <div className="space-y-4">
               {isLoading ? (
                 <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-violet-600 dark:border-violet-400 mx-auto"></div>
-                  <p className="text-gray-600 dark:text-gray-400 mt-4">Henter opptak...</p>
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-violet-600 mx-auto"></div>
+                  <p className="text-gray-600 mt-4">Henter opptak...</p>
                 </div>
               ) : error ? (
-                <div className="text-center py-8 text-red-600 dark:text-red-400">{error}</div>
+                <div className="text-center py-8 text-red-600">{error}</div>
               ) : getCurrentPageRecordings().length === 0 ? (
-                <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+                <div className="text-center py-8 text-gray-600">
                   {searchQuery
                     ? 'Ingen opptak funnet for dette søket'
                     : activeFolder
@@ -930,7 +930,7 @@ export default function DashboardPage() {
                       key={recording.id}
                       className={cn(
                         "feature-card flex items-center justify-between group",
-                        selectedRecordings.has(recording.id) && "bg-violet-50/50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800"
+                        selectedRecordings.has(recording.id) && "bg-violet-50/50 border-violet-200"
                       )}
                     >
                       <div
@@ -939,10 +939,10 @@ export default function DashboardPage() {
                         {isBulkEditMode && (
                         <button
                           onClick={() => toggleRecordingSelection(recording.id)}
-                          className="p-2 hover:bg-violet-100 dark:hover:bg-violet-900/30 rounded-lg transition-colors"
+                          className="p-2 hover:bg-violet-100 rounded-lg transition-colors"
                         >
                           {selectedRecordings.has(recording.id) ? (
-                            <CheckSquare className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                            <CheckSquare className="h-5 w-5 text-violet-600" />
                           ) : (
                             <Square className="h-5 w-5 text-gray-400" />
                           )}
@@ -951,10 +951,10 @@ export default function DashboardPage() {
                         <div className={cn(
                           "p-3 rounded-xl",
                           recording.status === 'completed'
-                            ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+                            ? 'bg-green-100 text-green-600'
                             : recording.status === 'processing'
-                            ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'
-                            : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                            ? 'bg-yellow-100 text-yellow-600'
+                            : 'bg-red-100 text-red-600'
                         )}>
                           <Mic className="h-5 w-5" />
                         </div>
@@ -963,8 +963,8 @@ export default function DashboardPage() {
                           className="min-w-0 flex-1 flex items-center group"
                         >
                           <div className="flex-1">
-                            <h3 className="font-medium mb-1 text-gray-900 dark:text-white">{recording.title}</h3>
-                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            <h3 className="font-medium mb-1 text-gray-900">{recording.title}</h3>
+                            <div className="flex items-center text-sm text-gray-600 mb-2">
                               <Clock className="h-4 w-4 mr-1" />
                               <span>{formatDate(recording.created_at)}</span>
                               <span className="mx-2">•</span>
@@ -972,7 +972,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="flex flex-wrap items-center gap-2">
                               {recording.folder_id && (
-                                <span className="inline-flex items-center px-2 py-1 rounded-md bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 text-xs">
+                                <span className="inline-flex items-center px-2 py-1 rounded-md bg-violet-50 text-violet-600 text-xs">
                                   <Folder className="h-3 w-3 mr-1" />
                                   {folders.find(f => f.id === recording.folder_id)?.name}
                               </span>
@@ -980,7 +980,7 @@ export default function DashboardPage() {
                               {recording.tags?.map(tag => (
                                 <span
                                   key={tag.id}
-                                  className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs"
+                                  className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-600 text-xs"
                                 >
                                   <TagIcon className="h-3 w-3 mr-1" />
                                   {tag.name}
@@ -996,8 +996,8 @@ export default function DashboardPage() {
 
                   {/* Bulk Delete Controls */}
                   {selectedRecordings.size > 0 && (
-                    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-2xl border border-gray-200 dark:border-gray-700 p-4 flex items-center space-x-4">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-4 flex items-center space-x-4">
+                      <span className="text-sm text-gray-600">
                         {selectedRecordings.size} opptak valgt
                       </span>
                       <button

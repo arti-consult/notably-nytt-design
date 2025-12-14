@@ -4,7 +4,6 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { FolderProvider } from '@/contexts/FolderContext';
 import { AdminProvider } from '@/contexts/AdminContext';
 import { DemoUserProvider } from '@/contexts/DemoUserContext';
-import { ThemeProvider } from '@/contexts/ThemeContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import ProtectedAdminRoute from '@/components/admin/ProtectedAdminRoute';
 import ScrollToTop from '@/components/ScrollToTop';
@@ -82,19 +81,17 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <Router>
-        <AuthProvider>
-          <FolderProvider>
-            <AdminProvider>
-              <DemoUserProvider>
-                <ScrollToTop />
-                <AppRoutes />
-              </DemoUserProvider>
-            </AdminProvider>
-          </FolderProvider>
-        </AuthProvider>
-      </Router>
-    </ThemeProvider>
+    <Router>
+      <AuthProvider>
+        <FolderProvider>
+          <AdminProvider>
+            <DemoUserProvider>
+              <ScrollToTop />
+              <AppRoutes />
+            </DemoUserProvider>
+          </AdminProvider>
+        </FolderProvider>
+      </AuthProvider>
+    </Router>
   );
 }

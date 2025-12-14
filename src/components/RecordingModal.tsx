@@ -176,26 +176,26 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
   const displayError = recordingError || saveError || localError;
 
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4 overflow-hidden">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col border border-gray-200 dark:border-gray-800">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-hidden">
+      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col border border-gray-200">
         {/* Header */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+        <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className={cn(
                 "p-2 rounded-full",
-                isRecording ? 'bg-red-100 dark:bg-red-900/30' : 'bg-gray-100 dark:bg-gray-800'
+                isRecording ? 'bg-red-100' : 'bg-gray-100'
               )}>
                 <Mic className={cn(
                   "h-5 w-5",
-                  isRecording ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
+                  isRecording ? 'text-red-600' : 'text-gray-600'
                 )} />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">
+                <h3 className="font-semibold text-gray-900">
                   {isRecording ? 'Opptak pågår' : 'Klar til opptak'}
                 </h3>
-                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-center text-sm text-gray-600">
                   <Clock className="h-4 w-4 mr-1" />
                   <span>{formatDuration(duration)}</span>
                 </div>
@@ -203,15 +203,15 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+              className="p-2 hover:bg-gray-100 rounded-full"
               disabled={isRecording || isSaving}
             >
-              <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              <X className="h-5 w-5 text-gray-500" />
             </button>
           </div>
 
           {displayError && (
-            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg text-sm flex items-center">
+            <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm flex items-center">
               <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
               <span>{displayError}</span>
             </div>
@@ -224,7 +224,7 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
             <div className="space-y-6">
               {/* Title */}
               <div>
-                <label htmlFor="recordingTitle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label htmlFor="recordingTitle" className="block text-sm font-medium text-gray-700 mb-2">
                   Navn på opptak
                 </label>
                 <div className="relative">
@@ -238,19 +238,19 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
                     }}
                     placeholder="F.eks. Ukentlig møte"
                     className={cn(
-                      "w-full rounded-lg border px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-violet-500 focus:ring-violet-500",
-                      titleError ? "border-red-300 dark:border-red-700" : "border-gray-300 dark:border-gray-700"
+                      "w-full rounded-lg border px-4 py-2 bg-white text-gray-900 placeholder-gray-400 focus:border-violet-500 focus:ring-violet-500",
+                      titleError ? "border-red-300" : "border-gray-300"
                     )}
                     disabled={isRecording}
                   />
                   {titleError && (
                     <div className="absolute right-0 top-0 h-full flex items-center pr-3">
-                      <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400" />
+                      <AlertCircle className="h-5 w-5 text-red-500" />
                     </div>
                   )}
                 </div>
                 {titleError && (
-                  <p className="mt-2 text-sm text-red-600 dark:text-red-400">{titleError}</p>
+                  <p className="mt-2 text-sm text-red-600">{titleError}</p>
                 )}
               </div>
 
@@ -267,7 +267,7 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
 
               {/* Participants */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Legg til deltakere (valgfritt)
                 </label>
 
@@ -275,22 +275,22 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
                   {participants.map(participant => (
                     <div
                       key={participant.id}
-                      className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+                      className="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-gray-50"
                     >
                       <div className="flex items-center space-x-3">
-                        <div className="p-2 rounded-full bg-violet-100 dark:bg-violet-900/30">
-                          <UserPlus className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                        <div className="p-2 rounded-full bg-violet-100">
+                          <UserPlus className="h-4 w-4 text-violet-600" />
                         </div>
                         <div>
-                          <p className="font-medium text-sm text-gray-900 dark:text-white">{participant.name}</p>
+                          <p className="font-medium text-sm text-gray-900">{participant.name}</p>
                           {participant.email && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400">{participant.email}</p>
+                            <p className="text-sm text-gray-600">{participant.email}</p>
                           )}
                         </div>
                       </div>
                       <button
                         onClick={() => handleRemoveParticipant(participant.id)}
-                        className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30"
+                        className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -309,7 +309,7 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
                           name: e.target.value
                         }))}
                         placeholder="Navn"
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-violet-500 focus:ring-violet-500"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-violet-500 focus:ring-violet-500"
                       />
                     </div>
                     <div className="flex-1">
@@ -321,7 +321,7 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
                           email: e.target.value
                         }))}
                         placeholder="E-post (valgfritt)"
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-violet-500 focus:ring-violet-500"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-violet-500 focus:ring-violet-500"
                       />
                     </div>
                     <button
@@ -332,7 +332,7 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
                     </button>
                   </div>
                   {participantError && (
-                    <p className="text-sm text-red-600 dark:text-red-400">{participantError}</p>
+                    <p className="text-sm text-red-600">{participantError}</p>
                   )}
                 </div>
               </div>
@@ -343,18 +343,18 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
             {isRecording ? (
               <div className="flex flex-col items-center">
                 {audioStream && <AudioVisualizer stream={audioStream} />}
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{recordingTitle}</p>
+                <p className="text-sm text-gray-500 mt-2">{recordingTitle}</p>
               </div>
             ) : isProcessing || isSaving ? (
               <div className="flex flex-col items-center">
-                <Activity className="h-12 w-12 text-violet-600 dark:text-violet-400 animate-pulse mb-4" />
-                <p className="text-gray-600 dark:text-gray-400">
+                <Activity className="h-12 w-12 text-violet-600 animate-pulse mb-4" />
+                <p className="text-gray-600">
                   {isProcessing ? 'Behandler opptak...' : 'Lagrer opptak...'}
                 </p>
               </div>
             ) : audioBlob ? (
               <div className="flex flex-col items-center">
-                <p className="text-gray-600 dark:text-gray-400 mb-4">Opptak fullført</p>
+                <p className="text-gray-600 mb-4">Opptak fullført</p>
                 <button
                   onClick={handleSaveRecording}
                   disabled={isSaving}
@@ -383,7 +383,7 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-800 flex-shrink-0">
+        <div className="p-4 border-t border-gray-200 flex-shrink-0">
           <div className="flex items-center justify-between">
             {isRecording && (
               <button

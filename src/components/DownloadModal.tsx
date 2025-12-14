@@ -80,7 +80,7 @@ export default function DownloadModal({
           "px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2",
           variant === 'primary'
             ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white shadow-sm hover:shadow-md"
-            : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700",
+            : "bg-gray-100 text-gray-700 hover:bg-gray-200",
           loadingType !== null && loadingType !== type && "opacity-50 cursor-not-allowed",
           isDownloaded && "bg-emerald-500 hover:bg-emerald-500 from-emerald-500 to-emerald-500"
         )}
@@ -111,7 +111,7 @@ export default function DownloadModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
         onClick={(e) => e.target === e.currentTarget && onClose()}
       >
         <motion.div
@@ -119,23 +119,23 @@ export default function DownloadModal({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ type: 'spring', duration: 0.3 }}
-          className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-lg shadow-2xl"
+          className="bg-white rounded-2xl w-full max-w-lg shadow-2xl"
         >
           {/* Header */}
-          <div className="p-5 border-b border-gray-200 dark:border-gray-800">
+          <div className="p-5 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Last ned</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                <h3 className="text-lg font-semibold text-gray-900">Last ned</h3>
+                <p className="text-sm text-gray-500 mt-0.5">
                   Velg innhold og format
                 </p>
               </div>
               <button
                 onClick={onClose}
                 disabled={loadingType !== null}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
-                <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                <X className="h-5 w-5 text-gray-500" />
               </button>
             </div>
           </div>
@@ -144,14 +144,14 @@ export default function DownloadModal({
           <div className="p-5 space-y-4">
             {/* Sammendrag Card */}
             {hasSummary && (
-              <div className="bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-violet-900/20 dark:to-fuchsia-900/20 rounded-xl p-4 border border-violet-100 dark:border-violet-800/50">
+              <div className="bg-gradient-to-br from-violet-50 to-fuchsia-50 rounded-xl p-4 border border-violet-100">
                 <div className="flex items-start gap-4">
-                  <div className="p-2.5 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-                    <FileText className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+                  <div className="p-2.5 bg-white rounded-xl shadow-sm">
+                    <FileText className="h-6 w-6 text-violet-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-gray-900 dark:text-white">Sammendrag</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                    <h4 className="font-semibold text-gray-900">Sammendrag</h4>
+                    <p className="text-sm text-gray-600 mt-0.5">
                       Oppsummering med hovedpunkter og aksjonspunkter
                     </p>
                     <div className="flex flex-wrap gap-2 mt-3">
@@ -165,14 +165,14 @@ export default function DownloadModal({
 
             {/* Transkripsjon Card */}
             {hasTranscription && (
-              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl p-4 border border-blue-100 dark:border-blue-800/50">
+              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
                 <div className="flex items-start gap-4">
-                  <div className="p-2.5 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-                    <FileSpreadsheet className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  <div className="p-2.5 bg-white rounded-xl shadow-sm">
+                    <FileSpreadsheet className="h-6 w-6 text-blue-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-gray-900 dark:text-white">Transkripsjon</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                    <h4 className="font-semibold text-gray-900">Transkripsjon</h4>
+                    <p className="text-sm text-gray-600 mt-0.5">
                       Fullstendig tekst med tidsstempler
                     </p>
                     <div className="flex flex-wrap gap-2 mt-3">
@@ -187,14 +187,14 @@ export default function DownloadModal({
 
             {/* Lydopptak Card */}
             {hasAudio && (
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl p-4 border border-amber-100 dark:border-amber-800/50">
+              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100">
                 <div className="flex items-start gap-4">
-                  <div className="p-2.5 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-                    <Music className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                  <div className="p-2.5 bg-white rounded-xl shadow-sm">
+                    <Music className="h-6 w-6 text-amber-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-gray-900 dark:text-white">Lydopptak</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                    <h4 className="font-semibold text-gray-900">Lydopptak</h4>
+                    <p className="text-sm text-gray-600 mt-0.5">
                       Original lydfil fra møtet
                     </p>
                     <div className="flex flex-wrap gap-2 mt-3">
@@ -206,7 +206,7 @@ export default function DownloadModal({
             )}
 
             {/* Demo notice */}
-            <p className="text-xs text-center text-gray-400 dark:text-gray-500 pt-2">
+            <p className="text-xs text-center text-gray-400 pt-2">
               Demo-modus: Nedlasting simuleres
             </p>
           </div>

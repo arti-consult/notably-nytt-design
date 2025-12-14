@@ -62,8 +62,8 @@ export default function Pagination({
         className={cn(
           "p-2 rounded-lg transition-colors",
           currentPage === 1
-            ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-            : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-gray-600 hover:bg-gray-100"
         )}
         aria-label="Forrige side"
       >
@@ -75,7 +75,7 @@ export default function Pagination({
         page === 'ellipsis' ? (
           <span
             key={`ellipsis-${index}`}
-            className="px-4 py-2 text-gray-400 dark:text-gray-500"
+            className="px-4 py-2 text-gray-400"
           >
             ...
           </span>
@@ -87,7 +87,7 @@ export default function Pagination({
               "min-w-[40px] h-10 px-4 rounded-lg transition-colors",
               currentPage === page
                 ? "bg-violet-600 text-white"
-                : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                : "text-gray-600 hover:bg-gray-100"
             )}
           >
             {page}
@@ -102,8 +102,8 @@ export default function Pagination({
         className={cn(
           "p-2 rounded-lg transition-colors",
           currentPage === totalPages
-            ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-            : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-gray-600 hover:bg-gray-100"
         )}
         aria-label="Neste side"
       >

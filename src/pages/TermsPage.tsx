@@ -135,46 +135,46 @@ Vårt samlede ansvar er begrenset til avgiftene betalt de siste tolv månedene.`
 
 export default function TermsPage() {
   return (
-    <main className="pt-16 min-h-screen bg-gray-50 dark:bg-gray-950">
+    <main className="pt-16 min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-8">
           <Link
             to="/"
-            className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
+            className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
             Tilbake
           </Link>
           <div className="flex items-center space-x-3 mb-4">
-            <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
-              <FileText className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+            <div className="p-2 bg-violet-100 rounded-lg">
+              <FileText className="h-6 w-6 text-violet-600" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Vilkår for bruk</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Vilkår for bruk</h1>
           </div>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600">
             Sist oppdatert: 28. oktober 2025
           </p>
         </div>
 
         {/* Introduction */}
-        <div className="bg-gradient-to-r from-violet-50 to-fuchsia-50 dark:from-violet-900/20 dark:to-fuchsia-900/20 rounded-xl p-6 mb-8 border border-violet-100 dark:border-violet-800/50">
-          <p className="text-gray-700 dark:text-gray-300">
+        <div className="bg-gradient-to-r from-violet-50 to-fuchsia-50 rounded-xl p-6 mb-8 border border-violet-100">
+          <p className="text-gray-700">
             Disse vilkårene beskriver avtalen mellom deg og Notably AI. Ved å opprette en konto eller bruke tjenesten godtar du reglene nedenfor.
           </p>
         </div>
 
         {/* Table of Contents */}
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-gray-800 p-6 mb-8">
-          <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Innholdsfortegnelse</h2>
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+          <h2 className="font-semibold text-gray-900 mb-4">Innholdsfortegnelse</h2>
           <nav className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {sections.map((section, index) => (
               <a
                 key={section.id}
                 href={`#${section.id}`}
-                className="flex items-center text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors py-1"
+                className="flex items-center text-gray-600 hover:text-violet-600 transition-colors py-1"
               >
-                <span className="text-violet-600 dark:text-violet-400 mr-2 w-5">{index + 1}.</span>
+                <span className="text-violet-600 mr-2 w-5">{index + 1}.</span>
                 {'isGoogle' in section && section.isGoogle && (
                   <GoogleIcon className="h-4 w-4 mr-1.5 flex-shrink-0" />
                 )}
@@ -190,40 +190,40 @@ export default function TermsPage() {
             <section
               key={section.id}
               id={section.id}
-              className="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-gray-800 p-6 scroll-mt-24"
+              className="bg-white rounded-xl shadow-sm p-6 scroll-mt-24"
             >
               <div className="flex items-center space-x-3 mb-4">
-                <div className="p-2 bg-violet-50 dark:bg-violet-900/30 rounded-lg">
+                <div className="p-2 bg-violet-50 rounded-lg">
                   {'isGoogle' in section && section.isGoogle ? (
                     <GoogleIcon className="h-5 w-5" />
                   ) : (
-                    <section.icon className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                    <section.icon className="h-5 w-5 text-violet-600" />
                   )}
                 </div>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-xl font-semibold text-gray-900">
                   {index + 1}. {section.title}
                 </h2>
               </div>
-              <div className="prose prose-gray dark:prose-invert max-w-none">
+              <div className="prose prose-gray max-w-none">
                 {section.content.split('\n\n').map((paragraph, pIndex) => (
                   <div key={pIndex} className="mb-4">
                     {paragraph.split('\n').map((line, lIndex) => {
                       if (line.startsWith('**') && line.endsWith('**')) {
                         return (
-                          <h3 key={lIndex} className="font-semibold text-gray-900 dark:text-white mt-4 mb-2">
+                          <h3 key={lIndex} className="font-semibold text-gray-900 mt-4 mb-2">
                             {line.replace(/\*\*/g, '')}
                           </h3>
                         );
                       }
                       if (line.startsWith('- ')) {
                         return (
-                          <li key={lIndex} className="text-gray-600 dark:text-gray-300 ml-4 list-disc">
+                          <li key={lIndex} className="text-gray-600 ml-4 list-disc">
                             {line.substring(2).replace(/\*\*/g, '')}
                           </li>
                         );
                       }
                       return (
-                        <p key={lIndex} className="text-gray-600 dark:text-gray-300">
+                        <p key={lIndex} className="text-gray-600">
                           {line}
                         </p>
                       );
@@ -236,22 +236,22 @@ export default function TermsPage() {
         </div>
 
         {/* Contact Footer */}
-        <div className="mt-12 bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-none dark:border dark:border-gray-800 p-6">
+        <div className="mt-12 bg-white rounded-xl shadow-sm p-6">
           <div className="text-center">
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600 mb-4">
               Ved å bruke Notably godtar du disse vilkårene for bruk.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
                 href="mailto:legal@notably.no"
-                className="inline-flex items-center px-4 py-2 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 rounded-lg hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors"
+                className="inline-flex items-center px-4 py-2 bg-violet-100 text-violet-700 rounded-lg hover:bg-violet-200 transition-colors"
               >
                 <Mail className="h-4 w-4 mr-2" />
                 legal@notably.no
               </a>
               <Link
                 to="/privacy"
-                className="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 <Shield className="h-4 w-4 mr-2" />
                 Personvernerklæring

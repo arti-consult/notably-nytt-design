@@ -74,7 +74,7 @@ export default function DirectInviteModal({ isOpen, onClose }: DirectInviteModal
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
         onClick={(e) => e.target === e.currentTarget && status !== 'inviting' && handleClose()}
       >
         <motion.div
@@ -82,7 +82,7 @@ export default function DirectInviteModal({ isOpen, onClose }: DirectInviteModal
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ type: 'spring', duration: 0.3 }}
-          className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
+          className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
         >
           {/* Success State */}
           {status === 'success' ? (
@@ -91,14 +91,14 @@ export default function DirectInviteModal({ isOpen, onClose }: DirectInviteModal
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', duration: 0.5 }}
-                className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/50 rounded-full flex items-center justify-center mx-auto mb-4"
+                className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4"
               >
-                <CheckCircle className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+                <CheckCircle className="h-8 w-8 text-emerald-600" />
               </motion.div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 Assistent invitert!
               </h3>
-              <p className="text-gray-500 dark:text-gray-400">
+              <p className="text-gray-500">
                 Notably-assistenten blir med i møtet om kort tid.
               </p>
             </div>
@@ -108,9 +108,9 @@ export default function DirectInviteModal({ isOpen, onClose }: DirectInviteModal
               <button
                 onClick={handleClose}
                 disabled={status === 'inviting'}
-                className="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors z-10"
+                className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors z-10"
               >
-                <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                <X className="h-5 w-5 text-gray-500" />
               </button>
 
               {/* Header with icon */}
@@ -118,10 +118,10 @@ export default function DirectInviteModal({ isOpen, onClose }: DirectInviteModal
                 <div className="w-16 h-16 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg">
                   <Sparkles className="h-8 w-8 text-white" />
                 </div>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">
                   Inviter assistenten umiddelbart
                 </h2>
-                <p className="text-gray-500 dark:text-gray-400 px-6">
+                <p className="text-gray-500 px-6">
                   Del møtelenken, så inviterer vi Notably-assistenten og tar opp samtalen.
                 </p>
               </div>
@@ -133,7 +133,7 @@ export default function DirectInviteModal({ isOpen, onClose }: DirectInviteModal
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm"
+                    className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm"
                   >
                     {error}
                   </motion.div>
@@ -141,7 +141,7 @@ export default function DirectInviteModal({ isOpen, onClose }: DirectInviteModal
 
                 {/* Meeting title */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Møtetittel
                   </label>
                   <input
@@ -150,17 +150,17 @@ export default function DirectInviteModal({ isOpen, onClose }: DirectInviteModal
                     onChange={(e) => setMeetingTitle(e.target.value)}
                     placeholder="Gi møtet et navn"
                     disabled={status === 'inviting'}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-violet-500 dark:focus:border-violet-400 focus:ring-2 focus:ring-violet-500/20 outline-none transition-colors"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 outline-none transition-colors"
                   />
                 </div>
 
                 {/* Meeting link */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Møtelenke
                   </label>
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                       <Link2 className="h-5 w-5" />
                     </div>
                     <input
@@ -172,13 +172,13 @@ export default function DirectInviteModal({ isOpen, onClose }: DirectInviteModal
                       }}
                       placeholder="https://meet.google.com/abc-defg-hij"
                       disabled={status === 'inviting'}
-                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-violet-500 dark:focus:border-violet-400 focus:ring-2 focus:ring-violet-500/20 focus:bg-white dark:focus:bg-gray-800 outline-none transition-colors"
+                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 focus:bg-white outline-none transition-colors"
                     />
                   </div>
                 </div>
 
                 {/* Supported platforms hint */}
-                <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+                <p className="text-xs text-gray-400 text-center">
                   Støtter Google Meet, Zoom, Teams, Whereby og Webex
                 </p>
 
@@ -189,8 +189,8 @@ export default function DirectInviteModal({ isOpen, onClose }: DirectInviteModal
                   className={cn(
                     "w-full py-3.5 rounded-xl font-medium flex items-center justify-center gap-2 transition-all mt-2",
                     !meetingLink.trim() || status === 'inviting'
-                      ? "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
-                      : "bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm hover:shadow-md"
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      : "bg-gray-900 text-white hover:bg-gray-800 shadow-sm hover:shadow-md"
                   )}
                 >
                   {status === 'inviting' ? (

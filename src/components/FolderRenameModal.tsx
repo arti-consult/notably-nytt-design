@@ -56,24 +56,24 @@ export default function FolderRenameModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md border border-gray-200 dark:border-gray-800">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-md border border-gray-200">
+        <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900 dark:text-white">Endre mappenavn</h3>
+            <h3 className="font-semibold text-gray-900">Endre mappenavn</h3>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+              className="p-2 hover:bg-gray-100 rounded-full"
               disabled={isLoading}
             >
-              <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              <X className="h-5 w-5 text-gray-500" />
             </button>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6">
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm flex items-center">
+            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm flex items-center">
               <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
               {error}
             </div>
@@ -81,7 +81,7 @@ export default function FolderRenameModal({
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="folderName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label htmlFor="folderName" className="block text-sm font-medium text-gray-700 mb-2">
                 Mappenavn
               </label>
               <div className="relative">
@@ -94,7 +94,7 @@ export default function FolderRenameModal({
                     setNewName(e.target.value);
                     setError(null);
                   }}
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-violet-500 focus:ring-violet-500"
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:border-violet-500 focus:ring-violet-500"
                   disabled={isLoading}
                   autoFocus
                   onFocus={(e) => e.target.select()}
@@ -107,7 +107,7 @@ export default function FolderRenameModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
               disabled={isLoading}
             >
               Avbryt
@@ -118,7 +118,7 @@ export default function FolderRenameModal({
               className={cn(
                 "px-4 py-2 rounded-lg text-white transition-colors",
                 isLoading || !newName.trim() || newName.trim() === currentName
-                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                  ? "bg-gray-400 cursor-not-allowed"
                   : "bg-violet-600 hover:bg-violet-700"
               )}
             >

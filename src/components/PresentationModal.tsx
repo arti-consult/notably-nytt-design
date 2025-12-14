@@ -135,23 +135,23 @@ export default function PresentationModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-lg border border-gray-200 overflow-hidden">
         {/* Header */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+        <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-violet-100 dark:bg-violet-900/50 rounded-lg">
-                <Presentation className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+              <div className="p-2 bg-violet-100 rounded-lg">
+                <Presentation className="h-5 w-5 text-violet-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">
+                <h3 className="font-semibold text-gray-900">
                   {state === 'generating' ? 'Genererer presentasjon...' :
                    state === 'success' ? 'Presentasjon klar!' :
                    state === 'error' ? 'Noe gikk galt' :
                    'Lag presentasjon'}
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-gray-500">
                   {state === 'form' && 'Generer en profesjonell presentasjon fra møtenotater'}
                   {state === 'generating' && 'Dette tar vanligvis 30-60 sekunder'}
                   {state === 'success' && 'Din presentasjon er klar i Gamma'}
@@ -161,9 +161,9 @@ export default function PresentationModal({
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              <X className="h-5 w-5 text-gray-500" />
             </button>
           </div>
         </div>
@@ -174,7 +174,7 @@ export default function PresentationModal({
             <div className="space-y-6">
               {/* Presentation Type Selector */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Presentasjonstype
                 </label>
                 <div className="relative">
@@ -185,13 +185,13 @@ export default function PresentationModal({
                       setShowSlideDropdown(false);
                       setShowLanguageDropdown(false);
                     }}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-colors"
                   >
                     <div className="flex items-center space-x-3">
                       <selectedType.icon className="h-5 w-5 text-violet-500" />
                       <div className="text-left">
-                        <p className="font-medium text-gray-900 dark:text-white">{selectedType.name}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{selectedType.description}</p>
+                        <p className="font-medium text-gray-900">{selectedType.name}</p>
+                        <p className="text-sm text-gray-500">{selectedType.description}</p>
                       </div>
                     </div>
                     <ChevronDown className={cn(
@@ -201,7 +201,7 @@ export default function PresentationModal({
                   </button>
 
                   {showTypeDropdown && (
-                    <div className="absolute z-20 mt-2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2 max-h-64 overflow-auto">
+                    <div className="absolute z-20 mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 py-2 max-h-64 overflow-auto">
                       {presentationTypes.map(type => (
                         <button
                           key={type.id}
@@ -211,23 +211,23 @@ export default function PresentationModal({
                             setShowTypeDropdown(false);
                           }}
                           className={cn(
-                            "w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors",
-                            options.type === type.id && "bg-violet-50 dark:bg-violet-900/30"
+                            "w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 transition-colors",
+                            options.type === type.id && "bg-violet-50"
                           )}
                         >
                           <type.icon className={cn(
                             "h-5 w-5",
-                            options.type === type.id ? "text-violet-600 dark:text-violet-400" : "text-gray-400"
+                            options.type === type.id ? "text-violet-600" : "text-gray-400"
                           )} />
                           <div className="text-left flex-1">
                             <p className={cn(
                               "font-medium",
-                              options.type === type.id ? "text-violet-600 dark:text-violet-400" : "text-gray-900 dark:text-white"
+                              options.type === type.id ? "text-violet-600" : "text-gray-900"
                             )}>{type.name}</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{type.description}</p>
+                            <p className="text-sm text-gray-500">{type.description}</p>
                           </div>
                           {options.type === type.id && (
-                            <Check className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                            <Check className="h-5 w-5 text-violet-600" />
                           )}
                         </button>
                       ))}
@@ -237,14 +237,14 @@ export default function PresentationModal({
               </div>
 
               {/* Settings Section */}
-              <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl space-y-4">
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Innstillinger</h4>
+              <div className="p-4 bg-gray-50 rounded-xl space-y-4">
+                <h4 className="text-sm font-medium text-gray-700">Innstillinger</h4>
 
                 {/* Language and Slide Count */}
                 <div className="grid grid-cols-2 gap-4">
                   {/* Language */}
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Språk</label>
+                    <label className="block text-xs text-gray-500 mb-1">Språk</label>
                     <div className="relative">
                       <button
                         onClick={(e) => {
@@ -253,15 +253,15 @@ export default function PresentationModal({
                           setShowTypeDropdown(false);
                           setShowSlideDropdown(false);
                         }}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm"
                       >
-                        <span className="text-gray-900 dark:text-white">
+                        <span className="text-gray-900">
                           {languageOptions.find(l => l.value === options.language)?.label}
                         </span>
                         <ChevronDown className="h-4 w-4 text-gray-400" />
                       </button>
                       {showLanguageDropdown && (
-                        <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                        <div className="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 py-1">
                           {languageOptions.map(lang => (
                             <button
                               key={lang.value}
@@ -271,8 +271,8 @@ export default function PresentationModal({
                                 setShowLanguageDropdown(false);
                               }}
                               className={cn(
-                                "w-full px-3 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700",
-                                options.language === lang.value && "bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400"
+                                "w-full px-3 py-2 text-sm text-left hover:bg-gray-50",
+                                options.language === lang.value && "bg-violet-50 text-violet-600"
                               )}
                             >
                               {lang.label}
@@ -285,7 +285,7 @@ export default function PresentationModal({
 
                   {/* Slide Count */}
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Antall slides</label>
+                    <label className="block text-xs text-gray-500 mb-1">Antall slides</label>
                     <div className="relative">
                       <button
                         onClick={(e) => {
@@ -294,13 +294,13 @@ export default function PresentationModal({
                           setShowTypeDropdown(false);
                           setShowLanguageDropdown(false);
                         }}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm"
                       >
-                        <span className="text-gray-900 dark:text-white">{options.slideCount} slides</span>
+                        <span className="text-gray-900">{options.slideCount} slides</span>
                         <ChevronDown className="h-4 w-4 text-gray-400" />
                       </button>
                       {showSlideDropdown && (
-                        <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                        <div className="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 py-1">
                           {slideCountOptions.map(count => (
                             <button
                               key={count}
@@ -310,8 +310,8 @@ export default function PresentationModal({
                                 setShowSlideDropdown(false);
                               }}
                               className={cn(
-                                "w-full px-3 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700",
-                                options.slideCount === count && "bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400"
+                                "w-full px-3 py-2 text-sm text-left hover:bg-gray-50",
+                                options.slideCount === count && "bg-violet-50 text-violet-600"
                               )}
                             >
                               {count} slides
@@ -325,7 +325,7 @@ export default function PresentationModal({
 
                 {/* Include Options */}
                 <div>
-                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-2">Inkluder i presentasjonen</label>
+                  <label className="block text-xs text-gray-500 mb-2">Inkluder i presentasjonen</label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { key: 'includeParticipants', label: 'Deltakerliste' },
@@ -341,9 +341,9 @@ export default function PresentationModal({
                           type="checkbox"
                           checked={options[item.key as keyof PresentationOptions] as boolean}
                           onChange={(e) => setOptions(prev => ({ ...prev, [item.key]: e.target.checked }))}
-                          className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-violet-600 focus:ring-violet-500 dark:bg-gray-700"
+                          className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                         />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">{item.label}</span>
+                        <span className="text-sm text-gray-700">{item.label}</span>
                       </label>
                     ))}
                   </div>
@@ -352,7 +352,7 @@ export default function PresentationModal({
 
               {/* Custom Instructions */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Egne instruksjoner (valgfritt)
                 </label>
                 <textarea
@@ -360,9 +360,9 @@ export default function PresentationModal({
                   onChange={(e) => setOptions(prev => ({ ...prev, customInstructions: e.target.value }))}
                   placeholder="F.eks: Fokuser på budsjett. Bruk profesjonell tone. Inkluder grafer..."
                   rows={3}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-violet-500 focus:ring-violet-500 resize-none text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:border-violet-500 focus:ring-violet-500 resize-none text-sm"
                 />
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p className="mt-1 text-xs text-gray-500">
                   Disse instruksjonene sendes til Gamma for å tilpasse presentasjonen
                 </p>
               </div>
@@ -374,9 +374,9 @@ export default function PresentationModal({
               {/* Spinner */}
               <div className="flex justify-center mb-8">
                 <div className="relative">
-                  <div className="w-16 h-16 rounded-full border-4 border-violet-100 dark:border-violet-900/50" />
-                  <div className="absolute inset-0 w-16 h-16 rounded-full border-4 border-violet-600 dark:border-violet-400 border-t-transparent animate-spin" />
-                  <Presentation className="absolute inset-0 m-auto h-6 w-6 text-violet-600 dark:text-violet-400" />
+                  <div className="w-16 h-16 rounded-full border-4 border-violet-100" />
+                  <div className="absolute inset-0 w-16 h-16 rounded-full border-4 border-violet-600 border-t-transparent animate-spin" />
+                  <Presentation className="absolute inset-0 m-auto h-6 w-6 text-violet-600" />
                 </div>
               </div>
 
@@ -389,13 +389,13 @@ export default function PresentationModal({
                     ) : index === currentStep ? (
                       <div className="h-5 w-5 rounded-full border-2 border-violet-500 border-t-transparent animate-spin flex-shrink-0" />
                     ) : (
-                      <div className="h-5 w-5 rounded-full border-2 border-gray-300 dark:border-gray-600 flex-shrink-0" />
+                      <div className="h-5 w-5 rounded-full border-2 border-gray-300 flex-shrink-0" />
                     )}
                     <span className={cn(
                       "text-sm",
-                      index < currentStep ? "text-emerald-600 dark:text-emerald-400" :
-                      index === currentStep ? "text-gray-900 dark:text-white font-medium" :
-                      "text-gray-400 dark:text-gray-500"
+                      index < currentStep ? "text-emerald-600" :
+                      index === currentStep ? "text-gray-900 font-medium" :
+                      "text-gray-400"
                     )}>
                       {step.label}
                     </span>
@@ -408,17 +408,17 @@ export default function PresentationModal({
           {state === 'success' && result && (
             <div className="py-4">
               {/* Success Card */}
-              <div className="bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-violet-900/30 dark:to-fuchsia-900/30 rounded-xl p-4 mb-6 border border-violet-100 dark:border-violet-800">
+              <div className="bg-gradient-to-br from-violet-50 to-fuchsia-50 rounded-xl p-4 mb-6 border border-violet-100">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                  <div className="p-2 bg-white rounded-lg shadow-sm">
                     {(() => {
                       const TypeIcon = presentationTypes.find(t => t.id === result.type)?.icon || Presentation;
-                      return <TypeIcon className="h-6 w-6 text-violet-600 dark:text-violet-400" />;
+                      return <TypeIcon className="h-6 w-6 text-violet-600" />;
                     })()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 dark:text-white truncate">{result.title}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="font-medium text-gray-900 truncate">{result.title}</p>
+                    <p className="text-sm text-gray-600">
                       {result.slideCount} slides • {options.language === 'no' ? 'Norsk' : 'English'}
                     </p>
                   </div>
@@ -426,7 +426,7 @@ export default function PresentationModal({
                 </div>
               </div>
 
-              <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+              <p className="text-center text-sm text-gray-500 mb-4">
                 Din presentasjon er klar i Gamma
               </p>
             </div>
@@ -434,11 +434,11 @@ export default function PresentationModal({
 
           {state === 'error' && (
             <div className="py-8 text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
-                <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+                <AlertCircle className="h-8 w-8 text-red-600" />
               </div>
-              <p className="text-gray-900 dark:text-white font-medium mb-2">{error}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-gray-900 font-medium mb-2">{error}</p>
+              <p className="text-sm text-gray-500">
                 Prøv igjen eller kontakt support hvis problemet vedvarer
               </p>
             </div>
@@ -446,12 +446,12 @@ export default function PresentationModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-800 flex justify-end space-x-3">
+        <div className="p-4 border-t border-gray-200 flex justify-end space-x-3">
           {state === 'form' && (
             <>
               <button
                 onClick={onClose}
-                className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Avbryt
               </button>
@@ -468,7 +468,7 @@ export default function PresentationModal({
           {state === 'generating' && (
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Avbryt
             </button>
@@ -478,7 +478,7 @@ export default function PresentationModal({
             <>
               <button
                 onClick={handleCopyLink}
-                className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center space-x-2"
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors flex items-center space-x-2"
               >
                 {copied ? (
                   <>
@@ -506,7 +506,7 @@ export default function PresentationModal({
             <>
               <button
                 onClick={onClose}
-                className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Lukk
               </button>

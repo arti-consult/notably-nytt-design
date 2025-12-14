@@ -36,7 +36,7 @@ export default function FolderSelect({
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+      <label className="block text-sm font-medium text-gray-700">
         Mappe
       </label>
 
@@ -47,21 +47,21 @@ export default function FolderSelect({
           className={cn(
             "w-full flex items-center justify-between px-4 py-2 rounded-lg border text-left transition-colors",
             currentFolder
-              ? "bg-violet-50 dark:bg-violet-900/30 border-violet-200 dark:border-violet-800"
-              : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700",
+              ? "bg-violet-50 border-violet-200"
+              : "bg-white border-gray-300",
             (disabled || isLoading)
               ? "opacity-50 cursor-not-allowed"
-              : "hover:bg-gray-50 dark:hover:bg-gray-700"
+              : "hover:bg-gray-50"
           )}
         >
           <div className="flex items-center min-w-0">
             <Folder className={cn(
               "h-4 w-4 flex-shrink-0 mr-2",
-              currentFolder ? "text-violet-600 dark:text-violet-400" : "text-gray-400"
+              currentFolder ? "text-violet-600" : "text-gray-400"
             )} />
             <span className={cn(
               "truncate",
-              currentFolder ? "text-gray-900 dark:text-white" : "text-gray-600 dark:text-gray-400"
+              currentFolder ? "text-gray-900" : "text-gray-600"
             )}>
               {currentFolder?.name || 'Ingen mappe valgt'}
             </span>
@@ -73,7 +73,7 @@ export default function FolderSelect({
         </button>
 
         {isOpen && (
-          <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg dark:shadow-2xl max-h-48 overflow-y-auto">
+          <div className="absolute z-10 w-full mt-1 bg-white rounded-lg border border-gray-200 shadow-lg max-h-48 overflow-y-auto">
             <div className="p-1">
               {/* Ingen mappe-alternativ */}
               <button
@@ -81,8 +81,8 @@ export default function FolderSelect({
                 className={cn(
                   "w-full flex items-center px-3 py-2 rounded-md text-left text-sm transition-colors",
                   !currentFolderId
-                    ? "bg-violet-50 dark:bg-violet-900/30 text-violet-900 dark:text-violet-300"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    ? "bg-violet-50 text-violet-900"
+                    : "text-gray-700 hover:bg-gray-50"
                 )}
               >
                 <X className="h-4 w-4 mr-2 text-gray-400" />
@@ -97,8 +97,8 @@ export default function FolderSelect({
                   className={cn(
                     "w-full flex items-center px-3 py-2 rounded-md text-left text-sm transition-colors",
                     currentFolderId === folder.id
-                      ? "bg-violet-50 dark:bg-violet-900/30 text-violet-900 dark:text-violet-300"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      ? "bg-violet-50 text-violet-900"
+                      : "text-gray-700 hover:bg-gray-50"
                   )}
                 >
                   <Folder className="h-4 w-4 mr-2 text-gray-400" />
@@ -111,7 +111,7 @@ export default function FolderSelect({
       </div>
 
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <p className="text-sm text-red-600">{error}</p>
       )}
     </div>
   );

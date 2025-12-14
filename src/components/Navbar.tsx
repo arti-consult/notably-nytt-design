@@ -26,16 +26,16 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-8">
             {!user ? (
               <>
-                <Link to="/features" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/features" className="text-sm font-medium text-gray-600 hover:text-gray-900">
                   Funksjoner
                 </Link>
-                <Link to="/pricing" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/pricing" className="text-sm font-medium text-gray-600 hover:text-gray-900">
                   Priser
                 </Link>
-                <Link to="/enterprise" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/enterprise" className="text-sm font-medium text-gray-600 hover:text-gray-900">
                   Enterprise
                 </Link>
-                <Link to="/how-it-works" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/how-it-works" className="text-sm font-medium text-gray-600 hover:text-gray-900">
                   Se hvordan
                 </Link>
               </>
@@ -46,8 +46,8 @@ export default function Navbar() {
                   className={cn(
                     "text-sm font-medium transition-colors flex items-center space-x-1.5",
                     isActiveLink('/dashboard')
-                      ? "text-violet-600 dark:text-violet-400"
-                      : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                      ? "text-violet-600"
+                      : "text-gray-600 hover:text-gray-900"
                   )}
                 >
                   <LayoutDashboard className="h-4 w-4" />
@@ -58,8 +58,8 @@ export default function Navbar() {
                   className={cn(
                     "text-sm font-medium transition-colors flex items-center space-x-1.5",
                     isActiveLink('/support')
-                      ? "text-violet-600 dark:text-violet-400"
-                      : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                      ? "text-violet-600"
+                      : "text-gray-600 hover:text-gray-900"
                   )}
                 >
                   <HelpCircle className="h-4 w-4" />
@@ -73,26 +73,26 @@ export default function Navbar() {
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full flex items-center"
+                className="p-2 hover:bg-gray-100 rounded-full flex items-center"
               >
-                <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                <User className="h-5 w-5 text-gray-600" />
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
                   {/* Demo user mode selector */}
-                  <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Visningsmodus</div>
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <div className="text-xs text-gray-500 mb-2">Visningsmodus</div>
 
                     {/* Segmented control */}
-                    <div className="flex rounded-lg bg-gray-100 dark:bg-gray-700 p-1">
+                    <div className="flex rounded-lg bg-gray-100 p-1">
                       <button
                         onClick={() => setMode('solo')}
                         className={cn(
                           "flex-1 px-2 py-1.5 rounded-md text-xs font-medium transition-all",
                           mode === 'solo'
                             ? "bg-emerald-500 text-white shadow-sm"
-                            : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                            : "text-gray-600 hover:text-gray-900"
                         )}
                       >
                         Solo
@@ -103,7 +103,7 @@ export default function Navbar() {
                           "flex-1 px-2 py-1.5 rounded-md text-xs font-medium transition-all",
                           mode === 'member'
                             ? "bg-amber-500 text-white shadow-sm"
-                            : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                            : "text-gray-600 hover:text-gray-900"
                         )}
                       >
                         Medlem
@@ -114,7 +114,7 @@ export default function Navbar() {
                           "flex-1 px-2 py-1.5 rounded-md text-xs font-medium transition-all",
                           mode === 'admin'
                             ? "bg-violet-500 text-white shadow-sm"
-                            : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                            : "text-gray-600 hover:text-gray-900"
                         )}
                       >
                         Admin
@@ -124,9 +124,9 @@ export default function Navbar() {
                     {/* Current mode info */}
                     <div className={cn(
                       "mt-2 px-3 py-2 rounded-lg text-xs",
-                      mode === 'solo' && "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300",
-                      mode === 'member' && "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300",
-                      mode === 'admin' && "bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
+                      mode === 'solo' && "bg-emerald-50 text-emerald-700",
+                      mode === 'member' && "bg-amber-50 text-amber-700",
+                      mode === 'admin' && "bg-violet-50 text-violet-700"
                     )}>
                       <div className="flex items-center space-x-2">
                         {mode === 'solo' && <UserCircle className="h-4 w-4" />}
@@ -143,7 +143,7 @@ export default function Navbar() {
                   </div>
                   <Link
                     to="/settings"
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     onClick={() => setShowUserMenu(false)}
                   >
                     <Settings className="h-4 w-4 mr-2" />
@@ -152,7 +152,7 @@ export default function Navbar() {
                   {isAdmin && (
                     <Link
                       to="/admin"
-                      className="flex items-center px-4 py-2 text-sm text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30"
+                      className="flex items-center px-4 py-2 text-sm text-violet-600 hover:bg-violet-50"
                       onClick={() => setShowUserMenu(false)}
                     >
                       <Shield className="h-4 w-4 mr-2" />
@@ -165,7 +165,7 @@ export default function Navbar() {
                         logout();
                         setShowUserMenu(false);
                       }}
-                      className="w-full flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
+                      className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
                       Logg ut
@@ -173,17 +173,17 @@ export default function Navbar() {
                   )}
                   {!user && (
                     <>
-                      <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
+                      <div className="border-t border-gray-200 my-1" />
                       <Link
                         to="/login"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                         onClick={() => setShowUserMenu(false)}
                       >
                         Logg inn
                       </Link>
                       <Link
                         to="/register"
-                        className="flex items-center px-4 py-2 text-sm text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30"
+                        className="flex items-center px-4 py-2 text-sm text-violet-600 hover:bg-violet-50"
                         onClick={() => setShowUserMenu(false)}
                       >
                         Prøv gratis
