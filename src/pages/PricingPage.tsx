@@ -38,8 +38,8 @@ const plans: PricingPlan[] = [
   },
   {
     name: 'Pro',
-    monthlyPrice: 499,
-    yearlyPrice: 399,
+    monthlyPrice: 399,
+    yearlyPrice: 319,
     description: 'For deg som vil ha referat fra fysiske & digitale møter',
     icon: Sparkles,
     features: [

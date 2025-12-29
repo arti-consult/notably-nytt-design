@@ -12,7 +12,8 @@ import {
   ArrowRight,
   ArrowLeft,
   Wand2,
-  AlertTriangle
+  AlertTriangle,
+  Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from '@/components/ui/toast';
@@ -26,9 +27,10 @@ interface TemplateCardProps {
   isSelected: boolean;
   onSelect: () => void;
   onPreview: () => void;
+  onDelete?: () => void;
 }
 
-function TemplateCard({ template, isSelected, onSelect, onPreview }: TemplateCardProps) {
+function TemplateCard({ template, isSelected, onSelect, onPreview, onDelete }: TemplateCardProps) {
   return (
     <div
       className={cn(
@@ -48,19 +50,43 @@ function TemplateCard({ template, isSelected, onSelect, onPreview }: TemplateCar
         </div>
       )}
       {template.isCustom && !template.isCustomPrompt && (
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex items-center gap-1">
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
             <Sparkles className="h-3 w-3 mr-1" />
             Egendefinert
           </span>
+          {onDelete && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+              className="p-1 rounded-full bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+              title="Slett mal"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
       )}
       {template.isCustomPrompt && (
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex items-center gap-1">
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-fuchsia-100 text-fuchsia-700">
             <Wand2 className="h-3 w-3 mr-1" />
             AI-prompt
           </span>
+          {onDelete && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+              className="p-1 rounded-full bg-gray-100 text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+              title="Slett mal"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
       )}
 
@@ -840,6 +866,15 @@ export default function TemplatesPage() {
     setCustomTemplates([...customTemplates, template]);
   };
 
+  const handleDeleteTemplate = (templateId: string) => {
+    setCustomTemplates(prev => prev.filter(t => t.id !== templateId));
+    // If the deleted template was selected, reset to default
+    if (selectedTemplate === templateId) {
+      setSelectedTemplate('template-1');
+    }
+    toast.success('Malen ble slettet');
+  };
+
   const selectedTemplateName = allTemplates.find(t => t.id === selectedTemplate)?.name;
 
   return (
@@ -940,6 +975,7 @@ export default function TemplatesPage() {
               isSelected={selectedTemplate === template.id}
               onSelect={() => handleSelectTemplate(template.id)}
               onPreview={() => setPreviewTemplate(template)}
+              onDelete={template.isCustom ? () => handleDeleteTemplate(template.id) : undefined}
             />
           ))}
         </div>

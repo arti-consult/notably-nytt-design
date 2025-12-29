@@ -105,7 +105,7 @@ export const organizationPlans = [
     id: 'business',
     name: 'Business',
     maxMembers: 25,
-    price: 499,
+    price: 399,
     features: ['25 brukere', 'Ubegrenset opptak', 'Alle maler', 'Prioritert støtte']
   },
   {
@@ -220,7 +220,7 @@ export interface SeatSubscription {
 export const mockSeatSubscription: SeatSubscription = {
   totalSeats: 10,
   usedSeats: 5,
-  pricePerSeat: 499,
+  pricePerSeat: 399,
   currency: 'NOK',
   billingCycle: 'monthly',
   nextBillingDate: '2026-01-15',

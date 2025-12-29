@@ -239,6 +239,20 @@ export default function DashboardPage() {
     toast.success('Opptak startet');
   };
 
+  const handleFileUploadComplete = () => {
+    // Mock: Legg til opplastet fil i listen
+    const newRecording: Recording = {
+      id: `rec-${Date.now()}`,
+      title: 'Opplastet fil',
+      created_at: new Date().toISOString(),
+      duration: 0,
+      status: 'processing',
+      tags: []
+    };
+    setRecordings(prev => [newRecording, ...prev]);
+    toast.success('Transkribering startet');
+  };
+
   const getFilteredRecordingsByDate = (recordings: Recording[]) => {
     if (dateRange === 'total') return recordings;
 
@@ -1021,7 +1035,7 @@ export default function DashboardPage() {
       <FileUploadModal
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
-        onUploadComplete={handleRecordingComplete}
+        onUploadComplete={handleFileUploadComplete}
       />
 
       <DirectInviteModal

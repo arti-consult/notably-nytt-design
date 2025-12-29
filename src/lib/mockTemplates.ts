@@ -47,7 +47,7 @@ export const mockTemplates: Template[] = [
   },
   {
     id: 'template-3',
-    name: '1:1 Samtale',
+    name: 'Medarbeidersamtale',
     description: 'Mal for en-til-en samtaler mellom leder og medarbeider',
     category: 'hr',
     sections: [
@@ -60,37 +60,6 @@ export const mockTemplates: Template[] = [
       'Aksjoner'
     ],
     icon: '👥'
-  },
-  {
-    id: 'template-4',
-    name: 'Sprint Planning',
-    description: 'Mal for planlegging av sprinter i agile team',
-    category: 'agile',
-    sections: [
-      'Sprint mål',
-      'Kapasitet',
-      'Backlog gjennomgang',
-      'Valgte user stories',
-      'Estimater',
-      'Avhengigheter',
-      'Risiko'
-    ],
-    icon: '🏃'
-  },
-  {
-    id: 'template-5',
-    name: 'Sprint Retrospektiv',
-    description: 'Mal for retrospektiv etter hver sprint',
-    category: 'agile',
-    sections: [
-      'Hva gikk bra?',
-      'Hva kan forbedres?',
-      'Hva skal vi slutte med?',
-      'Hva skal vi begynne med?',
-      'Aksjoner for neste sprint',
-      'Anerkjennelser'
-    ],
-    icon: '🔄'
   },
   {
     id: 'template-6',
@@ -110,8 +79,8 @@ export const mockTemplates: Template[] = [
   },
   {
     id: 'template-7',
-    name: 'Klientmøte',
-    description: 'Mal for møter med eksterne klienter og partnere',
+    name: 'Kundemøte',
+    description: 'Mal for møter med eksterne kunder og partnere',
     category: 'sales',
     sections: [
       'Møtedeltakere',
@@ -126,7 +95,7 @@ export const mockTemplates: Template[] = [
   },
   {
     id: 'template-8',
-    name: 'Prosjektstatusmøte',
+    name: 'Prosjektstatus',
     description: 'Mal for ukentlige eller månedlige prosjektoppdateringer',
     category: 'standard',
     sections: [
@@ -159,44 +128,19 @@ export const mockTemplates: Template[] = [
   },
   {
     id: 'template-10',
-    name: 'All-hands møte',
-    description: 'Mal for fellesmøter med hele organisasjonen',
+    name: 'Ledermøte',
+    description: 'Mal for ledergruppe- og ledelsesmøter',
     category: 'formal',
     sections: [
-      'Velkommen',
-      'Bedriftsnyheter',
-      'Avdelingsoppdateringer',
-      'Viktige kunngjøringer',
-      'Anerkjennelser',
-      'Q&A',
-      'Avslutning'
+      'Statusoppdatering per område',
+      'Nøkkeltall og KPIer',
+      'Strategiske saker',
+      'Ressurser og kapasitet',
+      'Risikoer og utfordringer',
+      'Beslutninger',
+      'Oppfølgingspunkter'
     ],
-    icon: '🎤'
-  },
-  {
-    id: 'custom-prompt-demo',
-    name: 'Teknisk deep-dive',
-    description: 'Min egendefinerte mal for tekniske møter',
-    category: 'standard',
-    sections: [],
-    icon: '🔬',
-    isCustom: true,
-    isCustomPrompt: true,
-    customPrompt: `Lag et detaljert teknisk møtereferat med følgende fokus:
-
-1. **Tekniske beslutninger**: List opp alle tekniske valg som ble tatt, med begrunnelse for hver beslutning.
-
-2. **Kodeeksempler**: Hvis noen kodeeksempler eller pseudokode ble diskutert, inkluder disse.
-
-3. **Arkitektur**: Beskriv eventuelle arkitekturendringer eller systemdesign som ble diskutert.
-
-4. **Teknisk gjeld**: Noter all teknisk gjeld som ble identifisert og prioriter den (høy/middels/lav).
-
-5. **Bugs og issues**: List opp alle bugs som ble nevnt med alvorlighetsgrad.
-
-6. **Action items**: Hvem skal gjøre hva, med tekniske detaljer der relevant.
-
-Skriv i en teknisk, presis stil. Unngå fyllord og vær konkret.`
+    icon: '👔'
   }
 ];
 
@@ -204,7 +148,6 @@ export const templateCategories = [
   { id: 'all', name: 'Alle maler' },
   { id: 'standard', name: 'Standard' },
   { id: 'formal', name: 'Formelle' },
-  { id: 'agile', name: 'Agile' },
   { id: 'sales', name: 'Salg' },
   { id: 'hr', name: 'HR' }
 ];

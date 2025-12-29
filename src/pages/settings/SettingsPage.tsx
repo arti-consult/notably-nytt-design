@@ -48,7 +48,8 @@ import {
   TrendingUp,
   AlertCircle,
   UserMinus,
-  ChevronRight
+  ChevronRight,
+  ChevronDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { mockUser } from '@/lib/mockData';
@@ -148,6 +149,8 @@ function SelectSetting({ icon: Icon, title, description, value, options, onChang
 function ProfileTab() {
   const { mode, isSolo, isMember, isAdmin } = useDemoUser();
   const currentUserData = mockDemoUsers[mode];
+  const [orgName, setOrgName] = useState(mockOrganization.name);
+  const [showCreateOrgModal, setShowCreateOrgModal] = useState(false);
 
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -193,48 +196,48 @@ function ProfileTab() {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               E-post
             </label>
-            <div className="flex items-center space-x-2">
-              <div className="relative flex-1">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="email"
-                  value={currentUserData.email}
-                  disabled
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 bg-gray-50 text-gray-600"
-                />
-              </div>
-              <button className="px-4 py-2 text-sm text-blue-600 hover:text-blue-700 font-medium">
-                Endre
-              </button>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="email"
+                value={currentUserData.email}
+                disabled
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 bg-gray-50 text-gray-600"
+              />
             </div>
           </div>
 
           {/* Organization info - only for org users */}
           {!isSolo && (
             <div className="pt-4 border-t border-gray-100">
-              <div className={cn(
-                "flex items-center space-x-3 p-4 rounded-lg",
-                isAdmin ? "bg-blue-50" : "bg-amber-50"
-              )}>
-                <Building className={cn(
-                  "h-5 w-5",
-                  isAdmin ? "text-blue-600" : "text-amber-600"
-                )} />
-                <div>
-                  <p className={cn(
-                    "font-medium",
-                    isAdmin ? "text-blue-900" : "text-amber-900"
-                  )}>
-                    {mockOrganization.name}
-                  </p>
-                  <p className={cn(
-                    "text-sm",
-                    isAdmin ? "text-blue-700" : "text-amber-700"
-                  )}>
-                    {isAdmin ? 'Administrator' : 'Medlem'}
-                  </p>
+              {isAdmin ? (
+                <>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Organisasjonsnavn
+                  </label>
+                  <div className="relative">
+                    <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={orgName}
+                      onChange={(e) => setOrgName(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center space-x-3 p-4 rounded-lg bg-amber-50">
+                  <Building className="h-5 w-5 text-amber-600" />
+                  <div>
+                    <p className="font-medium text-amber-900">
+                      {mockOrganization.name}
+                    </p>
+                    <p className="text-sm text-amber-700">
+                      Medlem
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
@@ -251,7 +254,10 @@ function ProfileTab() {
                     <p className="text-sm text-emerald-700 mt-1">
                       Opprett en organisasjon for å dele møtenotater, maler og mapper med kollegene dine.
                     </p>
-                    <button className="mt-3 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors">
+                    <button
+                      onClick={() => setShowCreateOrgModal(true)}
+                      className="mt-3 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
                       Opprett organisasjon
                     </button>
                   </div>
@@ -270,7 +276,404 @@ function ProfileTab() {
           </button>
         </div>
       </div>
+
+      {/* Create Organization Modal */}
+      {showCreateOrgModal && (
+        <CreateOrganizationModal onClose={() => setShowCreateOrgModal(false)} />
+      )}
     </div>
+  );
+}
+
+// Create Organization Modal - Multi-step wizard
+interface CreateOrganizationModalProps {
+  onClose: () => void;
+}
+
+function CreateOrganizationModal({ onClose }: CreateOrganizationModalProps) {
+  const [step, setStep] = useState(1);
+  const [orgName, setOrgName] = useState('');
+  const [seatCount, setSeatCount] = useState(3);
+  const [inviteEmails, setInviteEmails] = useState<string[]>(['']);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+
+  const pricePerSeat = 399;
+  const totalPrice = seatCount * pricePerSeat;
+
+  const handleAddEmail = () => {
+    setInviteEmails([...inviteEmails, '']);
+  };
+
+  const handleRemoveEmail = (index: number) => {
+    if (inviteEmails.length > 1) {
+      setInviteEmails(inviteEmails.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleEmailChange = (index: number, value: string) => {
+    const newEmails = [...inviteEmails];
+    newEmails[index] = value;
+    setInviteEmails(newEmails);
+  };
+
+  const validEmails = inviteEmails.filter(email => email.trim() && email.includes('@'));
+
+  const handleCreate = async () => {
+    setIsCreating(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setIsCreating(false);
+    setIsComplete(true);
+  };
+
+  const handleFinish = () => {
+    toast.success('Organisasjon opprettet! Velkommen til teamet.');
+    onClose();
+  };
+
+  // Success state
+  if (isComplete) {
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+              className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6"
+            >
+              <Check className="h-10 w-10 text-emerald-600" />
+            </motion.div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Velkommen til {orgName}!
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Din organisasjon er nå opprettet. {validEmails.length > 0 && `${validEmails.length} invitasjon${validEmails.length > 1 ? 'er' : ''} er sendt.`}
+            </p>
+            <button
+              onClick={handleFinish}
+              className="w-full py-3 bg-gradient-to-r from-[#2C64E3] to-[#5A8DF8] text-white rounded-xl font-medium hover:from-[#1F49C6] hover:to-[#4A81EB] transition-all"
+            >
+              Kom i gang
+            </button>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[85vh] flex flex-col overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="p-6 border-b border-gray-100 flex-shrink-0">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2.5 bg-gradient-to-br from-[#2C64E3] to-[#5A8DF8] rounded-xl shadow-lg">
+                  <Building className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Opprett organisasjon</h2>
+                  <p className="text-sm text-gray-500">Steg {step} av 3</p>
+                </div>
+              </div>
+              <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Progress bar */}
+            <div className="flex space-x-2">
+              {[1, 2, 3].map((s) => (
+                <div
+                  key={s}
+                  className={cn(
+                    "h-1.5 flex-1 rounded-full transition-all",
+                    s <= step ? "bg-[#2C64E3]" : "bg-gray-200"
+                  )}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="p-6 flex-1 overflow-y-auto">
+            <AnimatePresence mode="wait">
+              {/* Step 1: Organization Name */}
+              {step === 1 && (
+                <motion.div
+                  key="step1"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Hva heter organisasjonen din?
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Dette kan være bedriftsnavnet eller teamets navn.
+                    </p>
+                    <input
+                      type="text"
+                      value={orgName}
+                      onChange={(e) => setOrgName(e.target.value)}
+                      placeholder="F.eks. Acme AS eller Salg-teamet"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#2C64E3] focus:ring-2 focus:ring-blue-100 transition-all text-lg"
+                      autoFocus
+                    />
+                  </div>
+
+                  <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                    <div className="flex items-start space-x-3">
+                      <Sparkles className="h-5 w-5 text-[#2C64E3] mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">
+                          Samarbeid uten grenser
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Del møtenotater, maler og mapper med hele teamet. Alle får tilgang til felles ressurser.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Step 2: Select Seats */}
+              {step === 2 && (
+                <motion.div
+                  key="step2"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Hvor mange plasser trenger du?
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-6">
+                      Inkludert deg selv. Du kan enkelt legge til flere senere.
+                    </p>
+
+                    {/* Seat selector */}
+                    <div className="flex items-center justify-center space-x-6 py-4">
+                      <button
+                        onClick={() => setSeatCount(Math.max(2, seatCount - 1))}
+                        disabled={seatCount <= 2}
+                        className={cn(
+                          "w-12 h-12 rounded-xl border-2 flex items-center justify-center transition-all",
+                          seatCount <= 2
+                            ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                            : "border-gray-300 text-gray-600 hover:border-[#2C64E3] hover:text-[#2C64E3]"
+                        )}
+                      >
+                        <Minus className="h-5 w-5" />
+                      </button>
+                      <div className="text-center">
+                        <div className="text-5xl font-bold text-gray-900">{seatCount}</div>
+                        <div className="text-sm text-gray-500 mt-1">plasser</div>
+                      </div>
+                      <button
+                        onClick={() => setSeatCount(Math.min(50, seatCount + 1))}
+                        disabled={seatCount >= 50}
+                        className={cn(
+                          "w-12 h-12 rounded-xl border-2 flex items-center justify-center transition-all",
+                          seatCount >= 50
+                            ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                            : "border-gray-300 text-gray-600 hover:border-[#2C64E3] hover:text-[#2C64E3]"
+                        )}
+                      >
+                        <Plus className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Pricing summary */}
+                  <div className="p-5 bg-gray-50 rounded-xl border border-gray-200">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-gray-600">Månedlig kostnad</span>
+                      <span className="text-2xl font-bold text-gray-900">
+                        {totalPrice.toLocaleString('nb-NO')} kr
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <span>{seatCount} plasser × {pricePerSeat} kr</span>
+                      <span>+ mva</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+                    <Check className="h-4 w-4 text-emerald-500" />
+                    <span>14 dagers gratis prøveperiode</span>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Step 3: Invite Team */}
+              {step === 3 && (
+                <motion.div
+                  key="step3"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Inviter teamet ditt
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Send invitasjoner nå, eller hopp over og gjør det senere.
+                    </p>
+
+                    <div className="space-y-3">
+                      {inviteEmails.map((email, index) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => handleEmailChange(index, e.target.value)}
+                            placeholder="kollega@firma.no"
+                            className="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-200 focus:border-[#2C64E3] focus:ring-2 focus:ring-blue-100 transition-all"
+                          />
+                          {inviteEmails.length > 1 && (
+                            <button
+                              onClick={() => handleRemoveEmail(index)}
+                              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            >
+                              <X className="h-5 w-5" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {inviteEmails.length < seatCount - 1 && (
+                      <button
+                        onClick={handleAddEmail}
+                        className="mt-3 flex items-center space-x-2 text-sm text-[#2C64E3] hover:text-[#1F49C6] font-medium"
+                      >
+                        <Plus className="h-4 w-4" />
+                        <span>Legg til flere</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Summary */}
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                    <h4 className="font-medium text-gray-900 mb-3">Oppsummering</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600">Organisasjon</span>
+                        <span className="font-medium text-gray-900">{orgName}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600">Antall plasser</span>
+                        <span className="font-medium text-gray-900">{seatCount}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600">Invitasjoner</span>
+                        <span className="font-medium text-gray-900">{validEmails.length}</span>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-blue-200 mt-2">
+                        <span className="text-gray-600">Månedlig kostnad</span>
+                        <span className="font-bold text-gray-900">{totalPrice.toLocaleString('nb-NO')} kr + mva</span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Footer */}
+          <div className="p-6 border-t border-gray-100 bg-gray-50 flex-shrink-0">
+            <div className="flex items-center justify-between">
+              {step > 1 ? (
+                <button
+                  onClick={() => setStep(step - 1)}
+                  className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span>Tilbake</span>
+                </button>
+              ) : (
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                >
+                  Avbryt
+                </button>
+              )}
+
+              {step < 3 ? (
+                <button
+                  onClick={() => setStep(step + 1)}
+                  disabled={step === 1 && !orgName.trim()}
+                  className={cn(
+                    "flex items-center space-x-2 px-5 py-2.5 rounded-xl font-medium transition-all",
+                    (step === 1 && !orgName.trim())
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-[#2C64E3] to-[#5A8DF8] text-white hover:from-[#1F49C6] hover:to-[#4A81EB] hover:shadow-lg"
+                  )}
+                >
+                  <span>Neste</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              ) : (
+                <button
+                  onClick={handleCreate}
+                  disabled={isCreating}
+                  className="flex items-center space-x-2 px-5 py-2.5 rounded-xl font-medium bg-gradient-to-r from-[#2C64E3] to-[#5A8DF8] text-white hover:from-[#1F49C6] hover:to-[#4A81EB] hover:shadow-lg transition-all"
+                >
+                  {isCreating ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      <span>Oppretter...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4" />
+                      <span>Opprett organisasjon</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
@@ -413,7 +816,6 @@ function PreferencesTab() {
 
   // Interface settings
   const [language, setLanguage] = useState('no');
-  const [timezone, setTimezone] = useState('Europe/Oslo');
 
   // Notification settings
   const [notifications, setNotifications] = useState(true);
@@ -427,27 +829,12 @@ function PreferencesTab() {
   const meetingLanguageOptions = [
     { value: 'auto', label: 'Oppdag automatisk', description: 'Vi gjenkjenner språket fra samtalen' },
     { value: 'no', label: 'Norsk' },
-    { value: 'en', label: 'English' },
-    { value: 'sv', label: 'Svenska' },
-    { value: 'da', label: 'Dansk' },
-    { value: 'de', label: 'Deutsch' },
-    { value: 'fr', label: 'Français' },
-    { value: 'es', label: 'Español' }
+    { value: 'en', label: 'English' }
   ];
 
   const interfaceLanguageOptions = [
     { value: 'no', label: 'Norsk' },
     { value: 'en', label: 'English' }
-  ];
-
-  const timezoneOptions = [
-    { value: 'Europe/Oslo', label: 'Oslo (CET/CEST)' },
-    { value: 'Europe/London', label: 'London (GMT/BST)' },
-    { value: 'Europe/Stockholm', label: 'Stockholm (CET/CEST)' },
-    { value: 'Europe/Copenhagen', label: 'København (CET/CEST)' },
-    { value: 'America/New_York', label: 'New York (EST/EDT)' },
-    { value: 'America/Los_Angeles', label: 'Los Angeles (PST/PDT)' },
-    { value: 'UTC', label: 'UTC' }
   ];
 
   return (
@@ -456,7 +843,7 @@ function PreferencesTab() {
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <div className="px-6 py-5 border-b border-gray-100">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-gradient-to-br from-blue-100 to-fuchsia-100 rounded-xl">
+            <div className="p-2.5 bg-blue-100 rounded-xl">
               <Mic className="h-5 w-5 text-blue-600" />
             </div>
             <div>
@@ -468,7 +855,7 @@ function PreferencesTab() {
 
         <div className="p-6 space-y-8">
           {/* Auto-record toggle - redesigned as a card */}
-          <div className="p-5 bg-gradient-to-r from-blue-50/50 to-fuchsia-50/50 rounded-xl border border-blue-100">
+          <div className="p-5 bg-blue-50/50 rounded-xl border border-blue-100">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-1">
@@ -560,22 +947,6 @@ function PreferencesTab() {
             />
           </div>
 
-          {/* Timezone */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h3 className="font-medium text-gray-900">Tidssone</h3>
-                <p className="text-sm text-gray-500">Påvirker når møter vises i kalenderen</p>
-              </div>
-            </div>
-            <StyledDropdown
-              value={timezone}
-              options={timezoneOptions}
-              onChange={setTimezone}
-              icon={Clock}
-            />
-          </div>
-
         </div>
       </div>
 
@@ -616,7 +987,7 @@ function BillingTabTeamMember() {
           <h2 className="font-semibold">Bedriftsabonnement</h2>
         </div>
         <div className="p-6">
-          <div className="p-6 bg-gradient-to-r from-blue-50 to-fuchsia-50 rounded-xl border border-blue-100">
+          <div className="p-6 bg-blue-50 rounded-xl border border-blue-100">
             <div className="flex items-start space-x-4">
               <div className="p-3 bg-white rounded-xl shadow-sm">
                 <Building className="h-6 w-6 text-blue-600" />
@@ -660,33 +1031,6 @@ function BillingTabTeamMember() {
               </div>
             </div>
           </div>
-
-          <div className="mt-6">
-            <a
-              href={`mailto:${billingAdmin?.email}?subject=Spørsmål om Notably-abonnement`}
-              className="button-secondary w-full inline-flex items-center justify-center"
-            >
-              <Mail className="h-4 w-4 mr-2" />
-              Kontakt administrator
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* What's included */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="font-semibold">Inkludert i din plan</h2>
-        </div>
-        <div className="p-6">
-          <ul className="space-y-3">
-            {['Ubegrenset møter og opptak', 'Transkripsjon på 50+ språk', 'AI-oppsummering og handlingspunkter', 'Prioritert transkripsjon', 'Kalender-integrasjon', 'Dedikert support', 'SSO / SAML', 'Egendefinerte maler'].map((feature, i) => (
-              <li key={i} className="flex items-center text-sm text-gray-700">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                {feature}
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     </div>
@@ -748,7 +1092,7 @@ function ManageSeatsModal({ onClose }: ManageSeatsModalProps) {
         className="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden"
       >
         {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-fuchsia-50">
+        <div className="px-6 py-5 border-b border-gray-100 bg-blue-50">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="p-2.5 bg-white rounded-xl shadow-sm">
@@ -778,13 +1122,9 @@ function ManageSeatsModal({ onClose }: ManageSeatsModalProps) {
             </div>
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-blue-500 to-fuchsia-500 rounded-full transition-all duration-500"
+                className="h-full bg-[#2C64E3] rounded-full transition-all duration-500"
                 style={{ width: `${(usedSeats / originalSeats) * 100}%` }}
               />
-            </div>
-            <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-              <span>{originalSeats - usedSeats} ledige seter</span>
-              <span>{Math.round((usedSeats / originalSeats) * 100)}% utnyttelse</span>
             </div>
           </div>
 
@@ -835,7 +1175,7 @@ function ManageSeatsModal({ onClose }: ManageSeatsModalProps) {
           </div>
 
           {/* Price Summary */}
-          <div className="bg-gradient-to-r from-blue-50 to-fuchsia-50 rounded-xl p-4 border border-blue-100">
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-600">Månedlig kostnad</span>
               <span className="text-lg font-semibold text-gray-900">
@@ -889,7 +1229,7 @@ function ManageSeatsModal({ onClose }: ManageSeatsModalProps) {
             className={cn(
               "px-5 py-2 rounded-xl text-sm font-medium transition-all flex items-center",
               seatCount !== originalSeats && !isProcessing
-                ? "bg-gradient-to-r from-blue-600 to-fuchsia-600 text-white hover:shadow-lg"
+                ? "bg-gradient-to-r from-[#2C64E3] to-[#5A8DF8] text-white hover:from-[#1F49C6] hover:to-[#4A81EB] hover:shadow-lg"
                 : "bg-gray-200 text-gray-400 cursor-not-allowed"
             )}
           >
@@ -1118,7 +1458,7 @@ function BillingTabAdmin({ isOrgAdmin = false }: { isOrgAdmin?: boolean }) {
   const [showInvoicesModal, setShowInvoicesModal] = useState(false);
   const plans = [
     { id: 'basic', name: 'Basic', price: 299, features: ['Ubegrenset møter', 'Transkripsjon NO/EN', 'AI-oppsummering'] },
-    { id: 'pro', name: 'Pro', price: 499, features: ['Alt i Basic', 'Prioritert transkripsjon', 'Kalender-integrasjon'], current: !isOrgAdmin },
+    { id: 'pro', name: 'Pro', price: 299, features: ['Alt i Basic', 'Prioritert transkripsjon', 'Kalender-integrasjon'], current: !isOrgAdmin },
     { id: 'enterprise', name: 'Enterprise', price: null, features: ['Alt i Pro', 'Dedikert support', 'SSO', 'On-premise'], current: isOrgAdmin }
   ];
 
@@ -1132,7 +1472,7 @@ function BillingTabAdmin({ isOrgAdmin = false }: { isOrgAdmin?: boolean }) {
           </h2>
         </div>
         <div className="p-6">
-          <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-fuchsia-50 rounded-xl border border-blue-100">
+          <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100">
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-white rounded-xl shadow-sm">
                 <Crown className="h-6 w-6 text-blue-600" />
@@ -1142,7 +1482,7 @@ function BillingTabAdmin({ isOrgAdmin = false }: { isOrgAdmin?: boolean }) {
                 <p className="text-gray-600">
                   {isOrgAdmin
                     ? `${mockOrganization.members.length} seter • Fornyes 15. jan 2026`
-                    : '499 kr/mnd • Fornyes 15. jan 2026'
+                    : '299 kr/mnd • Fornyes 15. jan 2026'
                   }
                 </p>
               </div>
@@ -1251,6 +1591,8 @@ function BillingTabAdmin({ isOrgAdmin = false }: { isOrgAdmin?: boolean }) {
 
 // Billing Tab - Solo User (personal subscription)
 function BillingTabSolo() {
+  const [showCreateOrgModal, setShowCreateOrgModal] = useState(false);
+
   return (
     <div className="space-y-6">
       {/* Current Plan */}
@@ -1259,29 +1601,26 @@ function BillingTabSolo() {
           <h2 className="font-semibold text-gray-900">Mitt abonnement</h2>
         </div>
         <div className="p-6">
-          <div className="flex items-center justify-between p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-100">
+          <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100">
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-white rounded-xl shadow-sm">
-                <Crown className="h-6 w-6 text-emerald-600" />
+                <Crown className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg text-gray-900">Pro-plan</h3>
-                <p className="text-gray-600">199 kr/mnd • Fornyes 15. jan 2026</p>
+                <h3 className="font-semibold text-lg text-gray-900">Notably Pro</h3>
+                <p className="text-gray-600">399 kr/mnd + mva • Fornyes 15. jan 2026</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-700">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
                 <CheckCircle className="h-4 w-4 mr-1" />
                 Aktiv
               </span>
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-4">
-            <button className="button-secondary">
-              Endre plan
-            </button>
-            <button className="button-secondary">
+          <div className="mt-6">
+            <button className="button-secondary w-full">
               Se fakturaer
             </button>
           </div>
@@ -1311,51 +1650,8 @@ function BillingTabSolo() {
         </div>
       </div>
 
-      {/* All Plans */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="font-semibold text-gray-900">Tilgjengelige planer</h2>
-        </div>
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              { id: 'basic', name: 'Basic', price: 99, features: ['10 møter/mnd', 'Transkripsjon NO/EN', 'AI-oppsummering'] },
-              { id: 'pro', name: 'Pro', price: 199, features: ['Ubegrenset møter', 'Prioritert transkripsjon', 'Kalender-integrasjon'], current: true },
-              { id: 'team', name: 'Team', price: 399, features: ['Alt i Pro', 'Delte mapper', 'Team-admin', 'Inviter 5 brukere'] }
-            ].map((plan) => (
-              <div
-                key={plan.id}
-                className={cn(
-                  "p-4 rounded-lg border-2 transition-colors",
-                  plan.current
-                    ? "border-emerald-600 bg-emerald-50"
-                    : "border-gray-200 hover:border-emerald-200"
-                )}
-              >
-                <h3 className="font-semibold text-gray-900">{plan.name}</h3>
-                <p className="text-2xl font-bold mt-1 text-gray-900">
-                  {plan.price} kr
-                  <span className="text-sm font-normal text-gray-500">/mnd</span>
-                </p>
-                <ul className="mt-3 space-y-1">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="text-sm text-gray-600 flex items-center">
-                      <Check className="h-4 w-4 text-emerald-500 mr-1" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                {plan.current && (
-                  <p className="mt-3 text-sm text-emerald-600 font-medium">Nåværende plan</p>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Team CTA */}
-      <div className="bg-gradient-to-r from-blue-50 to-fuchsia-50 rounded-xl p-6 border border-blue-100">
+      <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
         <div className="flex items-start space-x-4">
           <div className="p-3 bg-blue-100 rounded-xl">
             <Users className="h-6 w-6 text-blue-600" />
@@ -1365,12 +1661,20 @@ function BillingTabSolo() {
             <p className="text-blue-700 mt-1">
               Oppgrader til Team-planen for å invitere kollegaer, dele mapper og samarbeide om møtenotater.
             </p>
-            <button className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">
+            <button
+              onClick={() => setShowCreateOrgModal(true)}
+              className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
               Oppgrader til Team
             </button>
           </div>
         </div>
       </div>
+
+      {/* Create Organization Modal */}
+      {showCreateOrgModal && (
+        <CreateOrganizationModal onClose={() => setShowCreateOrgModal(false)} />
+      )}
     </div>
   );
 }
@@ -1404,6 +1708,19 @@ interface MemberCardReadOnlyProps {
 
 function MemberCardReadOnly({ member, isCurrentUser, showActions, onRemove, onChangeRole }: MemberCardReadOnlyProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<'remove' | 'role' | null>(null);
+
+  const handleConfirmRole = () => {
+    onChangeRole(member.role === 'admin' ? 'member' : 'admin');
+    setConfirmAction(null);
+    setShowMenu(false);
+  };
+
+  const handleConfirmRemove = () => {
+    onRemove();
+    setConfirmAction(null);
+    setShowMenu(false);
+  };
 
   return (
     <div className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors">
@@ -1428,32 +1745,92 @@ function MemberCardReadOnly({ member, isCurrentUser, showActions, onRemove, onCh
       </div>
 
       {showActions && (
-        <div className="relative">
-          <button
-            onClick={() => setShowMenu(!showMenu)}
-            className="p-2 hover:bg-gray-100 rounded-lg"
-            disabled={isCurrentUser}
-          >
-            <MoreVertical className={cn("h-5 w-5", isCurrentUser ? "text-gray-300" : "text-gray-400")} />
-          </button>
+        <div className="relative flex items-center">
+          {/* Confirmation dialogs */}
+          <AnimatePresence mode="wait">
+            {confirmAction === 'role' && (
+              <motion.div
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                className="flex items-center gap-2 mr-2"
+              >
+                <span className="text-sm text-gray-600 whitespace-nowrap">
+                  {member.role === 'admin' ? 'Fjerne admin-tilgang?' : 'Gi admin-tilgang?'}
+                </span>
+                <button
+                  onClick={handleConfirmRole}
+                  className={cn(
+                    "px-3 py-1.5 text-sm font-medium text-white rounded-lg transition-colors",
+                    member.role === 'admin'
+                      ? "bg-amber-500 hover:bg-amber-600"
+                      : "bg-[#2C64E3] hover:bg-[#1F49C6]"
+                  )}
+                >
+                  Ja
+                </button>
+                <button
+                  onClick={() => setConfirmAction(null)}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Nei
+                </button>
+              </motion.div>
+            )}
 
-          {showMenu && !isCurrentUser && (
-            <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-              <button
-                onClick={() => { onChangeRole(member.role === 'admin' ? 'member' : 'admin'); setShowMenu(false); }}
-                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+            {confirmAction === 'remove' && (
+              <motion.div
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                className="flex items-center gap-2 mr-2"
               >
-                <Shield className="h-4 w-4 mr-2" />
-                {member.role === 'admin' ? 'Gjør til medlem' : 'Gjør til admin'}
-              </button>
+                <span className="text-sm text-gray-600 whitespace-nowrap">Fjerne fra organisasjonen?</span>
+                <button
+                  onClick={handleConfirmRemove}
+                  className="px-3 py-1.5 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
+                >
+                  Ja, fjern
+                </button>
+                <button
+                  onClick={() => setConfirmAction(null)}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Nei
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {!confirmAction && (
+            <>
               <button
-                onClick={() => { onRemove(); setShowMenu(false); }}
-                className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                onClick={() => setShowMenu(!showMenu)}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+                disabled={isCurrentUser}
               >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Fjern fra organisasjon
+                <MoreVertical className={cn("h-5 w-5", isCurrentUser ? "text-gray-300" : "text-gray-400")} />
               </button>
-            </div>
+
+              {showMenu && !isCurrentUser && (
+                <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                  <button
+                    onClick={() => { setConfirmAction('role'); setShowMenu(false); }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Shield className="h-4 w-4 mr-2" />
+                    {member.role === 'admin' ? 'Gjør til medlem' : 'Gjør til admin'}
+                  </button>
+                  <button
+                    onClick={() => { setConfirmAction('remove'); setShowMenu(false); }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Fjern
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
@@ -1484,6 +1861,7 @@ function InviteMemberModal({ isOpen, onClose, onInvite }: InviteMemberModalProps
   const [rows, setRows] = useState<InviteRow[]>([
     { id: '1', email: '', role: 'member' }
   ]);
+  const [openRoleDropdown, setOpenRoleDropdown] = useState<string | null>(null);
 
   const addRow = () => {
     setRows([...rows, { id: Date.now().toString(), email: '', role: 'member' }]);
@@ -1599,15 +1977,78 @@ function InviteMemberModal({ isOpen, onClose, onInvite }: InviteMemberModalProps
                     </div>
 
                     {/* Role dropdown */}
-                    <select
-                      value={row.role}
-                      onChange={(e) => updateRow(row.id, 'role', e.target.value as 'admin' | 'member')}
-                      className="px-3 py-3 rounded-xl border-2 border-gray-200 bg-white text-sm font-medium text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 cursor-pointer appearance-none pr-8 min-w-[120px]"
-                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '16px' }}
-                    >
-                      <option value="member">Medlem</option>
-                      <option value="admin">Admin</option>
-                    </select>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setOpenRoleDropdown(openRoleDropdown === row.id ? null : row.id)}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-3 rounded-xl border-2 bg-white text-sm font-medium transition-all min-w-[130px]",
+                          "focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100",
+                          openRoleDropdown === row.id ? "border-blue-500 ring-2 ring-blue-100" : "border-gray-200 hover:border-gray-300"
+                        )}
+                      >
+                        <span className={cn(
+                          "p-1 rounded-md",
+                          row.role === 'admin' ? "bg-amber-100" : "bg-blue-100"
+                        )}>
+                          {row.role === 'admin' ? (
+                            <Crown className="h-3.5 w-3.5 text-amber-600" />
+                          ) : (
+                            <User className="h-3.5 w-3.5 text-blue-600" />
+                          )}
+                        </span>
+                        <span className="text-gray-700 flex-1 text-left">
+                          {row.role === 'admin' ? 'Admin' : 'Medlem'}
+                        </span>
+                        <ChevronDown className={cn(
+                          "h-4 w-4 text-gray-400 transition-transform",
+                          openRoleDropdown === row.id && "rotate-180"
+                        )} />
+                      </button>
+
+                      {openRoleDropdown === row.id && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl border border-gray-200 shadow-lg z-10 overflow-hidden">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateRow(row.id, 'role', 'member');
+                              setOpenRoleDropdown(null);
+                            }}
+                            className={cn(
+                              "w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-colors",
+                              row.role === 'member' ? "bg-blue-50" : "hover:bg-gray-50"
+                            )}
+                          >
+                            <span className="p-1 rounded-md bg-blue-100">
+                              <User className="h-3.5 w-3.5 text-blue-600" />
+                            </span>
+                            <span className="font-medium text-gray-700">Medlem</span>
+                            {row.role === 'member' && (
+                              <Check className="h-4 w-4 text-blue-600 ml-auto" />
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateRow(row.id, 'role', 'admin');
+                              setOpenRoleDropdown(null);
+                            }}
+                            className={cn(
+                              "w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-colors",
+                              row.role === 'admin' ? "bg-amber-50" : "hover:bg-gray-50"
+                            )}
+                          >
+                            <span className="p-1 rounded-md bg-amber-100">
+                              <Crown className="h-3.5 w-3.5 text-amber-600" />
+                            </span>
+                            <span className="font-medium text-gray-700">Admin</span>
+                            {row.role === 'admin' && (
+                              <Check className="h-4 w-4 text-amber-600 ml-auto" />
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
 
                     {/* Remove button */}
                     <button
@@ -1665,7 +2106,7 @@ function InviteMemberModal({ isOpen, onClose, onInvite }: InviteMemberModalProps
                   className={cn(
                     "px-5 py-2.5 rounded-xl text-sm font-medium transition-all inline-flex items-center gap-2",
                     validCount > 0
-                      ? "bg-gradient-to-r from-blue-600 to-fuchsia-600 text-white hover:from-blue-500 hover:to-fuchsia-500 shadow-lg shadow-blue-500/25"
+                      ? "bg-gradient-to-r from-[#2C64E3] to-[#5A8DF8] text-white hover:from-[#1F49C6] hover:to-[#4A81EB] shadow-lg shadow-blue-500/25"
                       : "bg-gray-200 text-gray-400 cursor-not-allowed"
                   )}
                 >
@@ -1686,6 +2127,7 @@ function TeamTab() {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [members, setMembers] = useState(mockOrganization.members);
   const [pendingInvitations, setPendingInvitations] = useState(mockOrganization.pendingInvitations);
+  const [cancelConfirmId, setCancelConfirmId] = useState<string | null>(null);
 
   // Get current user from members
   const currentUser = members.find(m => m.id === currentUserId) || members[0];
@@ -1810,12 +2252,38 @@ function TeamTab() {
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={() => handleCancelInvitation(invitation.id)}
-                  className="text-sm text-red-600 hover:text-red-700"
-                >
-                  Kanseller
-                </button>
+
+                {cancelConfirmId === invitation.id ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex items-center gap-2"
+                  >
+                    <span className="text-sm text-gray-600 mr-1">Avbryte invitasjon?</span>
+                    <button
+                      onClick={() => {
+                        handleCancelInvitation(invitation.id);
+                        setCancelConfirmId(null);
+                      }}
+                      className="px-3 py-1.5 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
+                    >
+                      Ja, avbryt
+                    </button>
+                    <button
+                      onClick={() => setCancelConfirmId(null)}
+                      className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      Nei
+                    </button>
+                  </motion.div>
+                ) : (
+                  <button
+                    onClick={() => setCancelConfirmId(invitation.id)}
+                    className="text-sm text-red-600 hover:text-red-700"
+                  >
+                    Avbryt
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -1892,20 +2360,6 @@ function IntegrationCard({
 function IntegrationsTab() {
   const [googleConnected, setGoogleConnected] = useState(true);
   const [microsoftConnected, setMicrosoftConnected] = useState(false);
-  const [slackConnected, setSlackConnected] = useState(true);
-  const [crmConnected, setCrmConnected] = useState(false);
-  const [zapierConnected, setZapierConnected] = useState(false);
-  const [showApiKey, setShowApiKey] = useState(false);
-  const [apiKey] = useState('sk_live_notably_abc123xyz789def456ghi');
-
-  const handleCopyApiKey = () => {
-    navigator.clipboard.writeText(apiKey);
-    toast.success('API-nøkkel kopiert til utklippstavle');
-  };
-
-  const handleRegenerateApiKey = () => {
-    toast.success('Ny API-nøkkel generert');
-  };
 
   return (
     <div className="space-y-6">
@@ -1937,235 +2391,6 @@ function IntegrationsTab() {
             onConnect={() => { setMicrosoftConnected(true); toast.success('Microsoft 365 koblet til'); }}
             onDisconnect={() => { setMicrosoftConnected(false); toast.success('Microsoft 365 frakoblet'); }}
           />
-        </div>
-      </div>
-
-      {/* Organization Integrations (Admin only) */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-semibold">Organisasjonsintegrasjoner</h2>
-              <p className="text-sm text-gray-600 mt-1">Del møtenotater og automatiser arbeidsflyter</p>
-            </div>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-              <Crown className="h-3 w-3 mr-1" />
-              Kun admin
-            </span>
-          </div>
-        </div>
-        <div className="p-6 space-y-4">
-          <IntegrationCard
-            icon={MessageSquare}
-            iconBg="bg-blue-50"
-            iconColor="text-blue-600"
-            name="Slack"
-            description="Send møtesammendrag til Slack-kanaler"
-            connected={slackConnected}
-            status="Koblet til #meetings-kanal"
-            onConnect={() => { setSlackConnected(true); toast.success('Slack koblet til'); }}
-            onDisconnect={() => { setSlackConnected(false); toast.success('Slack frakoblet'); }}
-          />
-          <IntegrationCard
-            icon={Users}
-            iconBg="bg-green-50"
-            iconColor="text-green-600"
-            name="CRM (Salesforce/HubSpot)"
-            description="Koble møtenotater til kunder og leads"
-            connected={crmConnected}
-            onConnect={() => { setCrmConnected(true); toast.success('CRM koblet til'); }}
-            onDisconnect={() => { setCrmConnected(false); toast.success('CRM frakoblet'); }}
-          />
-          <IntegrationCard
-            icon={Zap}
-            iconBg="bg-orange-50"
-            iconColor="text-orange-600"
-            name="Zapier"
-            description="Automatiser arbeidsflyter med 5000+ apper"
-            connected={zapierConnected}
-            onConnect={() => { setZapierConnected(true); toast.success('Zapier koblet til'); }}
-            onDisconnect={() => { setZapierConnected(false); toast.success('Zapier frakoblet'); }}
-          />
-        </div>
-      </div>
-
-      {/* Developer Tools (Pro/Enterprise) */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-semibold">Utviklerverktøy</h2>
-              <p className="text-sm text-gray-600 mt-1">Bygg egne integrasjoner med Notably API</p>
-            </div>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              Pro / Enterprise
-            </span>
-          </div>
-        </div>
-        <div className="p-6 space-y-6">
-          {/* MCP Server */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Bot className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium">MCP-server</h3>
-                  <p className="text-sm text-gray-600">Koble Notably til AI-assistenter via Model Context Protocol</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Konfigurasjon for Claude Desktop</span>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(`{
-  "mcpServers": {
-    "notably": {
-      "command": "npx",
-      "args": ["-y", "@anthropic/notably-mcp"],
-      "env": {
-        "NOTABLY_API_KEY": "${apiKey}"
-      }
-    }
-  }
-}`);
-                    toast.success('MCP-konfigurasjon kopiert');
-                  }}
-                  className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center"
-                >
-                  <Copy className="h-3 w-3 mr-1" />
-                  Kopier
-                </button>
-              </div>
-              <pre className="text-xs font-mono text-gray-700 overflow-x-auto whitespace-pre">{`{
-  "mcpServers": {
-    "notably": {
-      "command": "npx",
-      "args": ["-y", "@anthropic/notably-mcp"],
-      "env": {
-        "NOTABLY_API_KEY": "din-api-nøkkel"
-      }
-    }
-  }
-}`}</pre>
-            </div>
-            <div className="mt-3 flex items-start space-x-2">
-              <Terminal className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-gray-500">
-                Legg til denne konfigurasjonen i <code className="bg-gray-100 px-1 rounded">claude_desktop_config.json</code> for å gi Claude tilgang til dine møtenotater, transkripsjoner og opptak.
-              </p>
-            </div>
-          </div>
-
-          {/* API Key */}
-          <div className="pt-4 border-t border-gray-100">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Key className="h-5 w-5 text-gray-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium">API-nøkkel</h3>
-                  <p className="text-sm text-gray-600">Programmatisk tilgang til dine data</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="flex-1 relative">
-                <input
-                  type={showApiKey ? 'text' : 'password'}
-                  value={apiKey}
-                  readOnly
-                  className="w-full px-4 py-2 pr-20 rounded-lg border border-gray-300 bg-gray-50 font-mono text-sm"
-                />
-                <button
-                  onClick={() => setShowApiKey(!showApiKey)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-200 rounded"
-                >
-                  {showApiKey ? (
-                    <EyeOff className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-500" />
-                  )}
-                </button>
-              </div>
-              <button
-                onClick={handleCopyApiKey}
-                className="p-2 hover:bg-gray-100 rounded-lg border border-gray-300"
-                title="Kopier"
-              >
-                <Copy className="h-5 w-5 text-gray-600" />
-              </button>
-              <button
-                onClick={handleRegenerateApiKey}
-                className="p-2 hover:bg-gray-100 rounded-lg border border-gray-300"
-                title="Regenerer"
-              >
-                <RefreshCw className="h-5 w-5 text-gray-600" />
-              </button>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Opprettet 1. des 2024 • Sist brukt for 2 timer siden
-            </p>
-          </div>
-
-          {/* Webhooks */}
-          <div className="pt-4 border-t border-gray-100">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Webhook className="h-5 w-5 text-gray-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium">Webhooks</h3>
-                  <p className="text-sm text-gray-600">Motta varsler når hendelser skjer</p>
-                </div>
-              </div>
-              <button className="button-secondary text-sm">
-                + Legg til webhook
-              </button>
-            </div>
-
-            {/* Existing webhooks list */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-sm">https://api.example.com/webhooks/notably</p>
-                  <p className="text-xs text-gray-500">Hendelser: transcription.completed, meeting.ended</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
-                    Aktiv
-                  </span>
-                  <button className="p-1 hover:bg-gray-200 rounded">
-                    <MoreVertical className="h-4 w-4 text-gray-400" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Documentation link */}
-          <div className="pt-4 border-t border-gray-100">
-            <a
-              href="#"
-              className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-blue-200 hover:bg-blue-50/50 transition-colors"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <ExternalLink className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium">API-dokumentasjon</h3>
-                  <p className="text-sm text-gray-600">Se alle tilgjengelige endepunkter og eksempler</p>
-                </div>
-              </div>
-              <ExternalLink className="h-5 w-5 text-gray-400" />
-            </a>
-          </div>
         </div>
       </div>
     </div>

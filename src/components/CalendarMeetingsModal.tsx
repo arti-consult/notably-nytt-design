@@ -246,21 +246,7 @@ export default function CalendarMeetingsModal({
 
                             {/* Actions */}
                             {meeting.status === 'upcoming' && (
-                              <div className="flex items-center space-x-2 ml-4">
-                                {/* Auto-record toggle */}
-                                <button
-                                  onClick={() => handleToggleAutoRecord(meeting.id)}
-                                  className={cn(
-                                    "flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
-                                    isAutoRecordOn
-                                      ? "bg-[#E4ECFF] text-[#2C64E3]"
-                                      : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                                  )}
-                                >
-                                  <Sparkles className="h-3.5 w-3.5" />
-                                  <span>{isAutoRecordOn ? 'Auto-opptak på' : 'Auto-opptak av'}</span>
-                                </button>
-
+                              <div className="flex items-center space-x-3 ml-4">
                                 {/* Join meeting button */}
                                 <a
                                   href={meeting.meetingLink}
@@ -274,15 +260,29 @@ export default function CalendarMeetingsModal({
                             )}
                           </div>
 
-                          {/* Invite assistant button for upcoming meetings - only shown when auto-record is OFF */}
-                          {meeting.status === 'upcoming' && onInviteAssistant && !isAutoRecordOn && (
-                            <button
-                              onClick={() => onInviteAssistant(meeting)}
-                              className="mt-3 w-full flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-[#2C64E3] to-[#5A8DF8] hover:from-[#1F49C6] hover:to-[#4A81EB] text-white rounded-lg text-sm font-medium transition-all shadow-sm hover:shadow-md"
-                            >
-                              <Sparkles className="h-4 w-4" />
-                              <span>Inviter Notably-assistent</span>
-                            </button>
+                          {/* Recording toggle for upcoming meetings */}
+                          {meeting.status === 'upcoming' && (
+                            <div className="mt-3 pt-3 border-t border-gray-100">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-900">
+                                  Skal Notably være med i møtet?
+                                </span>
+                                <button
+                                  onClick={() => handleToggleAutoRecord(meeting.id)}
+                                  className={cn(
+                                    "relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#2C64E3] focus:ring-offset-2",
+                                    isAutoRecordOn ? "bg-[#2C64E3]" : "bg-gray-200"
+                                  )}
+                                >
+                                  <span
+                                    className={cn(
+                                      "absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200 ease-in-out",
+                                      isAutoRecordOn ? "translate-x-5" : "translate-x-0"
+                                    )}
+                                  />
+                                </button>
+                              </div>
+                            </div>
                           )}
                         </motion.div>
                       );
