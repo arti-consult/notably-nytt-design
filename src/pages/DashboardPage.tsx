@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText,
   Clock,
@@ -32,10 +32,16 @@ import CalendarMeetingsModal from '@/components/CalendarMeetingsModal';
 import FolderRenameModal from '@/components/FolderRenameModal';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import TagEditor from '@/components/TagEditor';
+import BulkTagModal from '@/components/BulkTagModal';
+import BulkMoveDropdown from '@/components/BulkMoveDropdown';
+import AdvancedFilters, { FilterOptions } from '@/components/AdvancedFilters';
 import Pagination from '@/components/Pagination';
+import { SkeletonCardList } from '@/components/SkeletonCard';
 import { cn } from '@/lib/utils';
 import { useFolders } from '@/contexts/FolderContext';
 import { toast } from '@/components/ui/toast';
+import { useUndoRedo } from '@/hooks/useUndoRedo';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { mockRecordings, mockTags } from '@/lib/mockData';
 import { mockCalendarMeetings } from '@/lib/mockCalendarMeetings';
 
@@ -153,6 +159,7 @@ interface Tag {
 
 export default function DashboardPage() {
   const { folders, addFolder, removeFolder, updateFolder } = useFolders();
+  const { addAction, undo, redo, canUndo, canRedo } = useUndoRedo();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFolder, setActiveFolder] = useState<string | null>(null);
   const [activeTags, setActiveTags] = useState<Set<string>>(new Set());
@@ -175,6 +182,16 @@ export default function DashboardPage() {
   const [dateRange, setDateRange] = useState<'total' | 'day' | 'week' | 'month'>('total');
   const [isBulkEditMode, setIsBulkEditMode] = useState(false);
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+  const [showBulkTagModal, setShowBulkTagModal] = useState(false);
+  const [draggedRecording, setDraggedRecording] = useState<string | null>(null);
+  const [dropTargetFolder, setDropTargetFolder] = useState<string | null>(null);
+  const [advancedFilters, setAdvancedFilters] = useState<FilterOptions>({
+    status: 'all',
+    durationMin: 0,
+    durationMax: 10000,
+    dateFrom: '',
+    dateTo: ''
+  });
   const [isCalendarConnected, setIsCalendarConnected] = useState(false);
   const [isCalendarBannerDismissed, setIsCalendarBannerDismissed] = useState(false);
   const [showCalendarMeetingsModal, setShowCalendarMeetingsModal] = useState(false);
@@ -236,7 +253,9 @@ export default function DashboardPage() {
       tags: []
     };
     setRecordings(prev => [newRecording, ...prev]);
-    toast.success('Opptak startet');
+    toast.success('Opptak startet! Transkribering pågår...', {
+      duration: 4000
+    });
   };
 
   const handleFileUploadComplete = () => {
@@ -250,7 +269,9 @@ export default function DashboardPage() {
       tags: []
     };
     setRecordings(prev => [newRecording, ...prev]);
-    toast.success('Transkribering startet');
+    toast.success('Fil lastet opp! Transkribering startet automatisk', {
+      duration: 4000
+    });
   };
 
   const getFilteredRecordingsByDate = (recordings: Recording[]) => {
@@ -296,10 +317,17 @@ export default function DashboardPage() {
 
     try {
       await addFolder(newFolderName.trim());
+      const folderName = newFolderName.trim();
       setNewFolderName('');
       setShowNewFolderInput(false);
+      toast.success(`Mappe "${folderName}" opprettet`, {
+        duration: 3000
+      });
     } catch (error) {
       console.error('Error adding folder:', error);
+      toast.error('Kunne ikke opprette mappe. Prøv igjen.', {
+        duration: 4000
+      });
     }
   };
 
@@ -316,12 +344,19 @@ export default function DashboardPage() {
   const handleRenameFolder = async (newName: string) => {
     if (!selectedFolderForAction) return;
 
+    const oldName = selectedFolderForAction.name;
     try {
       await updateFolder(selectedFolderForAction.id, newName);
       setShowRenameModal(false);
       setSelectedFolderForAction(null);
+      toast.success(`Mappe "${oldName}" omdøpt til "${newName}"`, {
+        duration: 3000
+      });
     } catch (error) {
       console.error('Error renaming folder:', error);
+      toast.error('Kunne ikke endre mappenavn. Prøv igjen.', {
+        duration: 4000
+      });
       throw error;
     }
   };
@@ -329,15 +364,24 @@ export default function DashboardPage() {
   const handleDeleteFolder = async () => {
     if (!selectedFolderForAction) return;
 
+    const folderName = selectedFolderForAction.name;
+    const folderId = selectedFolderForAction.id;
+
     try {
-      await removeFolder(selectedFolderForAction.id);
-      if (activeFolder === selectedFolderForAction.id) {
+      await removeFolder(folderId);
+      if (activeFolder === folderId) {
         setActiveFolder(null);
       }
       setShowDeleteDialog(false);
       setSelectedFolderForAction(null);
+      toast.success(`Mappe "${folderName}" slettet`, {
+        duration: 3000
+      });
     } catch (error) {
       console.error('Error deleting folder:', error);
+      toast.error('Kunne ikke slette mappe. Prøv igjen.', {
+        duration: 4000
+      });
       throw error;
     }
   };
@@ -403,6 +447,31 @@ export default function DashboardPage() {
     // Apply date filter
     filtered = getFilteredRecordingsByDate(filtered);
 
+    // Apply advanced filters
+    if (advancedFilters.status !== 'all') {
+      filtered = filtered.filter(r => r.status === advancedFilters.status);
+    }
+
+    if (advancedFilters.durationMin > 0) {
+      filtered = filtered.filter(r => r.duration >= advancedFilters.durationMin);
+    }
+
+    if (advancedFilters.durationMax < 10000) {
+      filtered = filtered.filter(r => r.duration <= advancedFilters.durationMax);
+    }
+
+    if (advancedFilters.dateFrom) {
+      const fromDate = new Date(advancedFilters.dateFrom);
+      fromDate.setHours(0, 0, 0, 0);
+      filtered = filtered.filter(r => new Date(r.created_at) >= fromDate);
+    }
+
+    if (advancedFilters.dateTo) {
+      const toDate = new Date(advancedFilters.dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      filtered = filtered.filter(r => new Date(r.created_at) <= toDate);
+    }
+
     return filtered;
   };
 
@@ -418,15 +487,101 @@ export default function DashboardPage() {
     setShowRecordingModal(true);
   };
 
-  // Mock bulk delete - kun lokal state
+  // Mock bulk delete - kun lokal state med undo
   const handleBulkDelete = async () => {
     if (selectedRecordings.size === 0) return;
 
+    const deletedRecordings = recordings.filter(r => selectedRecordings.has(r.id));
+    const count = selectedRecordings.size;
+
+    // Optimistic delete
     setRecordings(prev => prev.filter(r => !selectedRecordings.has(r.id)));
-    toast.success(`${selectedRecordings.size} opptak ble slettet`);
     setSelectedRecordings(new Set());
     setIsBulkEditMode(false);
     setShowBulkDeleteDialog(false);
+
+    // Add undo action
+    addAction({
+      type: 'delete',
+      description: `Slettet ${count} opptak`,
+      undo: () => {
+        setRecordings(prev => [...deletedRecordings, ...prev].sort((a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        ));
+      },
+      redo: () => {
+        setRecordings(prev => prev.filter(r => !deletedRecordings.some(d => d.id === r.id)));
+      }
+    });
+
+    toast.success(`${count} opptak ble slettet`, {
+      action: {
+        label: 'Angre',
+        onClick: () => {
+          if (undo()) {
+            toast.info('Opptak gjenopprettet');
+          }
+        }
+      },
+      duration: 8000
+    } as any);
+  };
+
+  // Mock bulk move - kun lokal state
+  const handleBulkMove = async (targetFolderId: string | null) => {
+    if (selectedRecordings.size === 0) return;
+
+    const count = selectedRecordings.size;
+    const folderName = targetFolderId
+      ? folders.find(f => f.id === targetFolderId)?.name
+      : 'Alle mapper';
+
+    setRecordings(prev => prev.map(r =>
+      selectedRecordings.has(r.id)
+        ? { ...r, folder_id: targetFolderId || undefined }
+        : r
+    ));
+
+    toast.success(`${count} opptak flyttet til ${folderName}`, {
+      duration: 3000
+    });
+    setSelectedRecordings(new Set());
+    setIsBulkEditMode(false);
+  };
+
+  // Mock bulk tag - kun lokal state
+  const handleBulkTag = async (tagIds: string[]) => {
+    if (selectedRecordings.size === 0 || tagIds.length === 0) return;
+
+    const count = selectedRecordings.size;
+    const tagNames = tagIds
+      .map(id => availableTags.find(t => t.id === id)?.name)
+      .filter(Boolean)
+      .join(', ');
+
+    setRecordings(prev => prev.map(r => {
+      if (!selectedRecordings.has(r.id)) return r;
+
+      const existingTagIds = r.tags?.map(t => t.id) || [];
+      const newTags = [...(r.tags || [])];
+
+      tagIds.forEach(tagId => {
+        if (!existingTagIds.includes(tagId)) {
+          const tag = availableTags.find(t => t.id === tagId);
+          if (tag) {
+            newTags.push({ id: tag.id, name: tag.name });
+          }
+        }
+      });
+
+      return { ...r, tags: newTags };
+    }));
+
+    toast.success(`${tagNames} lagt til ${count} opptak`, {
+      duration: 4000
+    });
+    setSelectedRecordings(new Set());
+    setIsBulkEditMode(false);
   };
 
   const toggleRecordingSelection = (recordingId: string) => {
@@ -440,6 +595,62 @@ export default function DashboardPage() {
       return newSet;
     });
   };
+
+  // Drag & drop handlers for moving recordings to folders
+  const handleDragStart = (recordingId: string) => {
+    setDraggedRecording(recordingId);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedRecording(null);
+    setDropTargetFolder(null);
+  };
+
+  const handleDropOnFolder = async (folderId: string | null) => {
+    if (!draggedRecording) return;
+
+    const recording = recordings.find(r => r.id === draggedRecording);
+    if (!recording) return;
+
+    const folderName = folderId
+      ? folders.find(f => f.id === folderId)?.name
+      : 'Alle mapper';
+
+    // Optimistic update
+    setRecordings(prev => prev.map(r =>
+      r.id === draggedRecording ? { ...r, folder_id: folderId || undefined } : r
+    ));
+
+    toast.success(`"${recording.title}" flyttet til ${folderName}`, {
+      duration: 3000
+    });
+
+    handleDragEnd();
+  };
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    'cmd+z': () => {
+      if (canUndo && undo()) {
+        toast.info('Handling angret', { duration: 2000 });
+      }
+    },
+    'ctrl+z': () => {
+      if (canUndo && undo()) {
+        toast.info('Handling angret', { duration: 2000 });
+      }
+    },
+    'cmd+shift+z': () => {
+      if (canRedo && redo()) {
+        toast.info('Handling gjentatt', { duration: 2000 });
+      }
+    },
+    'ctrl+y': () => {
+      if (canRedo && redo()) {
+        toast.info('Handling gjentatt', { duration: 2000 });
+      }
+    }
+  });
 
   return (
     <div className="min-h-screen pt-16 bg-gray-50/50">
@@ -565,28 +776,43 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center space-x-2">
-                <span className="text-xs text-gray-500 mr-1">Periode:</span>
-                {[
-                  { value: 'total', label: 'Totalt' },
-                  { value: 'day', label: 'I dag' },
-                  { value: 'week', label: 'Denne uken' },
-                  { value: 'month', label: 'Denne måneden' }
-                ].map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => setDateRange(option.value as 'total' | 'day' | 'week' | 'month')}
-                    className={cn(
-                      "px-3 py-1 rounded-full text-xs font-medium transition-colors",
-                      dateRange === option.value
-                        ? "bg-[#2C64E3] text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    )}
-                  >
-                    {option.label}
-                  </button>
-                ))}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-gray-500 mr-1">Periode:</span>
+                  {[
+                    { value: 'total', label: 'Totalt' },
+                    { value: 'day', label: 'I dag' },
+                    { value: 'week', label: 'Denne uken' },
+                    { value: 'month', label: 'Denne måneden' }
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setDateRange(option.value as 'total' | 'day' | 'week' | 'month')}
+                      className={cn(
+                        "px-3 py-1 rounded-full text-xs font-medium transition-colors",
+                        dateRange === option.value
+                          ? "bg-[#2C64E3] text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+
+                <AdvancedFilters
+                  filters={advancedFilters}
+                  onFiltersChange={setAdvancedFilters}
+                  onReset={() => setAdvancedFilters({
+                    status: 'all',
+                    durationMin: 0,
+                    durationMax: 10000,
+                    dateFrom: '',
+                    dateTo: ''
+                  })}
+                />
               </div>
+
               <button
                 onClick={() => {
                   setIsBulkEditMode(!isBulkEditMode);
@@ -795,66 +1021,93 @@ export default function DashboardPage() {
               <div className="space-y-1">
                 <button
                   onClick={() => setActiveFolder(null)}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    if (draggedRecording) setDropTargetFolder('all');
+                  }}
+                  onDragLeave={() => setDropTargetFolder(null)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    handleDropOnFolder(null);
+                  }}
                   className={cn(
-                    "w-full flex items-center px-3 py-2 rounded-lg text-sm transition-colors",
+                    "w-full flex items-center px-3 py-2 rounded-lg text-sm transition-all",
                     !activeFolder
                       ? "bg-[#F0F5FF] text-[#2C64E3]"
-                      : "text-gray-600 hover:bg-gray-50"
+                      : "text-gray-600 hover:bg-gray-50",
+                    dropTargetFolder === 'all' && draggedRecording && "ring-2 ring-[#2C64E3] bg-[#E4ECFF]"
                   )}
                 >
                   <Folder className="h-4 w-4 mr-2" />
                   Alle mapper
                 </button>
 
-                {folders.map(folder => (
-                  <div
-                    key={folder.id}
-                    className="relative group"
-                  >
-                    <button
-                      onClick={() => setActiveFolder(folder.id)}
-                      className={cn(
-                        "w-full flex items-center px-3 py-2 rounded-lg text-sm transition-colors",
-                        activeFolder === folder.id
-                          ? "bg-[#F0F5FF] text-[#2C64E3]"
-                          : "text-gray-600 hover:bg-gray-50"
-                      )}
+                <AnimatePresence mode="popLayout">
+                  {folders.map(folder => (
+                    <motion.div
+                      key={folder.id}
+                      layout
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="relative group"
                     >
-                      <Folder className="h-4 w-4 mr-2" />
-                      {folder.name}
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveFolderMenu(activeFolderMenu === folder.id ? null : folder.id);
+                      <button
+                      onClick={() => setActiveFolder(folder.id)}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        if (draggedRecording) setDropTargetFolder(folder.id);
+                      }}
+                      onDragLeave={() => setDropTargetFolder(null)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        handleDropOnFolder(folder.id);
                       }}
                       className={cn(
-                        "absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-lg transition-opacity",
-                        activeFolderMenu === folder.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                        "w-full flex items-center px-3 py-2 rounded-lg text-sm transition-all",
+                        activeFolder === folder.id
+                          ? "bg-[#F0F5FF] text-[#2C64E3]"
+                          : "text-gray-600 hover:bg-gray-50",
+                        dropTargetFolder === folder.id && draggedRecording && "ring-2 ring-[#2C64E3] bg-[#E4ECFF]"
                       )}
                     >
-                      <MoreVertical className="h-4 w-4 text-gray-400" />
-                    </button>
-                    {activeFolderMenu === folder.id && (
-                      <div className="absolute right-0 top-0 mt-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-                        <button
-                          onClick={() => handleFolderAction(folder.id, folder.name, 'rename')}
-                          className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                        >
-                          <Pencil className="h-4 w-4 mr-2" />
-                          Endre navn
-                        </button>
-                        <button
-                          onClick={() => handleFolderAction(folder.id, folder.name, 'delete')}
-                          className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Slett mappe
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                        <Folder className="h-4 w-4 mr-2" />
+                        {folder.name}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveFolderMenu(activeFolderMenu === folder.id ? null : folder.id);
+                        }}
+                        className={cn(
+                          "absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-lg transition-opacity",
+                          activeFolderMenu === folder.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                        )}
+                      >
+                        <MoreVertical className="h-4 w-4 text-gray-400" />
+                      </button>
+                      {activeFolderMenu === folder.id && (
+                        <div className="absolute right-0 top-0 mt-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                          <button
+                            onClick={() => handleFolderAction(folder.id, folder.name, 'rename')}
+                            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          >
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Endre navn
+                          </button>
+                          <button
+                            onClick={() => handleFolderAction(folder.id, folder.name, 'delete')}
+                            className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Slett mappe
+                          </button>
+                        </div>
+                      )}
+                    </motion.div>
                 ))}
+                </AnimatePresence>
               </div>
             </div>
 
@@ -870,21 +1123,28 @@ export default function DashboardPage() {
                 </button>
               </div>
               <div className="flex flex-wrap gap-2">
-                {availableTags.map(tag => (
-                  <button
-                    key={tag.id}
-                    onClick={() => toggleTag(tag)}
-                    className={cn(
-                      "inline-flex items-center px-3 py-1 rounded-full text-sm transition-colors",
-                      activeTags.has(tag.id)
-                        ? "bg-[#2C64E3] text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    )}
-                  >
-                    <TagIcon className="h-3 w-3 mr-1" />
-                    {tag.name}
-                  </button>
-                ))}
+                <AnimatePresence mode="popLayout">
+                  {availableTags.map(tag => (
+                    <motion.button
+                      key={tag.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.15 }}
+                      onClick={() => toggleTag(tag)}
+                      className={cn(
+                        "inline-flex items-center px-3 py-1 rounded-full text-sm transition-colors",
+                        activeTags.has(tag.id)
+                          ? "bg-[#2C64E3] text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      )}
+                    >
+                      <TagIcon className="h-3 w-3 mr-1" />
+                      {tag.name}
+                    </motion.button>
+                  ))}
+                </AnimatePresence>
               </div>
             </div>
           </div>
@@ -893,34 +1153,123 @@ export default function DashboardPage() {
           <div className="lg:col-span-3">
             <div className="space-y-4">
               {isLoading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#2C64E3] mx-auto"></div>
-                  <p className="text-gray-600 mt-4">Henter opptak...</p>
-                </div>
+                <SkeletonCardList count={ITEMS_PER_PAGE} />
               ) : error ? (
                 <div className="text-center py-8 text-red-600">{error}</div>
               ) : getCurrentPageRecordings().length === 0 ? (
-                <div className="text-center py-8 text-gray-600">
-                  {searchQuery
-                    ? 'Ingen opptak funnet for dette søket'
-                    : activeFolder
-                    ? 'Ingen opptak i denne mappen'
-                    : activeTags.size > 0
-                    ? 'Ingen opptak med valgte etiketter'
-                    : 'Ingen opptak funnet'}
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="text-center py-16"
+                >
+                  {searchQuery ? (
+                    // Empty state for search
+                    <div className="max-w-md mx-auto">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                        <Search className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        Ingen resultater funnet
+                      </h3>
+                      <p className="text-gray-600 mb-6">
+                        Prøv å søke med andre søkeord eller fjern filtre
+                      </p>
+                      <button
+                        onClick={() => {
+                          setSearchQuery('');
+                          setActiveTags(new Set());
+                          setAdvancedFilters({
+                            status: 'all',
+                            durationMin: 0,
+                            durationMax: 10000,
+                            dateFrom: '',
+                            dateTo: ''
+                          });
+                        }}
+                        className="px-4 py-2 bg-[#2C64E3] hover:bg-[#1F49C6] text-white rounded-lg font-medium transition-colors"
+                      >
+                        Nullstill søk
+                      </button>
+                    </div>
+                  ) : activeFolder || activeTags.size > 0 ? (
+                    // Empty state for folder/tag filter
+                    <div className="max-w-md mx-auto">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#F0F5FF] flex items-center justify-center">
+                        <Folder className="h-8 w-8 text-[#2C64E3]" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        Ingen opptak her
+                      </h3>
+                      <p className="text-gray-600 mb-6">
+                        {activeFolder
+                          ? `Mappen "${folders.find(f => f.id === activeFolder)?.name}" er tom`
+                          : 'Ingen opptak med valgte etiketter'}
+                      </p>
+                      <button
+                        onClick={() => {
+                          setActiveFolder(null);
+                          setActiveTags(new Set());
+                        }}
+                        className="px-4 py-2 bg-[#2C64E3] hover:bg-[#1F49C6] text-white rounded-lg font-medium transition-colors"
+                      >
+                        Vis alle opptak
+                      </button>
+                    </div>
+                  ) : (
+                    // Empty state for no recordings at all
+                    <div className="max-w-md mx-auto">
+                      <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#E4ECFF] to-[#F0F5FF] flex items-center justify-center">
+                        <Mic className="h-10 w-10 text-[#2C64E3]" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        Kom i gang med ditt første opptak
+                      </h3>
+                      <p className="text-gray-600 mb-8">
+                        Start et nytt opptak eller last opp en eksisterende lydfil for å få transkribering og AI-analyse
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <button
+                          onClick={handleStartRecording}
+                          className="px-6 py-3 bg-[#2C64E3] hover:bg-[#1F49C6] text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Mic className="h-5 w-5" />
+                          Start opptak
+                        </button>
+                        <button
+                          onClick={() => setShowUploadModal(true)}
+                          className="px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                        >
+                          <FileText className="h-5 w-5" />
+                          Last opp fil
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
               ) : (
                 <>
-                  {getCurrentPageRecordings().map((recording) => (
-                    <div
-                      key={recording.id}
-                      onClick={isBulkEditMode ? () => toggleRecordingSelection(recording.id) : undefined}
-                      className={cn(
-                        "feature-card dashboard-card flex items-center justify-between group",
-                        selectedRecordings.has(recording.id) && "bg-[#E4ECFF]/60 border-[#CFE0FF]",
-                        isBulkEditMode && "cursor-pointer hover:bg-[#F0F5FF]"
-                      )}
-                    >
+                  <AnimatePresence mode="popLayout">
+                    {getCurrentPageRecordings().map((recording) => (
+                      <motion.div
+                        key={recording.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
+                        draggable={!isBulkEditMode}
+                        onDragStart={() => handleDragStart(recording.id)}
+                        onDragEnd={handleDragEnd}
+                        onClick={isBulkEditMode ? () => toggleRecordingSelection(recording.id) : undefined}
+                        className={cn(
+                          "feature-card dashboard-card flex items-center justify-between group",
+                          selectedRecordings.has(recording.id) && "bg-[#E4ECFF]/60 border-[#CFE0FF]",
+                          isBulkEditMode && "cursor-pointer hover:bg-[#F0F5FF]",
+                          !isBulkEditMode && "cursor-move",
+                          draggedRecording === recording.id && "opacity-50"
+                        )}
+                      >
                       <div
                         className="flex-1 flex items-center space-x-4"
                       >
@@ -983,25 +1332,46 @@ export default function DashboardPage() {
                           <ChevronRight className="h-5 w-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity ml-4" />
                         </Link>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
+                  </AnimatePresence>
 
-                  {/* Bulk Delete Controls */}
+                  {/* Bulk Actions Controls */}
                   {selectedRecordings.size > 0 && (
-                    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-4 flex items-center space-x-4">
-                      <span className="text-sm text-gray-600">
-                        {selectedRecordings.size} opptak valgt
+                    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-4 flex items-center gap-3">
+                      <span className="text-sm font-medium text-gray-700">
+                        {selectedRecordings.size} valgt
                       </span>
+
+                      {/* Folder dropdown */}
+                      <BulkMoveDropdown
+                        folders={folders}
+                        onMove={handleBulkMove}
+                        selectedCount={selectedRecordings.size}
+                      />
+
+                      {/* Tag button */}
+                      <button
+                        onClick={() => setShowBulkTagModal(true)}
+                        className="text-sm px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg flex items-center transition-colors"
+                      >
+                        <TagIcon className="h-4 w-4 mr-2" />
+                        Etiketter
+                      </button>
+
+                      {/* Delete button */}
                       <button
                         onClick={() => setShowBulkDeleteDialog(true)}
-                        className="button-primary bg-red-600 hover:bg-red-700 flex items-center"
+                        className="text-sm px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center transition-colors"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
-                        Slett valgte
+                        Slett
                       </button>
+
+                      {/* Cancel button */}
                       <button
                         onClick={() => setSelectedRecordings(new Set())}
-                        className="button-secondary"
+                        className="text-sm px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                       >
                         Avbryt
                       </button>
@@ -1076,6 +1446,14 @@ export default function DashboardPage() {
         onConfirm={handleBulkDelete}
         title="Slett opptak"
         message={`Er du sikker på at du vil slette ${selectedRecordings.size} opptak? Denne handlingen kan ikke angres.`}
+      />
+
+      <BulkTagModal
+        isOpen={showBulkTagModal}
+        onClose={() => setShowBulkTagModal(false)}
+        availableTags={availableTags}
+        onApplyTags={handleBulkTag}
+        selectedCount={selectedRecordings.size}
       />
 
       <CalendarMeetingsModal
