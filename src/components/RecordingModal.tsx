@@ -6,7 +6,9 @@ import {
   Clock,
   AlertCircle,
   UserPlus,
-  Trash2
+  Trash2,
+  CloudOff,
+  RefreshCw
 } from 'lucide-react';
 import { useRecording } from '@/hooks/useRecording';
 import { useFolders } from '@/contexts/FolderContext';
@@ -49,6 +51,7 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
   const [participantError, setParticipantError] = useState<string | null>(null);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [uploadFailed, setUploadFailed] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
@@ -64,6 +67,7 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
       setParticipantError(null);
       setSelectedFolder(null);
       setLocalError(null);
+      setUploadFailed(false);
       resetRecording();
     }
   }, [isOpen, stopRecording, isRecording, resetRecording]);
@@ -132,30 +136,60 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
         audioStream.getTracks().forEach(track => track.stop());
         setAudioStream(null);
       }
+
+      // Automatically start saving after stopping
+      setIsSaving(true);
+      setSaveError(null);
+      setUploadFailed(false);
+
+      // Wait for processing to complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Demo: Simulate network failure randomly (20% chance)
+      const simulateNetworkFailure = Math.random() < 0.2;
+
+      if (simulateNetworkFailure) {
+        // Simulate network error
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setIsSaving(false);
+        setUploadFailed(true);
+        console.log('Demo: Network failure - recording saved locally');
+        return;
+      }
+
+      // Simulate upload delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      console.log('Demo: Recording would be saved', {
+        title: recordingTitle,
+        participants: participants.length,
+        folder: selectedFolder
+      });
+
+      setIsSaving(false);
+      if (onComplete) {
+        onComplete();
+      }
+      onClose();
     } catch (error) {
       console.error('Error stopping recording:', error);
-      setSaveError('Kunne ikke stoppe opptaket');
+      setSaveError('Kunne ikke stoppe og lagre opptaket');
+      setIsSaving(false);
     }
   };
 
-  const handleSaveRecording = async () => {
-    if (!audioBlob) {
-      setSaveError('Mangler nødvendig data for å lagre opptaket');
-      return;
-    }
-
-    // Demo mode - simulate saving
+  const handleRetryUpload = async () => {
+    setUploadFailed(false);
     setIsSaving(true);
     setSaveError(null);
 
     // Simulate upload delay
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    console.log('Demo: Recording would be saved', {
+    console.log('Demo: Retry successful - recording would be saved', {
       title: recordingTitle,
       participants: participants.length,
-      folder: selectedFolder,
-      blobSize: audioBlob.size
+      folder: selectedFolder
     });
 
     setIsSaving(false);
@@ -345,30 +379,58 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
                 {audioStream && <AudioVisualizer stream={audioStream} />}
                 <p className="text-sm text-gray-500 mt-2">{recordingTitle}</p>
               </div>
-            ) : isProcessing || isSaving ? (
-              <div className="flex flex-col items-center">
-                <Activity className="h-12 w-12 text-blue-600 animate-pulse mb-4" />
-                <p className="text-gray-600">
-                  {isProcessing ? 'Behandler opptak...' : 'Lagrer opptak...'}
-                </p>
+            ) : uploadFailed ? (
+              <div className="flex flex-col items-center space-y-4 max-w-md">
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                    <CloudOff className="h-10 w-10 text-white" />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-medium text-gray-900 mb-1">
+                    Opptaket er lagret lokalt
+                  </p>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    Opptaket ble lagret på enheten din og vil lastes opp automatisk når du er tilbake på nett
+                  </p>
+                </div>
+                <div className="flex gap-3 w-full">
+                  <button
+                    onClick={onClose}
+                    className="flex-1 px-6 py-3 rounded-lg border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                  >
+                    Lukk
+                  </button>
+                  <button
+                    onClick={handleRetryUpload}
+                    className="flex-1 px-6 py-3 rounded-lg bg-gradient-to-r from-[#2C64E3] to-[#6EA0FF] text-white font-medium hover:from-[#4A81EB] hover:to-[#6EA0FF] transition-all flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    Prøv igjen nå
+                  </button>
+                </div>
               </div>
-            ) : audioBlob ? (
-              <div className="flex flex-col items-center">
-                <p className="text-gray-600 mb-4">Opptak fullført</p>
-                <button
-                  onClick={handleSaveRecording}
-                  disabled={isSaving}
-                  className="button-primary px-8 py-4 text-lg flex items-center"
-                >
-                  {isSaving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2" />
-                      Lagrer...
-                    </>
-                  ) : (
-                    'Lagre opptak'
-                  )}
-                </button>
+            ) : isProcessing || isSaving ? (
+              <div className="flex flex-col items-center space-y-4">
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#2C64E3] to-[#6EA0FF] flex items-center justify-center animate-pulse">
+                    <Activity className="h-10 w-10 text-white" />
+                  </div>
+                  <div className="absolute inset-0 rounded-full border-4 border-[#2C64E3]/20 animate-ping" />
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-medium text-gray-900 mb-1">
+                    {isProcessing ? 'Behandler opptak...' : 'Lagrer opptak...'}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Dette tar bare noen sekunder
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-[#2C64E3] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-[#2C64E3] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-[#2C64E3] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
               </div>
             ) : (
               <button

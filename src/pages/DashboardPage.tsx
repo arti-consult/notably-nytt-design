@@ -23,7 +23,10 @@ import {
   CheckCircle,
   ArrowRight,
   Sparkles,
-  Zap
+  Zap,
+  Users,
+  CloudOff,
+  WifiOff
 } from 'lucide-react';
 import RecordingModal from '@/components/RecordingModal';
 import FileUploadModal from '@/components/FileUploadModal';
@@ -40,8 +43,6 @@ import { SkeletonCardList } from '@/components/SkeletonCard';
 import { cn } from '@/lib/utils';
 import { useFolders } from '@/contexts/FolderContext';
 import { toast } from '@/components/ui/toast';
-import { useUndoRedo } from '@/hooks/useUndoRedo';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { mockRecordings, mockTags } from '@/lib/mockData';
 import { mockCalendarMeetings } from '@/lib/mockCalendarMeetings';
 
@@ -141,7 +142,7 @@ interface Recording {
   title: string;
   created_at: string;
   duration: number;
-  status: 'processing' | 'completed' | 'error';
+  status: 'processing' | 'completed' | 'error' | 'pending_upload';
   folder_id?: string;
   tags?: Array<{
     id: string;
@@ -159,7 +160,6 @@ interface Tag {
 
 export default function DashboardPage() {
   const { folders, addFolder, removeFolder, updateFolder } = useFolders();
-  const { addAction, undo, redo, canUndo, canRedo } = useUndoRedo();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFolder, setActiveFolder] = useState<string | null>(null);
   const [activeTags, setActiveTags] = useState<Set<string>>(new Set());
@@ -487,11 +487,10 @@ export default function DashboardPage() {
     setShowRecordingModal(true);
   };
 
-  // Mock bulk delete - kun lokal state med undo
+  // Mock bulk delete
   const handleBulkDelete = async () => {
     if (selectedRecordings.size === 0) return;
 
-    const deletedRecordings = recordings.filter(r => selectedRecordings.has(r.id));
     const count = selectedRecordings.size;
 
     // Optimistic delete
@@ -500,31 +499,7 @@ export default function DashboardPage() {
     setIsBulkEditMode(false);
     setShowBulkDeleteDialog(false);
 
-    // Add undo action
-    addAction({
-      type: 'delete',
-      description: `Slettet ${count} opptak`,
-      undo: () => {
-        setRecordings(prev => [...deletedRecordings, ...prev].sort((a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        ));
-      },
-      redo: () => {
-        setRecordings(prev => prev.filter(r => !deletedRecordings.some(d => d.id === r.id)));
-      }
-    });
-
-    toast.success(`${count} opptak ble slettet`, {
-      action: {
-        label: 'Angre',
-        onClick: () => {
-          if (undo()) {
-            toast.info('Opptak gjenopprettet');
-          }
-        }
-      },
-      duration: 8000
-    } as any);
+    toast.success(`${count} opptak ble slettet`);
   };
 
   // Mock bulk move - kun lokal state
@@ -628,30 +603,6 @@ export default function DashboardPage() {
     handleDragEnd();
   };
 
-  // Keyboard shortcuts
-  useKeyboardShortcuts({
-    'cmd+z': () => {
-      if (canUndo && undo()) {
-        toast.info('Handling angret', { duration: 2000 });
-      }
-    },
-    'ctrl+z': () => {
-      if (canUndo && undo()) {
-        toast.info('Handling angret', { duration: 2000 });
-      }
-    },
-    'cmd+shift+z': () => {
-      if (canRedo && redo()) {
-        toast.info('Handling gjentatt', { duration: 2000 });
-      }
-    },
-    'ctrl+y': () => {
-      if (canRedo && redo()) {
-        toast.info('Handling gjentatt', { duration: 2000 });
-      }
-    }
-  });
-
   return (
     <div className="min-h-screen pt-16 bg-gray-50/50">
       <div className="max-w-7xl mx-auto p-6">
@@ -702,6 +653,39 @@ export default function DashboardPage() {
             </div>
           </div>
         </motion.div>
+
+        {/* Pending Upload Notification */}
+        {(() => {
+          const pendingUploads = recordings.filter(r => r.status === 'pending_upload');
+          if (pendingUploads.length === 0) return null;
+
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6"
+            >
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-500 rounded-xl p-4 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-amber-100">
+                    <WifiOff className="h-5 w-5 text-amber-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-amber-900 mb-1">
+                      {pendingUploads.length} {pendingUploads.length === 1 ? 'opptak venter' : 'opptak venter'} på opplasting
+                    </h3>
+                    <p className="text-sm text-amber-800">
+                      {pendingUploads.length === 1
+                        ? 'Dette opptaket er lagret lokalt og vil lastes opp automatisk når du er tilbake på nett.'
+                        : 'Disse opptakene er lagret lokalt og vil lastes opp automatisk når du er tilbake på nett.'
+                      }
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })()}
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -848,103 +832,40 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="p-3 border-b border-gray-100">
-                <div className="flex items-center justify-between mb-2">
+              {isCalendarConnected ? (
+                // Connected state - simple clickable row like other menu items
+                <div
+                  onClick={() => setShowCalendarMeetingsModal(true)}
+                  className="flex items-center justify-between px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer group"
+                >
                   <div className="flex items-center space-x-2">
-                    <div className={cn(
-                      "p-1.5 rounded-lg",
-                      isCalendarConnected
-                        ? "bg-green-100"
-                        : "bg-white shadow-sm"
-                    )}>
-                      <CalendarIcon className={cn(
-                        "h-4 w-4",
-                        isCalendarConnected ? "text-green-600" : "text-[#2C64E3]"
-                      )} />
+                    <div className="p-1.5 rounded-lg bg-slate-100">
+                      <CalendarIcon className="h-4 w-4 text-slate-600" />
+                    </div>
+                    <span className="font-medium text-sm text-gray-900">Kommende møter</span>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                </div>
+              ) : (
+                // Not connected - show connect option
+                <div
+                  onClick={() => {
+                    setIsCalendarConnected(true);
+                    toast.success('Kalender tilkoblet!');
+                  }}
+                  className="flex items-center justify-between px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer group"
+                >
+                  <div className="flex items-center space-x-2">
+                    <div className="p-1.5 rounded-lg bg-slate-100">
+                      <CalendarIcon className="h-4 w-4 text-slate-600" />
                     </div>
                     <span className="font-medium text-sm text-gray-900">Kalender</span>
                   </div>
-                  {isCalendarConnected && (
-                    <span className="flex items-center text-xs text-green-600">
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      Tilkoblet
-                    </span>
-                  )}
+                  <span className="text-sm font-medium text-[#2C64E3] group-hover:text-[#1F49C6] transition-colors">
+                    Koble til
+                  </span>
                 </div>
-
-                {isCalendarConnected ? (
-                  // Connected state - show next meeting preview
-                  <>
-                    {(() => {
-                      const nextMeeting = getNextMeeting();
-                      if (nextMeeting) {
-                        const timeUntil = formatTimeUntilMeeting(nextMeeting);
-                        const isUrgent = timeUntil.includes('min') || timeUntil === 'Starter nå';
-                        return (
-                          <p className="text-xs text-gray-600 mb-2 truncate">
-                            <span className="truncate">{nextMeeting.title}</span>
-                            <span className="mx-1">•</span>
-                            <span className={cn(isUrgent ? "text-[#2C64E3] font-medium" : "text-[#2C64E3]")}>
-                              {timeUntil}
-                            </span>
-                          </p>
-                        );
-                      }
-                      return (
-                        <p className="text-xs text-gray-500 mb-2">
-                          Ingen kommende møter
-                        </p>
-                      );
-                    })()}
-                    <button
-                      onClick={() => setShowCalendarMeetingsModal(true)}
-                      className="w-full text-xs font-medium text-[#2C64E3] hover:text-[#1F49C6] flex items-center justify-center py-1.5 rounded-lg bg-[#F0F5FF] hover:bg-[#E0EBFF] transition-colors"
-                    >
-                      Se alle møter
-                      <ArrowRight className="h-3 w-3 ml-1" />
-                    </button>
-                  </>
-                ) : (
-                  // Not connected - show connection buttons
-                  <>
-                    <p className="text-xs text-gray-500 mb-2">
-                      Koble til for automatisk transkripsjon
-                    </p>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          setIsCalendarConnected(true);
-                          toast.success('Microsoft 365 kalender tilkoblet!');
-                        }}
-                        className="flex-1 inline-flex items-center justify-center px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-[#93C1FF] transition-colors"
-                      >
-                        <svg className="h-3 w-3 mr-1" viewBox="0 0 23 23">
-                          <path fill="#f35325" d="M1 1h10v10H1z"/>
-                          <path fill="#81bc06" d="M12 1h10v10H12z"/>
-                          <path fill="#05a6f0" d="M1 12h10v10H1z"/>
-                          <path fill="#ffba08" d="M12 12h10v10H12z"/>
-                        </svg>
-                        Microsoft
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsCalendarConnected(true);
-                          toast.success('Google Calendar tilkoblet!');
-                        }}
-                        className="flex-1 inline-flex items-center justify-center px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-[#93C1FF] transition-colors"
-                      >
-                        <svg className="h-3 w-3 mr-1" viewBox="0 0 24 24">
-                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                        </svg>
-                        Google
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
+              )}
 
               {/* Maler Link Row */}
               <Link
@@ -956,6 +877,20 @@ export default function DashboardPage() {
                     <FileText className="h-4 w-4 text-slate-600" />
                   </div>
                   <span className="font-medium text-sm text-gray-900">Maler</span>
+                </div>
+                <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
+              </Link>
+
+              {/* Organisasjon Link Row */}
+              <Link
+                to="/settings?tab=team"
+                className="flex items-center justify-between px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors group"
+              >
+                <div className="flex items-center space-x-2">
+                  <div className="p-1.5 rounded-lg bg-slate-100">
+                    <Users className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <span className="font-medium text-sm text-gray-900">Organisasjon</span>
                 </div>
                 <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
               </Link>
@@ -1290,6 +1225,8 @@ export default function DashboardPage() {
                             ? 'bg-green-100 text-green-600'
                             : recording.status === 'processing'
                             ? 'bg-yellow-100 text-yellow-600'
+                            : recording.status === 'pending_upload'
+                            ? 'bg-amber-100 text-amber-600'
                             : 'bg-red-100 text-red-600'
                         )}>
                           <Mic className="h-5 w-5" />
@@ -1304,7 +1241,15 @@ export default function DashboardPage() {
                           className="min-w-0 flex-1 flex items-center group"
                         >
                           <div className="flex-1">
-                            <h3 className="font-medium mb-1 text-gray-900">{recording.title}</h3>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-medium text-gray-900">{recording.title}</h3>
+                              {recording.status === 'pending_upload' && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 text-xs font-medium">
+                                  <CloudOff className="h-3 w-3 mr-1" />
+                                  Venter på opplasting
+                                </span>
+                              )}
+                            </div>
                             <div className="flex items-center text-sm text-gray-600 mb-2">
                               <Clock className="h-4 w-4 mr-1" />
                               <span>{formatDate(recording.created_at)}</span>

@@ -25,7 +25,7 @@ export default function ShareSummaryModal({
 }: ShareSummaryModalProps) {
   const [emails, setEmails] = useState<string[]>(['']);
   const [sendStatus, setSendStatus] = useState<SendStatus>('idle');
-  const [includeMinutes, setIncludeMinutes] = useState(false);
+  const [includeMinutes, setIncludeMinutes] = useState(true);
   const [includeTranscription, setIncludeTranscription] = useState(false);
 
   if (!isOpen) return null;
@@ -76,7 +76,7 @@ export default function ShareSummaryModal({
   const handleClose = () => {
     setEmails(['']);
     setSendStatus('idle');
-    setIncludeMinutes(false);
+    setIncludeMinutes(true);
     setIncludeTranscription(false);
     onClose();
   };

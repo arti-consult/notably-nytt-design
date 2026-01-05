@@ -42,7 +42,7 @@ export default function ParticipantList({ participants, className }: Participant
             <User className="h-4 w-4 text-[#2C64E3]" />
           </div>
           <h3 className="text-sm font-medium text-gray-700">
-            {participants.length} {participants.length === 1 ? 'deltaker' : 'deltakere'}
+            Deltakere
           </h3>
         </div>
         <div className="flex items-center space-x-4">

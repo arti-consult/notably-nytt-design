@@ -118,19 +118,6 @@ export default function MiniAudioPlayer({
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  // Generate fake waveform data for visual effect
-  const waveformBars = 60;
-  const generateWaveform = () => {
-    const bars = [];
-    for (let i = 0; i < waveformBars; i++) {
-      // Create pseudo-random but consistent heights
-      const height = 20 + Math.sin(i * 0.5) * 15 + Math.cos(i * 0.3) * 10 + (i % 3) * 5;
-      bars.push(Math.max(15, Math.min(100, height)));
-    }
-    return bars;
-  };
-  const waveform = generateWaveform();
-
   return (
     <div className={cn(
       "bg-white border-t border-gray-200",
@@ -159,31 +146,12 @@ export default function MiniAudioPlayer({
           </button>
 
           {/* Center section with transcript and progress */}
-          <div className="flex-1 min-w-0 flex flex-col items-center">
-            {/* Live transcript display */}
-            <div className="flex items-center gap-2 mb-2 min-h-[24px]">
-              {currentSpeaker && (
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <div className="p-1 bg-[#E4ECFF] rounded-full">
-                    <Mic className="h-3 w-3 text-[#2C64E3]" />
-                  </div>
-                  <span className="text-xs font-medium text-[#2C64E3]">
-                    {currentSpeaker}
-                  </span>
-                </div>
-              )}
-              {currentTranscript && (
-                <p className="text-sm text-gray-700 truncate">
-                  "{currentTranscript}"
-                </p>
-              )}
-            </div>
-
-            {/* Waveform-style progress bar */}
+          <div className="flex-1 min-w-0 flex flex-col items-center justify-center">
+            {/* Progress bar with playhead */}
             <div
               ref={progressRef}
               className={cn(
-                "relative h-8 rounded-lg overflow-hidden group w-full max-w-3xl",
+                "relative h-8 flex items-center group w-full max-w-3xl",
                 isReady ? "cursor-pointer" : "cursor-not-allowed"
               )}
               onClick={handleProgressClick}
@@ -191,20 +159,15 @@ export default function MiniAudioPlayer({
               onMouseMove={handleProgressHover}
               onMouseLeave={handleProgressLeave}
             >
-              {/* Background waveform */}
-              <div className="absolute inset-0 flex items-center justify-between gap-px px-1">
-                {waveform.map((height, i) => (
+              {/* Background track */}
+              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2">
+                <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+                  {/* Progress line */}
                   <div
-                    key={i}
-                    className={cn(
-                      "flex-1 rounded-full transition-colors",
-                      (i / waveformBars) * 100 <= progress
-                        ? "bg-[#2C64E3]"
-                        : "bg-gray-200"
-                    )}
-                    style={{ height: `${height}%` }}
+                    className="h-full bg-[#2C64E3] transition-all duration-100"
+                    style={{ width: `${progress}%` }}
                   />
-                ))}
+                </div>
               </div>
 
               {/* Hover time indicator */}
@@ -217,11 +180,13 @@ export default function MiniAudioPlayer({
                 </div>
               )}
 
-              {/* Progress indicator line */}
+              {/* Playhead */}
               <div
-                className="absolute top-0 bottom-0 w-0.5 bg-white shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-1/2 -translate-y-1/2 z-20 transition-all duration-100"
                 style={{ left: `${progress}%` }}
-              />
+              >
+                <div className="w-3 h-3 bg-white border-2 border-[#2C64E3] rounded-full shadow-lg -ml-1.5 group-hover:scale-125 transition-transform" />
+              </div>
             </div>
           </div>
 

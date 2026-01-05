@@ -77,12 +77,10 @@ export default function DownloadModal({
         onClick={() => handleDownload(type)}
         disabled={loadingType !== null}
         className={cn(
-          "px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2",
-          variant === 'primary'
-            ? "bg-gradient-to-r from-[#2C64E3] to-[#6EA0FF] hover:from-[#1F49C6] hover:to-[#4A81EB] text-white shadow-sm hover:shadow-md"
-            : "bg-gray-100 text-gray-700 hover:bg-gray-200",
+          "px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2",
+          "bg-[#2C64E3] hover:bg-[#1F49C6] text-white",
           loadingType !== null && loadingType !== type && "opacity-50 cursor-not-allowed",
-          isDownloaded && "bg-emerald-500 hover:bg-emerald-500 from-emerald-500 to-emerald-500"
+          isDownloaded && "bg-emerald-500 hover:bg-emerald-500"
         )}
       >
         {isLoading ? (
@@ -144,7 +142,7 @@ export default function DownloadModal({
           <div className="p-5 space-y-4">
             {/* Sammendrag Card */}
             {hasSummary && (
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-100">
+              <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
                 <div className="flex items-start gap-4">
                   <div className="p-2.5 bg-white rounded-xl shadow-sm">
                     <FileText className="h-6 w-6 text-blue-600" />
@@ -165,7 +163,7 @@ export default function DownloadModal({
 
             {/* Transkripsjon Card */}
             {hasTranscription && (
-              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
+              <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
                 <div className="flex items-start gap-4">
                   <div className="p-2.5 bg-white rounded-xl shadow-sm">
                     <FileSpreadsheet className="h-6 w-6 text-blue-600" />
@@ -187,7 +185,7 @@ export default function DownloadModal({
 
             {/* Lydopptak Card */}
             {hasAudio && (
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100">
+              <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
                 <div className="flex items-start gap-4">
                   <div className="p-2.5 bg-white rounded-xl shadow-sm">
                     <Music className="h-6 w-6 text-amber-600" />

@@ -26,16 +26,16 @@ function Toast({ message, type, onClose, action }: ToastProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -20, scale: 0.95 }}
+      initial={{ opacity: 0, x: 100, scale: 0.95 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, x: 100, scale: 0.95 }}
       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
       className={cn(
-        "fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 px-6 py-4 rounded-xl shadow-lg border z-50 min-w-[320px] max-w-md",
-        type === 'success' && "bg-green-50 border-green-200 text-green-700",
-        type === 'error' && "bg-red-50 border-red-200 text-red-700",
-        type === 'info' && "bg-blue-50 border-blue-200 text-blue-700",
-        type === 'warning' && "bg-amber-50 border-amber-200 text-amber-700"
+        "fixed top-20 right-6 flex items-center gap-3 px-6 py-4 rounded-xl shadow-lg border z-50 min-w-[320px] max-w-md backdrop-blur-sm",
+        type === 'success' && "bg-green-50/95 border-green-200 text-green-700",
+        type === 'error' && "bg-red-50/95 border-red-200 text-red-700",
+        type === 'info' && "bg-blue-50/95 border-blue-200 text-blue-700",
+        type === 'warning' && "bg-amber-50/95 border-amber-200 text-amber-700"
       )}
     >
       <Icon className="h-5 w-5 flex-shrink-0" />

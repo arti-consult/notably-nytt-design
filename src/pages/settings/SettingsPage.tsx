@@ -65,7 +65,7 @@ const tabs = [
   { id: 'profile', label: 'Profil', icon: User },
   { id: 'preferences', label: 'Preferanser', icon: SettingsIcon },
   { id: 'billing', label: 'Abonnement', icon: CreditCard },
-  { id: 'team', label: 'Team', icon: Users },
+  { id: 'team', label: 'Organisasjon', icon: Users },
   { id: 'integrations', label: 'Integrasjoner', icon: Plug },
   { id: 'security', label: 'Sikkerhet', icon: Shield }
 ];

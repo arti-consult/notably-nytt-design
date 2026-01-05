@@ -70,10 +70,11 @@ interface MeetingMinutes {
   freetextContent?: string;  // The freetext content when using custom prompt template
 }
 
-type TabType = 'overview' | 'ai' | 'transcription';
+type TabType = 'overview' | 'minutes' | 'ai' | 'transcription';
 
 const tabs = [
   { id: 'overview' as const, label: 'Oversikt', icon: FileText },
+  { id: 'minutes' as const, label: 'Møtereferat', icon: ClipboardList },
   { id: 'ai' as const, label: 'AI-assistent', icon: MessageSquare },
   { id: 'transcription' as const, label: 'Transkripsjon', icon: Captions },
 ];
@@ -101,6 +102,11 @@ export default function MeetingDetailsPage() {
   const [currentTemplate, setCurrentTemplate] = useState<Template>(mockTemplates[0]);
   const [pendingTemplate, setPendingTemplate] = useState<Template | null>(null);
   const [showTemplateConfirm, setShowTemplateConfirm] = useState(false);
+
+  // Title editing state
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState('');
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   // Audio player state (lifted up for mini-player)
   const [currentTimestamp, setCurrentTimestamp] = useState(0);
@@ -174,6 +180,38 @@ export default function MeetingDetailsPage() {
   const handleTitleChange = async (newTitle: string) => {
     if (!meeting) return;
     setMeeting(prev => prev ? { ...prev, title: newTitle } : null);
+  };
+
+  // Title editing handlers
+  const startEditingTitle = () => {
+    setEditedTitle(meeting?.title || '');
+    setIsEditingTitle(true);
+    // Focus the input after state updates
+    setTimeout(() => titleInputRef.current?.focus(), 0);
+  };
+
+  const saveTitle = () => {
+    const trimmedTitle = editedTitle.trim();
+    if (trimmedTitle && trimmedTitle !== meeting?.title) {
+      handleTitleChange(trimmedTitle);
+      toast.success('Tittel oppdatert');
+    }
+    setIsEditingTitle(false);
+  };
+
+  const cancelEditingTitle = () => {
+    setIsEditingTitle(false);
+    setEditedTitle('');
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveTitle();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelEditingTitle();
+    }
   };
 
   const handleSaveSummary = async (data: {
@@ -500,8 +538,43 @@ Møtet konkluderte med klare handlingspunkter og en felles forståelse av veien 
           </Link>
 
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900 mb-2">{meeting.title}</h1>
+            <div className="flex-1">
+              {isEditingTitle ? (
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    ref={titleInputRef}
+                    type="text"
+                    value={editedTitle}
+                    onChange={(e) => setEditedTitle(e.target.value)}
+                    onKeyDown={handleTitleKeyDown}
+                    onBlur={saveTitle}
+                    className="text-2xl font-semibold text-gray-900 bg-white border-b-2 border-[#2C64E3] focus:outline-none flex-1 px-2 py-1"
+                    placeholder="Møtetittel..."
+                  />
+                  <button
+                    onClick={saveTitle}
+                    className="p-1.5 rounded-lg hover:bg-gray-100 text-[#2C64E3] transition-colors"
+                    title="Lagre (Enter)"
+                  >
+                    <Check className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={cancelEditingTitle}
+                    className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
+                    title="Avbryt (Escape)"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={startEditingTitle}
+                  className="flex items-center gap-2 mb-2 group cursor-pointer"
+                >
+                  <h1 className="text-2xl font-semibold text-gray-900">{meeting.title}</h1>
+                  <Pencil className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              )}
               <div className="flex items-center space-x-4 text-gray-600">
                 <span>{formatDate(meeting.created_at)}</span>
                 <span>•</span>
@@ -557,10 +630,13 @@ Møtet konkluderte med klare handlingspunkter og en felles forståelse av veien 
                         onSave={handleSaveSummary}
                       />
                     )}
+                  </div>
+                )}
 
-                    {/* Meeting Minutes (Referat) - Integrated into Overview */}
-                    <div className="border-t border-gray-200 pt-6">
-                      {isRegenerating ? (
+                {/* Minutes Tab */}
+                {activeTab === 'minutes' && (
+                  <div>
+                    {isRegenerating ? (
                         <div className="text-center py-12">
                           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#E4ECFF] mb-4">
                             <Sparkles className="h-8 w-8 text-[#2C64E3] animate-pulse" />
@@ -738,15 +814,14 @@ Møtet konkluderte med klare handlingspunkter og en felles forståelse av veien 
                           )}
                         </>
                       ) : (
-                        <div className="text-center py-8 bg-gray-50 rounded-xl">
-                          <ClipboardList className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                          <p className="text-gray-500 mb-1">Referat genereres automatisk...</p>
-                          <p className="text-sm text-gray-400">
-                            Et detaljert møtereferat vil være tilgjengelig snart.
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                      <div className="text-center py-8 bg-gray-50 rounded-xl">
+                        <ClipboardList className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+                        <p className="text-gray-500 mb-1">Referat genereres automatisk...</p>
+                        <p className="text-sm text-gray-400">
+                          Et detaljert møtereferat vil være tilgjengelig snart.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 
