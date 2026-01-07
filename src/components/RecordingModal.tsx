@@ -411,7 +411,7 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
             ) : audioBlob && !isSaving ? (
               <button
                 onClick={handleSaveRecording}
-                className="button-primary w-full"
+                className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-[#2C64E3] to-[#6EA0FF] text-white font-medium transition-none"
               >
                 Lagre opptak
               </button>
