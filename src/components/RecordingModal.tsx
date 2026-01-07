@@ -50,6 +50,7 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
   const [participantError, setParticipantError] = useState<string | null>(null);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [saveComplete, setSaveComplete] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
@@ -65,9 +66,23 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
       setParticipantError(null);
       setSelectedFolder(null);
       setLocalError(null);
+      setSaveComplete(false);
       resetRecording();
     }
   }, [isOpen, stopRecording, isRecording, resetRecording]);
+
+  // Auto-close after 3 seconds when save is complete
+  useEffect(() => {
+    if (saveComplete) {
+      const timer = setTimeout(() => {
+        if (onComplete) {
+          onComplete();
+        }
+        onClose();
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [saveComplete, onComplete, onClose]);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -157,10 +172,7 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
       });
 
       setIsSaving(false);
-      if (onComplete) {
-        onComplete();
-      }
-      onClose();
+      setSaveComplete(true);
     } catch (error) {
       console.error('Error saving recording:', error);
       setSaveError('Kunne ikke lagre opptaket');

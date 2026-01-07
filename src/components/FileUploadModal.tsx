@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Upload, AlertCircle, CheckCircle, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -43,6 +43,16 @@ export default function FileUploadModal({
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
+
+  // Auto-close after 3 seconds when upload is complete
+  useEffect(() => {
+    if (uploadComplete) {
+      const timer = setTimeout(() => {
+        handleClose();
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [uploadComplete]);
 
   if (!isOpen) return null;
 

@@ -54,10 +54,10 @@ export default function DirectInviteModal({ isOpen, onClose }: DirectInviteModal
 
     setStatus('success');
 
-    // Auto-close after success
+    // Auto-close after 3 seconds
     setTimeout(() => {
       handleClose();
-    }, 2500);
+    }, 3000);
   };
 
   const handleClose = () => {
