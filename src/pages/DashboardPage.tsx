@@ -267,9 +267,6 @@ export default function DashboardPage() {
       tags: []
     };
     setRecordings(prev => [newRecording, ...prev]);
-    toast.success('Fil lastet opp! Transkribering startet automatisk', {
-      duration: 4000
-    });
   };
 
   const getFilteredRecordingsByDate = (recordings: Recording[]) => {

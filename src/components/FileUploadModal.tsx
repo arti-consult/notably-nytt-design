@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Upload, AlertCircle } from 'lucide-react';
+import { X, Upload, AlertCircle, CheckCircle, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FileUploadModalProps {
@@ -42,6 +42,7 @@ export default function FileUploadModal({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [uploadComplete, setUploadComplete] = useState(false);
 
   if (!isOpen) return null;
 
@@ -143,7 +144,19 @@ export default function FileUploadModal({
 
     setIsUploading(false);
     setUploadProgress(0);
-    onUploadComplete();
+    setUploadComplete(true);
+  };
+
+  const handleClose = () => {
+    if (uploadComplete) {
+      onUploadComplete();
+    }
+    setSelectedFile(null);
+    setTitle('');
+    setIsUploading(false);
+    setUploadProgress(0);
+    setError(null);
+    setUploadComplete(false);
     onClose();
   };
 
@@ -153,9 +166,11 @@ export default function FileUploadModal({
         {/* Header */}
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">Last opp lydopptak</h3>
+            <h3 className="font-semibold text-gray-900">
+              {uploadComplete ? 'Opptak lastet opp' : 'Last opp lydopptak'}
+            </h3>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="p-2 hover:bg-gray-100 rounded-full"
               disabled={isUploading}
             >
@@ -166,14 +181,32 @@ export default function FileUploadModal({
 
         {/* Content */}
         <div className="p-6">
-          {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm flex items-center">
-              <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
-              {error}
+          {uploadComplete ? (
+            <div className="flex flex-col items-center justify-center py-8 space-y-4">
+              <div className="relative">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                  <CheckCircle className="h-10 w-10 text-white" />
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-medium text-gray-900 mb-1">
+                  Fil lastet opp!
+                </p>
+                <p className="text-sm text-gray-500">
+                  Transkribering startet automatisk
+                </p>
+              </div>
             </div>
-          )}
+          ) : (
+            <>
+              {error && (
+                <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                  {error}
+                </div>
+              )}
 
-          <div className="space-y-4">
+              <div className="space-y-4">
             {/* Fil velger med drag & drop */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -272,40 +305,44 @@ export default function FileUploadModal({
                 )}
               </div>
             )}
-          </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex justify-end space-x-3">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
-              disabled={isUploading}
-            >
-              Avbryt
-            </button>
-            <button
-              onClick={handleUpload}
-              disabled={!selectedFile || !title.trim() || isUploading}
-              className={cn(
-                "px-4 py-2 rounded-lg text-white transition-colors",
-                isUploading || !selectedFile || !title.trim()
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              )}
-            >
-              {isUploading ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
-                  Laster opp...
-                </div>
-              ) : (
-                'Last opp'
-              )}
-            </button>
+        {!uploadComplete && (
+          <div className="p-4 border-t border-gray-200">
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={handleClose}
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                disabled={isUploading}
+              >
+                Avbryt
+              </button>
+              <button
+                onClick={handleUpload}
+                disabled={!selectedFile || !title.trim() || isUploading}
+                className={cn(
+                  "px-4 py-2 rounded-lg text-white transition-colors",
+                  isUploading || !selectedFile || !title.trim()
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                )}
+              >
+                {isUploading ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                    Laster opp...
+                  </div>
+                ) : (
+                  'Last opp'
+                )}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
