@@ -6,7 +6,8 @@ import {
   Clock,
   AlertCircle,
   UserPlus,
-  Trash2
+  Trash2,
+  CheckCircle
 } from 'lucide-react';
 import { useRecording } from '@/hooks/useRecording';
 import { useFolders } from '@/contexts/FolderContext';
@@ -125,18 +126,24 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
     }
   };
 
-  const handleStopRecording = async () => {
+  const handleStopRecording = () => {
     try {
       stopRecording();
       if (audioStream) {
         audioStream.getTracks().forEach(track => track.stop());
         setAudioStream(null);
       }
+    } catch (error) {
+      console.error('Error stopping recording:', error);
+      setLocalError('Kunne ikke stoppe opptaket');
+    }
+  };
 
-      // Automatically start saving after stopping
-      setIsSaving(true);
-      setSaveError(null);
+  const handleSaveRecording = async () => {
+    setIsSaving(true);
+    setSaveError(null);
 
+    try {
       // Wait for processing to complete
       await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -155,8 +162,8 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
       }
       onClose();
     } catch (error) {
-      console.error('Error stopping recording:', error);
-      setSaveError('Kunne ikke stoppe og lagre opptaket');
+      console.error('Error saving recording:', error);
+      setSaveError('Kunne ikke lagre opptaket');
       setIsSaving(false);
     }
   };
@@ -341,6 +348,22 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
                 {audioStream && <AudioVisualizer stream={audioStream} />}
                 <p className="text-sm text-gray-500 mt-2">{recordingTitle}</p>
               </div>
+            ) : audioBlob && !isSaving ? (
+              <div className="flex flex-col items-center space-y-4">
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                    <CheckCircle className="h-10 w-10 text-white" />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-medium text-gray-900 mb-1">
+                    Opptak fullført!
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Klar til å lagre og transkribere
+                  </p>
+                </div>
+              </div>
             ) : isProcessing || isSaving ? (
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative">
@@ -377,15 +400,22 @@ export default function RecordingModal({ isOpen, onClose, onComplete }: Recordin
 
         {/* Footer */}
         <div className="p-4 border-t border-gray-200 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            {isRecording && (
+          <div className="flex items-center justify-between w-full">
+            {isRecording ? (
               <button
                 onClick={handleStopRecording}
-                className="button-primary bg-red-600 hover:bg-red-700"
+                className="button-primary bg-red-600 hover:bg-red-700 w-full"
               >
                 Stopp opptak
               </button>
-            )}
+            ) : audioBlob && !isSaving ? (
+              <button
+                onClick={handleSaveRecording}
+                className="button-primary w-full"
+              >
+                Lagre opptak
+              </button>
+            ) : null}
           </div>
         </div>
       </div>
