@@ -24,9 +24,7 @@ import {
   ArrowRight,
   Sparkles,
   Zap,
-  Users,
-  CloudOff,
-  WifiOff
+  Users
 } from 'lucide-react';
 import RecordingModal from '@/components/RecordingModal';
 import FileUploadModal from '@/components/FileUploadModal';
@@ -142,7 +140,7 @@ interface Recording {
   title: string;
   created_at: string;
   duration: number;
-  status: 'processing' | 'completed' | 'error' | 'pending_upload';
+  status: 'processing' | 'completed' | 'error';
   folder_id?: string;
   tags?: Array<{
     id: string;
@@ -653,39 +651,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </motion.div>
-
-        {/* Pending Upload Notification */}
-        {(() => {
-          const pendingUploads = recordings.filter(r => r.status === 'pending_upload');
-          if (pendingUploads.length === 0) return null;
-
-          return (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6"
-            >
-              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-500 rounded-xl p-4 shadow-sm">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-amber-100">
-                    <WifiOff className="h-5 w-5 text-amber-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-amber-900 mb-1">
-                      {pendingUploads.length} {pendingUploads.length === 1 ? 'opptak venter' : 'opptak venter'} på opplasting
-                    </h3>
-                    <p className="text-sm text-amber-800">
-                      {pendingUploads.length === 1
-                        ? 'Dette opptaket er lagret lokalt og vil lastes opp automatisk når du er tilbake på nett.'
-                        : 'Disse opptakene er lagret lokalt og vil lastes opp automatisk når du er tilbake på nett.'
-                      }
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          );
-        })()}
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -1225,8 +1190,6 @@ export default function DashboardPage() {
                             ? 'bg-green-100 text-green-600'
                             : recording.status === 'processing'
                             ? 'bg-yellow-100 text-yellow-600'
-                            : recording.status === 'pending_upload'
-                            ? 'bg-amber-100 text-amber-600'
                             : 'bg-red-100 text-red-600'
                         )}>
                           <Mic className="h-5 w-5" />
@@ -1243,12 +1206,6 @@ export default function DashboardPage() {
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <h3 className="font-medium text-gray-900">{recording.title}</h3>
-                              {recording.status === 'pending_upload' && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 text-xs font-medium">
-                                  <CloudOff className="h-3 w-3 mr-1" />
-                                  Venter på opplasting
-                                </span>
-                              )}
                             </div>
                             <div className="flex items-center text-sm text-gray-600 mb-2">
                               <Clock className="h-4 w-4 mr-1" />

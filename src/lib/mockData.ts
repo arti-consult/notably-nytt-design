@@ -11,7 +11,7 @@ interface MockRecording {
   title: string;
   created_at: string;
   duration: number;
-  status: 'processing' | 'completed' | 'error' | 'pending_upload';
+  status: 'processing' | 'completed' | 'error';
   folder_id?: string;
   tags?: Array<{
     id: string;
@@ -114,18 +114,6 @@ export const mockTags: MockTag[] = [
 ];
 
 export const mockRecordings: MockRecording[] = [
-  {
-    id: 'rec-pending-1',
-    title: 'Kundeworkshop - Produktutvikling',
-    created_at: new Date('2024-12-03T11:30:00').toISOString(),
-    duration: 2400,
-    status: 'pending_upload',
-    folder_id: 'folder-3',
-    tags: [
-      { id: 'tag-1', name: 'Viktig' },
-      { id: 'tag-2', name: 'Oppfølging' }
-    ]
-  },
   {
     id: 'rec-1',
     title: 'Styremøte Q4 2024 - Budsjettgjennomgang',
