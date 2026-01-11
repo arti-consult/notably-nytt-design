@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { toast } from '@/components/ui/toast';
 import { mockTemplates, Template } from '@/lib/mockTemplates';
 import { motion, AnimatePresence } from 'framer-motion';
+import CreateTemplateWizard from '@/components/CreateTemplateWizard';
 
 const availableIcons = ['📝', '📊', '📋', '💼', '🎯', '📌', '✅', '📁', '🗂️', '📑', '🏷️', '⭐'];
 
@@ -397,19 +398,15 @@ const moduleCategories = [
 interface CreateTemplateModalProps {
   onClose: () => void;
   onCreate: (template: Template) => void;
+  onOpenWizard: () => void;
 }
 
-function CreateTemplateModal({ onClose, onCreate }: CreateTemplateModalProps) {
+function CreateTemplateModal({ onClose, onCreate, onOpenWizard }: CreateTemplateModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [icon, setIcon] = useState('📝');
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
   const [showIconPicker, setShowIconPicker] = useState(false);
-
-  // Power user: custom prompt mode
-  const [isCustomPromptMode, setIsCustomPromptMode] = useState(false);
-  const [customPrompt, setCustomPrompt] = useState('');
-  const [showModeConfirmation, setShowModeConfirmation] = useState(false);
 
   const toggleModule = (moduleId: string) => {
     setSelectedModules(prev =>
@@ -419,78 +416,34 @@ function CreateTemplateModal({ onClose, onCreate }: CreateTemplateModalProps) {
     );
   };
 
-  const handleSwitchToCustomMode = () => {
-    if (selectedModules.length > 0) {
-      setShowModeConfirmation(true);
-    } else {
-      setIsCustomPromptMode(true);
-    }
-  };
-
-  const confirmSwitchToCustomMode = () => {
-    setSelectedModules([]);
-    setIsCustomPromptMode(true);
-    setShowModeConfirmation(false);
-  };
-
-  const handleSwitchToModuleMode = () => {
-    setIsCustomPromptMode(false);
-    setCustomPrompt('');
-  };
-
   const handleSubmit = () => {
     if (!name.trim()) {
       toast.error('Vennligst skriv inn et navn for malen');
       return;
     }
 
-    if (isCustomPromptMode) {
-      // Custom prompt template
-      if (!customPrompt.trim()) {
-        toast.error('Vennligst skriv inn instruksjoner for AI-en');
-        return;
-      }
+    const moduleTitles = selectedModules.map(id =>
+      availableModules.find(m => m.id === id)?.title || ''
+    ).filter(Boolean);
 
-      const newTemplate: Template = {
-        id: `custom-prompt-${Date.now()}`,
-        name: name.trim(),
-        description: description.trim() || 'Egendefinert AI-prompt mal',
-        category: 'standard',
-        sections: [], // No sections for custom prompt templates
-        icon,
-        isCustom: true,
-        isCustomPrompt: true,
-        customPrompt: customPrompt.trim()
-      };
-
-      onCreate(newTemplate);
-      toast.success('Egendefinert prompt-mal opprettet!');
-      onClose();
-    } else {
-      // Module-based template
-      const moduleTitles = selectedModules.map(id =>
-        availableModules.find(m => m.id === id)?.title || ''
-      ).filter(Boolean);
-
-      if (moduleTitles.length === 0) {
-        toast.error('Velg minst én modul');
-        return;
-      }
-
-      const newTemplate: Template = {
-        id: `custom-${Date.now()}`,
-        name: name.trim(),
-        description: description.trim() || 'Egendefinert mal',
-        category: 'standard',
-        sections: moduleTitles,
-        icon,
-        isCustom: true
-      };
-
-      onCreate(newTemplate);
-      toast.success('Mal opprettet!');
-      onClose();
+    if (moduleTitles.length === 0) {
+      toast.error('Velg minst én modul');
+      return;
     }
+
+    const newTemplate: Template = {
+      id: `custom-${Date.now()}`,
+      name: name.trim(),
+      description: description.trim() || 'Egendefinert mal',
+      category: 'standard',
+      sections: moduleTitles,
+      icon,
+      isCustom: true
+    };
+
+    onCreate(newTemplate);
+    toast.success('Mal opprettet!');
+    onClose();
   };
 
   const selectedCount = selectedModules.length;
@@ -590,221 +543,113 @@ function CreateTemplateModal({ onClose, onCreate }: CreateTemplateModalProps) {
           </div>
         </div>
 
-        {/* Content area - conditional based on mode */}
+        {/* Content area */}
         <div className="flex-1 overflow-y-auto p-6">
-          {isCustomPromptMode ? (
-            /* Custom Prompt Mode View */
-            <div className="space-y-6">
-              {/* Back to module mode */}
-              <button
-                type="button"
-                onClick={handleSwitchToModuleMode}
-                className="inline-flex items-center text-sm text-gray-500 hover:text-blue-600 transition-colors"
-              >
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Tilbake til modulbasert mal
-              </button>
+          <div className="mb-5">
+            <h3 className="text-base font-semibold text-gray-900 mb-1">Velg moduler for malen</h3>
+            <p className="text-sm text-gray-500">Kryss av for seksjonene du vil inkludere i møtereferatet</p>
+          </div>
 
-              {/* Info box */}
-              <div className="p-4 rounded-xl bg-gradient-to-br from-fuchsia-50 to-blue-50 border border-fuchsia-200">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-fuchsia-100">
-                    <Wand2 className="h-5 w-5 text-fuchsia-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-fuchsia-900">Egendefinert AI-prompt</h4>
-                    <p className="text-sm text-fuchsia-700 mt-1">
-                      Skriv dine egne instruksjoner til AI-en. Møtereferatet blir generert som fritekst basert på prompten din, uten forhåndsdefinerte seksjoner.
-                    </p>
-                  </div>
-                </div>
-              </div>
+          {/* Modules by category */}
+          <div className="space-y-6">
+            {moduleCategories.map(category => {
+              const categoryModules = availableModules.filter(m => m.category === category.id);
+              if (categoryModules.length === 0) return null;
 
-              {/* Custom prompt textarea */}
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-gray-700">
-                  Instruksjoner til AI-en <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  value={customPrompt}
-                  onChange={(e) => setCustomPrompt(e.target.value)}
-                  placeholder="Beskriv hvordan du vil at møtereferatet skal struktureres og hva det skal inneholde. For eksempel:
-
-«Lag et detaljert møtereferat med fokus på tekniske beslutninger. Inkluder alle kodeeksempler som ble diskutert. List opp alle bugs som ble nevnt med prioritet.»
-
-eller
-
-«Skriv et kort og konsist sammendrag på maks 200 ord. Fokuser kun på de viktigste beslutningene og hvem som er ansvarlig for oppfølging.»"
-                  rows={10}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:border-fuchsia-500 focus:ring-fuchsia-500 placeholder-gray-400 resize-none"
-                />
-                <p className="text-xs text-gray-500">
-                  Tips: Vær så spesifikk som mulig. Jo mer detaljerte instruksjoner, jo bedre resultat.
-                </p>
-              </div>
-
-            </div>
-          ) : (
-            /* Module-based Mode View */
-            <>
-              <div className="mb-5">
-                <h3 className="text-base font-semibold text-gray-900 mb-1">Velg moduler for malen</h3>
-                <p className="text-sm text-gray-500">Kryss av for seksjonene du vil inkludere i møtereferatet</p>
-              </div>
-
-              {/* Modules by category */}
-              <div className="space-y-6">
-                {moduleCategories.map(category => {
-                  const categoryModules = availableModules.filter(m => m.category === category.id);
-                  if (categoryModules.length === 0) return null;
-
-                  return (
-                    <div key={category.id}>
-                      <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                        {category.label}
-                      </h4>
-                      <div className="space-y-2">
-                        {categoryModules.map(module => {
-                          const isSelected = selectedModules.includes(module.id);
-                          return (
-                            <button
-                              key={module.id}
-                              type="button"
-                              onClick={() => toggleModule(module.id)}
-                              className={cn(
-                                "w-full flex items-start gap-3 p-3 rounded-xl border-2 transition-all text-left",
-                                isSelected
-                                  ? "border-blue-500 bg-blue-50"
-                                  : "border-gray-100 hover:border-gray-200 hover:bg-gray-50"
-                              )}
-                            >
-                              <div className={cn(
-                                "w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors",
-                                isSelected
-                                  ? "bg-blue-600 border-blue-600"
-                                  : "border-gray-300"
+              return (
+                <div key={category.id}>
+                  <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                    {category.label}
+                  </h4>
+                  <div className="space-y-2">
+                    {categoryModules.map(module => {
+                      const isSelected = selectedModules.includes(module.id);
+                      return (
+                        <button
+                          key={module.id}
+                          type="button"
+                          onClick={() => toggleModule(module.id)}
+                          className={cn(
+                            "w-full flex items-start gap-3 p-3 rounded-xl border-2 transition-all text-left",
+                            isSelected
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-gray-100 hover:border-gray-200 hover:bg-gray-50"
+                          )}
+                        >
+                          <div className={cn(
+                            "w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors",
+                            isSelected
+                              ? "bg-blue-600 border-blue-600"
+                              : "border-gray-300"
+                          )}>
+                            {isSelected && <Check className="h-3 w-3 text-white" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">{module.icon}</span>
+                              <span className={cn(
+                                "font-medium",
+                                isSelected ? "text-blue-900" : "text-gray-900"
                               )}>
-                                {isSelected && <Check className="h-3 w-3 text-white" />}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-lg">{module.icon}</span>
-                                  <span className={cn(
-                                    "font-medium",
-                                    isSelected ? "text-blue-900" : "text-gray-900"
-                                  )}>
-                                    {module.title}
-                                  </span>
-                                </div>
-                                <p className={cn(
-                                  "text-sm mt-0.5",
-                                  isSelected ? "text-blue-700" : "text-gray-500"
-                                )}>
-                                  {module.description}
-                                </p>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Power user option */}
-              <div className="mt-6 pt-6 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={handleSwitchToCustomMode}
-                  className="w-full p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-fuchsia-300 hover:bg-fuchsia-50/50 transition-all text-left group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-gray-100 group-hover:bg-fuchsia-100 transition-colors">
-                      <Wand2 className="h-5 w-5 text-gray-500 group-hover:text-fuchsia-600 transition-colors" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-gray-700 group-hover:text-fuchsia-900 transition-colors">
-                          Lage din helt egen mal?
-                        </span>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 group-hover:bg-fuchsia-100 group-hover:text-fuchsia-600 transition-colors">
-                          Power user
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-500 mt-0.5 group-hover:text-fuchsia-700 transition-colors">
-                        Skriv ditt eget prompt og få full kontroll over AI-outputen
-                      </p>
-                    </div>
-                    <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-fuchsia-500 transition-colors" />
+                                {module.title}
+                              </span>
+                            </div>
+                            <p className={cn(
+                              "text-sm mt-0.5",
+                              isSelected ? "text-blue-700" : "text-gray-500"
+                            )}>
+                              {module.description}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
-                </button>
-              </div>
-            </>
-          )}
-        </div>
+                </div>
+              );
+            })}
+          </div>
 
-        {/* Mode switch confirmation modal */}
-        <AnimatePresence>
-          {showModeConfirmation && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/50 flex items-center justify-center p-4 rounded-2xl"
+          {/* AI-assisted wizard option */}
+          <div className="mt-6 pt-6 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenWizard();
+              }}
+              className="w-full p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50 hover:to-fuchsia-50 transition-all text-left group"
             >
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 rounded-full bg-amber-100">
-                    <AlertTriangle className="h-5 w-5 text-amber-600" />
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-fuchsia-100 group-hover:from-blue-200 group-hover:to-fuchsia-200 transition-colors">
+                  <Sparkles className="h-5 w-5 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-gray-700 group-hover:text-blue-900 transition-colors">
+                      Lag mal med AI-hjelp
+                    </span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-gradient-to-r from-blue-100 to-fuchsia-100 text-blue-700">
+                      ✨ Anbefalt
+                    </span>
                   </div>
-                  <h3 className="font-semibold text-gray-900">Bytte modus?</h3>
+                  <p className="text-sm text-gray-500 mt-0.5 group-hover:text-blue-700 transition-colors">
+                    La AI-en hjelpe deg å bygge den perfekte malen steg for steg
+                  </p>
                 </div>
-                <p className="text-sm text-gray-600 mb-6">
-                  Du har valgt {selectedModules.length} {selectedModules.length === 1 ? 'modul' : 'moduler'}.
-                  Ved å bytte til egendefinert prompt-modus vil disse valgene bli fjernet.
-                </p>
-                <div className="flex gap-3 justify-end">
-                  <button
-                    type="button"
-                    onClick={() => setShowModeConfirmation(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                    Avbryt
-                  </button>
-                  <button
-                    type="button"
-                    onClick={confirmSwitchToCustomMode}
-                    className="px-4 py-2 rounded-lg text-sm font-medium bg-fuchsia-600 text-white hover:bg-fuchsia-700 transition-colors"
-                  >
-                    Fortsett
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
+              </div>
+            </button>
+          </div>
+        </div>
 
         {/* Footer */}
         <div className="p-6 bg-gray-50 border-t border-gray-100 flex items-center justify-between flex-shrink-0">
           <div className="text-sm text-gray-500">
-            {isCustomPromptMode ? (
-              customPrompt.trim() ? (
-                <span className="text-fuchsia-600">Egendefinert prompt-mal</span>
-              ) : (
-                <span className="text-amber-600">Skriv instruksjoner til AI-en</span>
-              )
+            {selectedCount === 0 ? (
+              <span className="text-amber-600">Velg minst én modul</span>
             ) : (
-              selectedCount === 0 ? (
-                <span className="text-amber-600">Velg minst én modul</span>
-              ) : (
-                <span>{selectedCount} {selectedCount === 1 ? 'modul' : 'moduler'} valgt</span>
-              )
+              <span>{selectedCount} {selectedCount === 1 ? 'modul' : 'moduler'} valgt</span>
             )}
           </div>
           <div className="flex gap-3">
@@ -818,13 +663,10 @@ eller
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={
-                !name.trim() ||
-                (isCustomPromptMode ? !customPrompt.trim() : selectedCount === 0)
-              }
+              disabled={!name.trim() || selectedCount === 0}
               className={cn(
                 "px-5 py-2 rounded-xl text-sm font-medium transition-all",
-                name.trim() && (isCustomPromptMode ? customPrompt.trim() : selectedCount > 0)
+                name.trim() && selectedCount > 0
                   ? "bg-gradient-to-r from-[#2C64E3] to-[#5A8DF8] text-white hover:from-[#1F49C6] hover:to-[#4A81EB] hover:shadow-lg"
                   : "bg-gray-200 text-gray-400 cursor-not-allowed"
               )}
@@ -844,6 +686,7 @@ export default function TemplatesPage() {
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showWizardModal, setShowWizardModal] = useState(false);
   const [customTemplates, setCustomTemplates] = useState<Template[]>([]);
 
   // Combine mock templates with custom templates
@@ -1018,10 +861,19 @@ export default function TemplatesPage() {
         />
       )}
 
-      {/* Create Template Modal */}
+      {/* Create Template Modal (Module-based) */}
       {showCreateModal && (
         <CreateTemplateModal
           onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreateTemplate}
+          onOpenWizard={() => setShowWizardModal(true)}
+        />
+      )}
+
+      {/* Create Template Wizard (AI-assisted) */}
+      {showWizardModal && (
+        <CreateTemplateWizard
+          onClose={() => setShowWizardModal(false)}
           onCreate={handleCreateTemplate}
         />
       )}

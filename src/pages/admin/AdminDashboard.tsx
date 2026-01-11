@@ -55,10 +55,8 @@ const generateMockChartData = (days: number) => {
   const recordings: number[] = [];
   const duration: number[] = [];
   const cumulativeUsers: number[] = [];
-  const cumulativeOrganizations: number[] = [];
   const trialUsers: number[] = [];
   let totalUsers = 50; // Starting base
-  let totalOrgs = 5; // Starting base
 
   for (let i = days; i >= 0; i--) {
     const date = new Date();
@@ -69,21 +67,18 @@ const generateMockChartData = (days: number) => {
     recordings.push(count);
     duration.push(Math.floor(Math.random() * 120) + 30);
 
-    // Add new users and organizations
+    // Add new users
     const newUsers = Math.floor(Math.random() * 10) + 2;
-    const newOrgs = Math.random() < 0.3 ? 1 : 0; // 30% chance of new org
     totalUsers += newUsers;
-    totalOrgs += newOrgs;
 
     cumulativeUsers.push(totalUsers);
-    cumulativeOrganizations.push(totalOrgs);
 
     // Trial users fluctuate between 20-50
     const trialCount = Math.floor(Math.random() * 30) + 20;
     trialUsers.push(trialCount);
   }
 
-  return { labels, recordings, duration, cumulativeUsers, cumulativeOrganizations, trialUsers };
+  return { labels, recordings, duration, cumulativeUsers, trialUsers };
 };
 
 export default function AdminDashboard() {
@@ -341,41 +336,6 @@ export default function AdminDashboard() {
                       data: chartData.cumulativeUsers,
                       borderColor: 'rgb(124, 58, 237)',
                       backgroundColor: 'rgba(124, 58, 237, 0.1)',
-                      fill: true,
-                      tension: 0.4
-                    }]
-                  }}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                      y: { beginAtZero: true },
-                      x: { grid: { display: false } }
-                    }
-                  }}
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Organization Growth */}
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="text-lg font-semibold mb-6">Organisasjonsvekst</h3>
-            <div className="h-[300px]">
-              {isLoading ? (
-                <div className="h-full flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
-                </div>
-              ) : chartData && (
-                <Line
-                  data={{
-                    labels: chartData.labels,
-                    datasets: [{
-                      label: 'Antall organisasjoner',
-                      data: chartData.cumulativeOrganizations,
-                      borderColor: 'rgb(16, 185, 129)',
-                      backgroundColor: 'rgba(16, 185, 129, 0.1)',
                       fill: true,
                       tension: 0.4
                     }]

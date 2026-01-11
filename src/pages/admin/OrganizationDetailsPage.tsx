@@ -65,6 +65,12 @@ export default function OrganizationDetailsPage() {
   const [organization, setOrganization] = useState<OrganizationDetails | null>(null);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteConfirmationInput, setDeleteConfirmationInput] = useState('');
+  const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
+  const [isUpdateSeatsModalOpen, setIsUpdateSeatsModalOpen] = useState(false);
+  const [isCancelInvitationModalOpen, setIsCancelInvitationModalOpen] = useState(false);
+  const [invitationToCancel, setInvitationToCancel] = useState<Invitation | null>(null);
   const [seats, setSeats] = useState(10);
   const [inviteFormData, setInviteFormData] = useState({
     role: 'member' as 'admin' | 'member'
@@ -89,8 +95,13 @@ export default function OrganizationDetailsPage() {
   };
 
   const handleUpdateSeats = () => {
+    setIsUpdateSeatsModalOpen(true);
+  };
+
+  const confirmUpdateSeats = () => {
     // TODO: Implement API call
     console.log('Updating seats to:', seats);
+    setIsUpdateSeatsModalOpen(false);
   };
 
   const isValidEmail = (email: string) => {
@@ -152,17 +163,27 @@ export default function OrganizationDetailsPage() {
   const handleDeleteOrganization = () => {
     // TODO: Implement API call
     console.log('Deleting organization:', id);
+    setDeleteConfirmationInput('');
+    setIsDeleteModalOpen(false);
     navigate('/admin/organizations');
   };
 
-  const handleRemoveMember = (memberId: string) => {
+  const handleRemoveMember = () => {
+    if (!memberToRemove) return;
+
     // TODO: Implement API call
-    console.log('Removing member:', memberId);
+    console.log('Removing member:', memberToRemove.id);
+    setIsRemoveMemberModalOpen(false);
+    setMemberToRemove(null);
   };
 
-  const handleCancelInvitation = (invitationId: string) => {
+  const handleCancelInvitation = () => {
+    if (!invitationToCancel) return;
+
     // TODO: Implement API call
-    console.log('Canceling invitation:', invitationId);
+    console.log('Canceling invitation:', invitationToCancel.id);
+    setIsCancelInvitationModalOpen(false);
+    setInvitationToCancel(null);
   };
 
   if (isLoading || !organization) {
@@ -179,30 +200,21 @@ export default function OrganizationDetailsPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => navigate('/admin/organizations')}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5 text-gray-600" />
-            </button>
-            <div>
-              <h1 className="text-2xl font-semibold">{organization.name}</h1>
-              <p className="text-sm text-gray-500">Opprettet {formatDate(organization.created_at)}</p>
-            </div>
-          </div>
+        <div className="flex items-center space-x-4">
           <button
-            onClick={() => setIsDeleteModalOpen(true)}
-            className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            onClick={() => navigate('/admin/organizations')}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Slett organisasjon
+            <ArrowLeft className="h-5 w-5 text-gray-600" />
           </button>
+          <div>
+            <h1 className="text-2xl font-semibold">{organization.name}</h1>
+            <p className="text-sm text-gray-500">Opprettet {formatDate(organization.created_at)}</p>
+          </div>
         </div>
 
         {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
@@ -218,20 +230,8 @@ export default function OrganizationDetailsPage() {
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Pending invitasjoner</p>
-                <p className="text-2xl font-semibold">{organization.invitations.length}</p>
-              </div>
-              <div className="p-3 bg-amber-100 rounded-lg">
-                <Mail className="h-6 w-6 text-amber-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Ledige plasser</p>
-                <p className="text-2xl font-semibold">{organization.seats - organization.members.length}</p>
+                <p className="text-sm text-gray-600 mb-1">Antall plasser</p>
+                <p className="text-2xl font-semibold">{organization.seats}</p>
               </div>
               <div className="p-3 bg-green-100 rounded-lg">
                 <Building2 className="h-6 w-6 text-green-600" />
@@ -311,7 +311,10 @@ export default function OrganizationDetailsPage() {
                     <td className="px-6 py-4 text-sm text-gray-500">{formatDate(member.joined_at)}</td>
                     <td className="px-6 py-4 text-sm">
                       <button
-                        onClick={() => handleRemoveMember(member.id)}
+                        onClick={() => {
+                          setMemberToRemove(member);
+                          setIsRemoveMemberModalOpen(true);
+                        }}
                         className="text-red-600 hover:text-red-700 font-medium"
                       >
                         Fjern
@@ -324,11 +327,11 @@ export default function OrganizationDetailsPage() {
           </div>
         </div>
 
-        {/* Pending Invitations */}
+        {/* Ventende Invitasjoner */}
         {organization.invitations.length > 0 && (
           <div className="bg-white rounded-xl shadow-sm">
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-lg font-semibold">Pending invitasjoner ({organization.invitations.length})</h2>
+              <h2 className="text-lg font-semibold">Ventende invitasjoner ({organization.invitations.length})</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -362,7 +365,10 @@ export default function OrganizationDetailsPage() {
                       <td className="px-6 py-4 text-sm text-gray-500">{formatDate(invitation.sent_at)}</td>
                       <td className="px-6 py-4 text-sm">
                         <button
-                          onClick={() => handleCancelInvitation(invitation.id)}
+                          onClick={() => {
+                            setInvitationToCancel(invitation);
+                            setIsCancelInvitationModalOpen(true);
+                          }}
                           className="text-red-600 hover:text-red-700 font-medium"
                         >
                           Avbryt
@@ -375,6 +381,23 @@ export default function OrganizationDetailsPage() {
             </div>
           </div>
         )}
+
+        {/* Danger Zone */}
+        <div className="bg-white rounded-xl shadow-sm border-2 border-red-200">
+          <div className="p-6">
+            <h2 className="text-lg font-semibold text-red-700 mb-2">Faresone</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Når du sletter denne organisasjonen, vil alle medlemmer miste tilgangen sin og all data tilknyttet organisasjonen vil bli permanent slettet. Denne handlingen kan ikke angres.
+            </p>
+            <button
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Slett organisasjon
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Invite Members Modal */}
@@ -471,21 +494,135 @@ export default function OrganizationDetailsPage() {
                 <Trash2 className="h-6 w-6 text-red-600" />
               </div>
               <h2 className="text-xl font-semibold text-center mb-2">Slett organisasjon?</h2>
-              <p className="text-gray-600 text-center mb-6">
-                Er du sikker på at du vil slette {organization.name}? Denne handlingen kan ikke angres.
+              <p className="text-gray-600 text-center mb-4">
+                Er du sikker på at du vil slette <span className="font-semibold">{organization.name}</span>? Denne handlingen kan ikke angres.
               </p>
+              <div className="mb-6">
+                <p className="text-sm text-gray-700 mb-2">
+                  Skriv inn <span className="font-semibold">{organization.name}</span> for å bekrefte:
+                </p>
+                <input
+                  type="text"
+                  value={deleteConfirmationInput}
+                  onChange={(e) => setDeleteConfirmationInput(e.target.value)}
+                  placeholder={organization.name}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-red-500 focus:ring-red-500"
+                />
+              </div>
               <div className="flex items-center space-x-3">
                 <button
-                  onClick={() => setIsDeleteModalOpen(false)}
+                  onClick={() => {
+                    setIsDeleteModalOpen(false);
+                    setDeleteConfirmationInput('');
+                  }}
                   className="flex-1 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 >
                   Avbryt
                 </button>
                 <button
                   onClick={handleDeleteOrganization}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  disabled={deleteConfirmationInput !== organization.name}
+                  className={cn(
+                    "flex-1 px-4 py-2 rounded-lg transition-colors",
+                    deleteConfirmationInput === organization.name
+                      ? "bg-red-600 text-white hover:bg-red-700"
+                      : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  )}
                 >
                   Slett
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Remove Member Confirmation Modal */}
+      {isRemoveMemberModalOpen && memberToRemove && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold mb-2">Fjern medlem?</h2>
+              <p className="text-gray-600 mb-6">
+                Er du sikker på at du vil fjerne <span className="font-semibold">{memberToRemove.email}</span> fra {organization.name}?
+              </p>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => {
+                    setIsRemoveMemberModalOpen(false);
+                    setMemberToRemove(null);
+                  }}
+                  className="flex-1 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Avbryt
+                </button>
+                <button
+                  onClick={handleRemoveMember}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Fjern
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Update Seats Confirmation Modal */}
+      {isUpdateSeatsModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold mb-2">Oppdater antall plasser?</h2>
+              <p className="text-gray-600 mb-6">
+                Er du sikker på at du vil endre antall plasser fra <span className="font-semibold">{organization.seats}</span> til <span className="font-semibold">{seats}</span>?
+              </p>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => {
+                    setIsUpdateSeatsModalOpen(false);
+                    setSeats(organization.seats);
+                  }}
+                  className="flex-1 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Avbryt
+                </button>
+                <button
+                  onClick={confirmUpdateSeats}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Oppdater
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Invitation Confirmation Modal */}
+      {isCancelInvitationModalOpen && invitationToCancel && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold mb-2">Avbryt invitasjon?</h2>
+              <p className="text-gray-600 mb-6">
+                Er du sikker på at du vil avbryte invitasjonen til <span className="font-semibold">{invitationToCancel.email}</span>?
+              </p>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => {
+                    setIsCancelInvitationModalOpen(false);
+                    setInvitationToCancel(null);
+                  }}
+                  className="flex-1 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Nei, behold
+                </button>
+                <button
+                  onClick={handleCancelInvitation}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Ja, avbryt
                 </button>
               </div>
             </div>

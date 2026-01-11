@@ -9,6 +9,11 @@ export interface Template {
   isCustomPrompt?: boolean;  // True for fully custom AI prompt templates
   customPrompt?: string;      // The user's custom prompt/instructions for AI
   icon: string;
+  metadata?: {
+    aiGenerated?: boolean;
+    originalDescription?: string;
+    sectionsDetail?: any[];
+  };
 }
 
 export const mockTemplates: Template[] = [

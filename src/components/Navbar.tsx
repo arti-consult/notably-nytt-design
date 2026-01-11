@@ -54,10 +54,10 @@ export default function Navbar() {
                   <span>Dashboard</span>
                 </Link>
                 <Link
-                  to="/support"
+                  to="/help"
                   className={cn(
                     "text-sm font-medium transition-colors flex items-center space-x-1.5",
-                    isActiveLink('/support')
+                    isActiveLink('/help')
                       ? "text-blue-600"
                       : "text-gray-600 hover:text-gray-900"
                   )}

@@ -28,6 +28,7 @@ import DocsPage from './pages/DocsPage';
 import ContactPage from './pages/ContactPage';
 import TemplatesPage from './pages/TemplatesPage';
 import SupportPage from './pages/SupportPage';
+import HelpPage from './pages/HelpPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 
@@ -83,6 +84,7 @@ function AppRoutes() {
           <Route path="templates" element={<TemplatesPage />} />
           <Route path="organization" element={<Navigate to="/settings?tab=team" replace />} />
           <Route path="support" element={<SupportPage />} />
+          <Route path="help" element={<HelpPage />} />
           <Route path="privacy" element={<PrivacyPage />} />
           <Route path="terms" element={<TermsPage />} />
         </Route>

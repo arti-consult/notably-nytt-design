@@ -26,6 +26,7 @@ import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import EditableSummary from '@/components/EditableSummary';
 import MeetingChat from '@/components/MeetingChat';
 import ParticipantList from '@/components/ParticipantList';
+import RegeneratingAnimation from '@/components/RegeneratingAnimation';
 import { cn } from '@/lib/utils';
 import { getMockMeetingDetail } from '@/lib/mockMeetingDetails';
 import { mockTemplates, Template } from '@/lib/mockTemplates';
@@ -637,15 +638,7 @@ Møtet konkluderte med klare handlingspunkter og en felles forståelse av veien 
                 {activeTab === 'minutes' && (
                   <div>
                     {isRegenerating ? (
-                        <div className="text-center py-12">
-                          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#E4ECFF] mb-4">
-                            <Sparkles className="h-8 w-8 text-[#2C64E3] animate-pulse" />
-                          </div>
-                          <p className="text-gray-900 font-medium mb-2">Genererer nytt referat...</p>
-                          <p className="text-sm text-gray-500">
-                            Dette tar vanligvis noen sekunder.
-                          </p>
-                        </div>
+                        <RegeneratingAnimation />
                       ) : minutes ? (
                         <>
                           {/* Header med handlinger */}

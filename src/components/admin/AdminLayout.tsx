@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   Users,
   Building2,
-  Settings,
   Menu,
   X
 } from 'lucide-react';
@@ -25,18 +24,13 @@ const navItems: NavItem[] = [
   },
   {
     icon: Users,
-    label: 'Users',
+    label: 'Brukere',
     href: '/admin/users'
   },
   {
     icon: Building2,
     label: 'Organisasjoner',
     href: '/admin/organizations'
-  },
-  {
-    icon: Settings,
-    label: 'Settings',
-    href: '/admin/settings'
   }
 ];
 

@@ -531,11 +531,6 @@ function CreateOrganizationModal({ onClose }: CreateOrganizationModalProps) {
                       <span>+ mva</span>
                     </div>
                   </div>
-
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
-                    <Check className="h-4 w-4 text-emerald-500" />
-                    <span>14 dagers gratis prøveperiode</span>
-                  </div>
                 </motion.div>
               )}
 

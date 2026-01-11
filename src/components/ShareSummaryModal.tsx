@@ -26,7 +26,6 @@ export default function ShareSummaryModal({
   const [emails, setEmails] = useState<string[]>(['']);
   const [sendStatus, setSendStatus] = useState<SendStatus>('idle');
   const [includeMinutes, setIncludeMinutes] = useState(true);
-  const [includeTranscription, setIncludeTranscription] = useState(false);
 
   if (!isOpen) return null;
 
@@ -61,8 +60,7 @@ export default function ShareSummaryModal({
     console.log('Demo: Would send summary to:', {
       emails: validEmails,
       meetingTitle,
-      includeMinutes,
-      includeTranscription
+      includeMinutes
     });
 
     setSendStatus('success');
@@ -77,7 +75,6 @@ export default function ShareSummaryModal({
     setEmails(['']);
     setSendStatus('idle');
     setIncludeMinutes(true);
-    setIncludeTranscription(false);
     onClose();
   };
 
@@ -223,18 +220,6 @@ export default function ShareSummaryModal({
                     />
                     <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
                       Inkluder fullt referat
-                    </span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={includeTranscription}
-                      onChange={(e) => setIncludeTranscription(e.target.checked)}
-                      disabled={sendStatus === 'sending'}
-                      className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
-                      Inkluder full transkripsjon
                     </span>
                   </label>
                 </div>
