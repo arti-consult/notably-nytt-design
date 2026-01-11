@@ -198,9 +198,9 @@ export default function AdminDashboard() {
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recordings Over Time */}
+          {/* Recordings Count */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="text-lg font-semibold mb-6">Opptak over tid</h3>
+            <h3 className="text-lg font-semibold mb-6">Antall opptak</h3>
             <div className="h-[300px]">
               {isLoading ? (
                 <div className="h-full flex items-center justify-center">
@@ -233,9 +233,9 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Recording Duration */}
+          {/* Transcribed Hours */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="text-lg font-semibold mb-6">Opptakstid</h3>
+            <h3 className="text-lg font-semibold mb-6">Timer transkribert</h3>
             <div className="h-[300px]">
               {isLoading ? (
                 <div className="h-full flex items-center justify-center">
@@ -246,8 +246,8 @@ export default function AdminDashboard() {
                   data={{
                     labels: chartData.labels,
                     datasets: [{
-                      label: 'Minutter',
-                      data: chartData.duration,
+                      label: 'Timer',
+                      data: chartData.duration.map(minutes => (minutes / 60).toFixed(1)),
                       backgroundColor: 'rgb(219, 39, 119)',
                       borderRadius: 4
                     }]
