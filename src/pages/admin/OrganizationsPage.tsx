@@ -42,9 +42,10 @@ export default function OrganizationsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    seats: 5,
-    emails: ''
+    seats: 5
   });
+  const [emailInput, setEmailInput] = useState('');
+  const [emailChips, setEmailChips] = useState<string[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -73,12 +74,54 @@ export default function OrganizationsPage() {
 
   const totalPages = Math.ceil(filteredOrganizations.length / ORGANIZATIONS_PER_PAGE);
 
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  };
+
+  const handleEmailInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    // Check if comma or semicolon was entered
+    if (value.includes(',') || value.includes(';')) {
+      const emails = value.split(/[,;]/).map(e => e.trim()).filter(e => e);
+
+      emails.forEach(email => {
+        if (isValidEmail(email) && !emailChips.includes(email)) {
+          setEmailChips(prev => [...prev, email]);
+        }
+      });
+
+      setEmailInput('');
+    } else {
+      setEmailInput(value);
+    }
+  };
+
+  const handleEmailInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && emailInput.trim()) {
+      e.preventDefault();
+      const email = emailInput.trim();
+      if (isValidEmail(email) && !emailChips.includes(email)) {
+        setEmailChips(prev => [...prev, email]);
+        setEmailInput('');
+      }
+    } else if (e.key === 'Backspace' && !emailInput && emailChips.length > 0) {
+      setEmailChips(prev => prev.slice(0, -1));
+    }
+  };
+
+  const removeEmailChip = (emailToRemove: string) => {
+    setEmailChips(prev => prev.filter(email => email !== emailToRemove));
+  };
+
   const handleCreateOrganization = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement actual API call
-    console.log('Creating organization:', formData);
+    console.log('Creating organization:', { ...formData, emails: emailChips });
     setIsCreateModalOpen(false);
-    setFormData({ name: '', seats: 5, emails: '' });
+    setFormData({ name: '', seats: 5 });
+    setEmailChips([]);
+    setEmailInput('');
   };
 
   return (
@@ -235,15 +278,35 @@ export default function OrganizationsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Inviter brukere (valgfritt)
                 </label>
-                <textarea
-                  value={formData.emails}
-                  onChange={(e) => setFormData({ ...formData, emails: e.target.value })}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="bruker1@example.com, bruker2@example.com"
-                />
+                <div className="min-h-[80px] p-2 border border-gray-300 rounded-lg focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                  <div className="flex flex-wrap gap-2">
+                    {emailChips.map((email, index) => (
+                      <div
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                      >
+                        <span>{email}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeEmailChip(email)}
+                          className="ml-2 hover:text-blue-900"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                    <input
+                      type="text"
+                      value={emailInput}
+                      onChange={handleEmailInputChange}
+                      onKeyDown={handleEmailInputKeyDown}
+                      className="flex-1 min-w-[200px] outline-none border-none focus:ring-0 text-sm"
+                      placeholder={emailChips.length === 0 ? "bruker1@example.com, bruker2@example.com" : "Legg til flere..."}
+                    />
+                  </div>
+                </div>
                 <p className="mt-1 text-sm text-gray-500">
-                  Separer flere e-postadresser med komma
+                  Trykk komma eller Enter etter hver e-postadresse
                 </p>
               </div>
 
