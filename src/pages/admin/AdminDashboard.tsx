@@ -5,7 +5,9 @@ import {
   Mic,
   Clock3,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  AlertTriangle,
+  Activity
 } from 'lucide-react';
 import { Line, Bar } from 'react-chartjs-2';
 import {
@@ -97,11 +99,6 @@ export default function AdminDashboard() {
         label: 'Total opptakstid',
         value: `${Math.floor(totalDuration / 60)}t ${totalDuration % 60}m`,
         icon: Clock
-      },
-      {
-        label: 'Aktive brukere',
-        value: Math.floor(Math.random() * 50) + 100,
-        icon: Users
       }
     ]);
 
@@ -112,8 +109,40 @@ export default function AdminDashboard() {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+
+        {/* Evergreen Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Active Users */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Aktive brukere per nå</p>
+                <p className="text-2xl font-semibold">{Math.floor(Math.random() * 50) + 100}</p>
+              </div>
+              <div className="p-3 bg-green-100 rounded-lg">
+                <Activity className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
+          </div>
+
+          {/* Error Rate */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Feilrate (siste 30 dager)</p>
+                <p className="text-2xl font-semibold">{(Math.random() * 2).toFixed(2)}%</p>
+              </div>
+              <div className="p-3 bg-amber-100 rounded-lg">
+                <AlertTriangle className="h-6 w-6 text-amber-600" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Time Range Filter */}
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Dashboard</h1>
+          <h2 className="text-lg font-semibold">Tidsbasert oversikt</h2>
 
           <div className="flex items-center space-x-2">
             {(['today', 'week', 'month'] as const).map((range) => (
@@ -135,8 +164,8 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Time-Filtered Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {stats.map((stat, index) => (
             <div key={index} className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between">
