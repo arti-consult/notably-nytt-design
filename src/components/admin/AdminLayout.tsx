@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Users, 
+import {
+  LayoutDashboard,
+  Users,
   HardDrive,
   Settings,
-  BarChart,
   Menu,
   X
 } from 'lucide-react';
@@ -19,29 +18,24 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { 
-    icon: LayoutDashboard, 
-    label: 'Dashboard', 
+  {
+    icon: LayoutDashboard,
+    label: 'Dashboard',
     href: '/admin'
   },
-  { 
-    icon: Users, 
-    label: 'Users', 
+  {
+    icon: Users,
+    label: 'Users',
     href: '/admin/users'
   },
-  { 
-    icon: HardDrive, 
-    label: 'Content', 
+  {
+    icon: HardDrive,
+    label: 'Content',
     href: '/admin/content'
   },
-  { 
-    icon: BarChart, 
-    label: 'Analytics', 
-    href: '/admin/analytics'
-  },
-  { 
-    icon: Settings, 
-    label: 'Settings', 
+  {
+    icon: Settings,
+    label: 'Settings',
     href: '/admin/settings'
   }
 ];
