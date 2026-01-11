@@ -7,7 +7,8 @@ import {
   ArrowUp,
   ArrowDown,
   AlertTriangle,
-  Activity
+  Activity,
+  Timer
 } from 'lucide-react';
 import { Line, Bar } from 'react-chartjs-2';
 import {
@@ -122,7 +123,7 @@ export default function AdminDashboard() {
         <h1 className="text-2xl font-semibold">Dashboard</h1>
 
         {/* Evergreen Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Active Users */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <div className="flex items-center justify-between">
@@ -132,6 +133,19 @@ export default function AdminDashboard() {
               </div>
               <div className="p-3 bg-green-100 rounded-lg">
                 <Activity className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
+          </div>
+
+          {/* Trial Users */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Aktiv prøveperiode</p>
+                <p className="text-2xl font-semibold">{Math.floor(Math.random() * 30) + 20}</p>
+              </div>
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Timer className="h-6 w-6 text-blue-600" />
               </div>
             </div>
           </div>
