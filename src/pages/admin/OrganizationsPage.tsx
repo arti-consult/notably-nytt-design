@@ -116,12 +116,19 @@ export default function OrganizationsPage() {
 
   const handleCreateOrganization = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement actual API call
-    console.log('Creating organization:', { ...formData, emails: emailChips });
+
+    // TODO: Replace with actual API call
+    // For now, generate a mock ID and navigate to the new organization
+    const newOrgId = `org-${Date.now()}`;
+    console.log('Creating organization:', { id: newOrgId, ...formData, emails: emailChips });
+
     setIsCreateModalOpen(false);
     setFormData({ name: '', seats: 5 });
     setEmailChips([]);
     setEmailInput('');
+
+    // Navigate to the newly created organization's admin page
+    navigate(`/admin/organizations/${newOrgId}`);
   };
 
   return (
