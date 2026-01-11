@@ -154,13 +154,12 @@ export default function UsersPage() {
                     </div>
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Opptak</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Lagring</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-4 text-center">
+                    <td colSpan={4} className="px-6 py-4 text-center">
                       <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 mx-auto"></div>
                     </td>
                   </tr>
@@ -171,7 +170,6 @@ export default function UsersPage() {
                       <td className="px-6 py-4 text-sm text-gray-500">{formatDate(user.created_at)}</td>
                       <td className="px-6 py-4 text-sm text-gray-500">{formatDate(user.last_sign_in_at)}</td>
                       <td className="px-6 py-4 text-sm text-gray-500">{user.recordings_count}</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">{formatBytes(user.file_storage)}</td>
                     </tr>
                   ))
                 )}
