@@ -9,6 +9,8 @@ import ProtectedAdminRoute from '@/components/admin/ProtectedAdminRoute';
 import ScrollToTop from '@/components/ScrollToTop';
 import UsersPage from '@/pages/admin/UsersPage';
 import AnalyticsDashboard from '@/pages/admin/AnalyticsDashboard';
+import OrganizationsPage from '@/pages/admin/OrganizationsPage';
+import OrganizationDetailsPage from '@/pages/admin/OrganizationDetailsPage';
 import RootLayout from './layouts/RootLayout';
 import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
@@ -45,6 +47,16 @@ function AppRoutes() {
           <Route path="admin/users" element={
             <ProtectedAdminRoute>
               <UsersPage />
+            </ProtectedAdminRoute>
+          } />
+          <Route path="admin/organizations" element={
+            <ProtectedAdminRoute>
+              <OrganizationsPage />
+            </ProtectedAdminRoute>
+          } />
+          <Route path="admin/organizations/:id" element={
+            <ProtectedAdminRoute>
+              <OrganizationDetailsPage />
             </ProtectedAdminRoute>
           } />
           <Route path="admin/analytics" element={
