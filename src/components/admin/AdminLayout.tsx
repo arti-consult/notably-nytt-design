@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
-  HardDrive,
   Settings,
   Menu,
   X
@@ -27,11 +26,6 @@ const navItems: NavItem[] = [
     icon: Users,
     label: 'Users',
     href: '/admin/users'
-  },
-  {
-    icon: HardDrive,
-    label: 'Content',
-    href: '/admin/content'
   },
   {
     icon: Settings,
