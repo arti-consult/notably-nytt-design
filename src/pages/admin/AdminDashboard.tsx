@@ -52,21 +52,31 @@ const generateMockChartData = (days: number) => {
   const labels: string[] = [];
   const recordings: number[] = [];
   const duration: number[] = [];
-  const cumulative: number[] = [];
-  let total = 0;
+  const cumulativeUsers: number[] = [];
+  const cumulativeOrganizations: number[] = [];
+  let totalUsers = 50; // Starting base
+  let totalOrgs = 5; // Starting base
 
   for (let i = days; i >= 0; i--) {
     const date = new Date();
     date.setDate(date.getDate() - i);
     labels.push(date.toLocaleDateString('no', { day: 'numeric', month: 'short' }));
+
     const count = Math.floor(Math.random() * 20) + 5;
     recordings.push(count);
     duration.push(Math.floor(Math.random() * 120) + 30);
-    total += count;
-    cumulative.push(total);
+
+    // Add new users and organizations
+    const newUsers = Math.floor(Math.random() * 10) + 2;
+    const newOrgs = Math.random() < 0.3 ? 1 : 0; // 30% chance of new org
+    totalUsers += newUsers;
+    totalOrgs += newOrgs;
+
+    cumulativeUsers.push(totalUsers);
+    cumulativeOrganizations.push(totalOrgs);
   }
 
-  return { labels, recordings, duration, cumulative };
+  return { labels, recordings, duration, cumulativeUsers, cumulativeOrganizations };
 };
 
 export default function AdminDashboard() {
@@ -266,9 +276,9 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Cumulative Usage */}
-          <div className="bg-white rounded-xl p-6 shadow-sm lg:col-span-2">
-            <h3 className="text-lg font-semibold mb-6">Total vekst</h3>
+          {/* User Growth */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <h3 className="text-lg font-semibold mb-6">Brukervekst</h3>
             <div className="h-[300px]">
               {isLoading ? (
                 <div className="h-full flex items-center justify-center">
@@ -279,10 +289,45 @@ export default function AdminDashboard() {
                   data={{
                     labels: chartData.labels,
                     datasets: [{
-                      label: 'Totalt',
-                      data: chartData.cumulative,
+                      label: 'Antall brukere',
+                      data: chartData.cumulativeUsers,
                       borderColor: 'rgb(124, 58, 237)',
                       backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                      fill: true,
+                      tension: 0.4
+                    }]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                      y: { beginAtZero: true },
+                      x: { grid: { display: false } }
+                    }
+                  }}
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Organization Growth */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <h3 className="text-lg font-semibold mb-6">Organisasjonsvekst</h3>
+            <div className="h-[300px]">
+              {isLoading ? (
+                <div className="h-full flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+                </div>
+              ) : chartData && (
+                <Line
+                  data={{
+                    labels: chartData.labels,
+                    datasets: [{
+                      label: 'Antall organisasjoner',
+                      data: chartData.cumulativeOrganizations,
+                      borderColor: 'rgb(16, 185, 129)',
+                      backgroundColor: 'rgba(16, 185, 129, 0.1)',
                       fill: true,
                       tension: 0.4
                     }]
