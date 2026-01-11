@@ -220,19 +220,15 @@ export default function OrganizationsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Antall seter
                 </label>
-                <select
+                <input
+                  type="number"
+                  min="1"
                   value={formData.seats}
-                  onChange={(e) => setFormData({ ...formData, seats: parseInt(e.target.value) })}
+                  onChange={(e) => setFormData({ ...formData, seats: parseInt(e.target.value) || 1 })}
+                  required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500"
-                >
-                  <option value={5}>5 seter</option>
-                  <option value={10}>10 seter</option>
-                  <option value={15}>15 seter</option>
-                  <option value={20}>20 seter</option>
-                  <option value={25}>25 seter</option>
-                  <option value={50}>50 seter</option>
-                  <option value={100}>100 seter</option>
-                </select>
+                  placeholder="5"
+                />
               </div>
 
               <div>

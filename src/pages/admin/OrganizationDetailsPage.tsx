@@ -195,19 +195,14 @@ export default function OrganizationDetailsPage() {
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <h2 className="text-lg font-semibold mb-4">Antall seter</h2>
           <div className="flex items-center space-x-4">
-            <select
+            <input
+              type="number"
+              min="1"
               value={seats}
-              onChange={(e) => setSeats(parseInt(e.target.value))}
+              onChange={(e) => setSeats(parseInt(e.target.value) || 1)}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500"
-            >
-              <option value={5}>5 seter</option>
-              <option value={10}>10 seter</option>
-              <option value={15}>15 seter</option>
-              <option value={20}>20 seter</option>
-              <option value={25}>25 seter</option>
-              <option value={50}>50 seter</option>
-              <option value={100}>100 seter</option>
-            </select>
+              placeholder="5"
+            />
             <button
               onClick={handleUpdateSeats}
               disabled={seats === organization.seats}
