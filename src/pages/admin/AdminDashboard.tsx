@@ -55,6 +55,7 @@ const generateMockChartData = (days: number) => {
   const duration: number[] = [];
   const cumulativeUsers: number[] = [];
   const cumulativeOrganizations: number[] = [];
+  const trialUsers: number[] = [];
   let totalUsers = 50; // Starting base
   let totalOrgs = 5; // Starting base
 
@@ -75,9 +76,13 @@ const generateMockChartData = (days: number) => {
 
     cumulativeUsers.push(totalUsers);
     cumulativeOrganizations.push(totalOrgs);
+
+    // Trial users fluctuate between 20-50
+    const trialCount = Math.floor(Math.random() * 30) + 20;
+    trialUsers.push(trialCount);
   }
 
-  return { labels, recordings, duration, cumulativeUsers, cumulativeOrganizations };
+  return { labels, recordings, duration, cumulativeUsers, cumulativeOrganizations, trialUsers };
 };
 
 export default function AdminDashboard() {
@@ -123,7 +128,7 @@ export default function AdminDashboard() {
         <h1 className="text-2xl font-semibold">Dashboard</h1>
 
         {/* Evergreen Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Active Users */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <div className="flex items-center justify-between">
@@ -133,19 +138,6 @@ export default function AdminDashboard() {
               </div>
               <div className="p-3 bg-green-100 rounded-lg">
                 <Activity className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </div>
-
-          {/* Trial Users */}
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Aktiv prøveperiode</p>
-                <p className="text-2xl font-semibold">{Math.floor(Math.random() * 30) + 20}</p>
-              </div>
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Timer className="h-6 w-6 text-blue-600" />
               </div>
             </div>
           </div>
@@ -342,6 +334,41 @@ export default function AdminDashboard() {
                       data: chartData.cumulativeOrganizations,
                       borderColor: 'rgb(16, 185, 129)',
                       backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                      fill: true,
+                      tension: 0.4
+                    }]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                      y: { beginAtZero: true },
+                      x: { grid: { display: false } }
+                    }
+                  }}
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Trial Users Over Time */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <h3 className="text-lg font-semibold mb-6">Aktive i prøveperiode</h3>
+            <div className="h-[300px]">
+              {isLoading ? (
+                <div className="h-full flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+                </div>
+              ) : chartData && (
+                <Line
+                  data={{
+                    labels: chartData.labels,
+                    datasets: [{
+                      label: 'Brukere i prøveperiode',
+                      data: chartData.trialUsers,
+                      borderColor: 'rgb(59, 130, 246)',
+                      backgroundColor: 'rgba(59, 130, 246, 0.1)',
                       fill: true,
                       tension: 0.4
                     }]
