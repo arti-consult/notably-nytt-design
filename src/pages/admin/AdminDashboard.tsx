@@ -8,7 +8,8 @@ import {
   ArrowDown,
   AlertTriangle,
   Activity,
-  Timer
+  Timer,
+  Calendar
 } from 'lucide-react';
 import { Line, Bar } from 'react-chartjs-2';
 import {
@@ -87,12 +88,25 @@ const generateMockChartData = (days: number) => {
 
 export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month'>('week');
+  const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month' | 'custom'>('week');
+  const [customDateRange, setCustomDateRange] = useState<{ start: string; end: string }>({
+    start: '',
+    end: ''
+  });
   const [chartData, setChartData] = useState<ReturnType<typeof generateMockChartData> | null>(null);
   const [stats, setStats] = useState<AnalyticsStat[]>([]);
 
   useEffect(() => {
-    const days = timeRange === 'today' ? 1 : timeRange === 'week' ? 7 : 30;
+    let days = 7;
+
+    if (timeRange === 'custom' && customDateRange.start && customDateRange.end) {
+      const start = new Date(customDateRange.start);
+      const end = new Date(customDateRange.end);
+      days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    } else {
+      days = timeRange === 'today' ? 1 : timeRange === 'week' ? 7 : 30;
+    }
+
     const data = generateMockChartData(days);
 
     const totalRecordings = data.recordings.reduce((a, b) => a + b, 0);
@@ -120,7 +134,7 @@ export default function AdminDashboard() {
 
     setChartData(data);
     setIsLoading(false);
-  }, [timeRange]);
+  }, [timeRange, customDateRange]);
 
   return (
     <AdminLayout>
@@ -157,10 +171,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Time Range Filter */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <h2 className="text-lg font-semibold">Tidsbasert oversikt</h2>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-wrap">
             {(['today', 'week', 'month'] as const).map((range) => (
               <button
                 key={range}
@@ -177,6 +191,34 @@ export default function AdminDashboard() {
                   'Denne måneden'}
               </button>
             ))}
+
+            {/* Custom Date Range Picker */}
+            <div className="flex items-center space-x-2 border border-gray-200 rounded-lg p-2">
+              <Calendar className="h-4 w-4 text-gray-600" />
+              <input
+                type="date"
+                value={customDateRange.start}
+                onChange={(e) => {
+                  setCustomDateRange(prev => ({ ...prev, start: e.target.value }));
+                  if (e.target.value && customDateRange.end) {
+                    setTimeRange('custom');
+                  }
+                }}
+                className="text-sm border-none outline-none focus:ring-0 text-gray-700"
+              />
+              <span className="text-gray-400">-</span>
+              <input
+                type="date"
+                value={customDateRange.end}
+                onChange={(e) => {
+                  setCustomDateRange(prev => ({ ...prev, end: e.target.value }));
+                  if (customDateRange.start && e.target.value) {
+                    setTimeRange('custom');
+                  }
+                }}
+                className="text-sm border-none outline-none focus:ring-0 text-gray-700"
+              />
+            </div>
           </div>
         </div>
 
