@@ -166,32 +166,27 @@ export default function CreateTemplateWizard({ onClose, onCreate }: CreateTempla
             </div>
 
             {/* Progress indicator */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-center max-w-md mx-auto">
               {[1, 3, 4].map((step, index) => (
-                <div key={step} className="flex items-center flex-1">
+                <div key={step} className="flex items-center">
                   <div className={cn(
-                    "flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold transition-all",
+                    "flex items-center justify-center w-10 h-10 rounded-full text-sm font-semibold transition-all",
                     currentStep === step
                       ? "bg-blue-600 text-white ring-4 ring-blue-100"
                       : currentStep > step
-                      ? "bg-green-500 text-white"
+                      ? "bg-blue-500 text-white"
                       : "bg-gray-200 text-gray-500"
                   )}>
                     {currentStep > step ? <Check className="h-4 w-4" /> : (index + 1)}
                   </div>
                   {index < 2 && (
                     <div className={cn(
-                      "flex-1 h-1 mx-2 rounded-full transition-all",
-                      currentStep > step ? "bg-green-500" : "bg-gray-200"
+                      "w-32 h-1 mx-3 rounded-full transition-all",
+                      currentStep > step ? "bg-blue-500" : "bg-gray-200"
                     )} />
                   )}
                 </div>
               ))}
-            </div>
-            <div className="flex justify-between mt-2 text-xs text-gray-500">
-              <span className={currentStep === 1 ? "font-semibold text-blue-600" : ""}>Beskriv</span>
-              <span className={currentStep === 3 ? "font-semibold text-blue-600" : ""}>Finjuster</span>
-              <span className={currentStep === 4 ? "font-semibold text-blue-600" : ""}>Forhåndsvis</span>
             </div>
           </div>
 
@@ -243,7 +238,7 @@ Vi møter kunder ukentlig for å diskutere prosjektfremdrift. Viktig å dokument
                     <div className="flex items-center justify-between text-xs">
                       <span className={cn(
                         "transition-colors",
-                        description.trim().length < 10 ? "text-gray-400" : "text-green-600"
+                        description.trim().length < 10 ? "text-gray-400" : "text-blue-600"
                       )}>
                         {description.trim().length} tegn
                       </span>
@@ -444,10 +439,10 @@ Vi møter kunder ukentlig for å diskutere prosjektfremdrift. Viktig å dokument
                                 {/* Example Output */}
                                 <div>
                                   <div className="flex items-center space-x-2 mb-2">
-                                    <Eye className="h-4 w-4 text-green-600" />
+                                    <Eye className="h-4 w-4 text-blue-600" />
                                     <h5 className="text-sm font-semibold text-gray-700">Eksempel på output:</h5>
                                   </div>
-                                  <p className="text-sm text-gray-700 bg-green-50 p-3 rounded-lg border border-green-200 italic">
+                                  <p className="text-sm text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200 italic">
                                     "{section.exampleOutput}"
                                   </p>
                                 </div>
@@ -616,8 +611,8 @@ Vi møter kunder ukentlig for å diskutere prosjektfremdrift. Viktig å dokument
                   className="space-y-6"
                 >
                   <div className="flex items-start space-x-4">
-                    <div className="p-3 bg-green-50 rounded-xl">
-                      <Eye className="h-6 w-6 text-green-600" />
+                    <div className="p-3 bg-blue-50 rounded-xl">
+                      <Eye className="h-6 w-6 text-blue-600" />
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -721,7 +716,7 @@ Vi møter kunder ukentlig for å diskutere prosjektfremdrift. Viktig å dokument
               ) : (
                 <button
                   onClick={handleCreateTemplate}
-                  className="inline-flex items-center px-6 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-green-600 to-green-500 text-white hover:from-green-700 hover:to-green-600 shadow-lg shadow-green-200 transition-all"
+                  className="inline-flex items-center px-6 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 shadow-lg shadow-blue-200 transition-all"
                 >
                   <Check className="h-4 w-4 mr-2" />
                   Opprett mal
