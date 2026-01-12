@@ -44,10 +44,10 @@ export default function Navbar() {
                 <Link
                   to="/dashboard"
                   className={cn(
-                    "text-sm font-medium transition-colors flex items-center space-x-1.5",
+                    "text-sm font-medium transition-all duration-200 flex items-center space-x-2 px-4 py-2 rounded-xl",
                     isActiveLink('/dashboard')
-                      ? "text-blue-600"
-                      : "text-gray-600 hover:text-gray-900"
+                      ? "bg-blue-50 text-blue-700 border border-blue-200"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                   )}
                 >
                   <LayoutDashboard className="h-4 w-4" />
@@ -56,10 +56,10 @@ export default function Navbar() {
                 <Link
                   to="/help"
                   className={cn(
-                    "text-sm font-medium transition-colors flex items-center space-x-1.5",
+                    "text-sm font-medium transition-all duration-200 flex items-center space-x-2 px-4 py-2 rounded-xl",
                     isActiveLink('/help')
-                      ? "text-blue-600"
-                      : "text-gray-600 hover:text-gray-900"
+                      ? "bg-blue-50 text-blue-700 border border-blue-200"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                   )}
                 >
                   <HelpCircle className="h-4 w-4" />

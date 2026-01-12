@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  FileText, 
-  Book, 
-  Code, 
+import {
+  FileText,
+  Book,
+  Code,
   Zap,
   ArrowRight,
   Search,
@@ -92,18 +93,18 @@ const sections = [
       {
         title: 'Microsoft 365',
         steps: [
-          'Gå til Innstillinger > Digitale møter',
+          'Gå til Innstillinger > Integrasjoner',
           'Klikk på "Koble til" under Microsoft 365',
           'Logg inn med din Microsoft-konto',
-          'Velg hvilke kalendere som skal synkroniseres'
+          'Gi nødvendige tillatelser'
         ]
       },
       {
         title: 'Google Calendar',
         steps: [
-          'Gå til Innstillinger > Digitale møter',
+          'Gå til Innstillinger > Integrasjoner',
           'Klikk på "Koble til" under Google Calendar',
-          'Velg Google-kontoen du vil bruke',
+          'Logg inn med din Google-konto',
           'Gi nødvendige tillatelser'
         ]
       }
@@ -114,16 +115,20 @@ const sections = [
     title: 'Sikkerhet og personvern',
     content: [
       {
+        title: 'GDPR-kompatibel',
+        description: 'Du har full kontroll på dine egne data. Vi er transparente om hvordan vi håndterer informasjonen din, og du kan når som helst be om innsyn eller sletting.'
+      },
+      {
         title: 'Datakryptering',
-        description: 'Alle opptak og transkripsjoner er beskyttet med ende-til-ende-kryptering.'
+        description: 'Alle opptak og transkripsjoner krypteres både når de lagres og når de sendes over nettet. Det betyr at dataene dine er beskyttet hele veien.'
       },
       {
-        title: 'GDPR-samsvar',
-        description: 'Vi følger EUs personvernforordning (GDPR) for all databehandling.'
+        title: 'EU/EØS-dataresidens',
+        description: 'All behandling og lagring av data skjer på servere i EU/EØS-området. Vi trener aldri AI-modellene våre på dine møtedata.'
       },
       {
-        title: 'Datalagring',
-        description: 'Data lagres sikkert på servere i EU/EØS-området.'
+        title: 'Sertifisert hosting',
+        description: 'Vi bruker sikre, sertifiserte skyplattformer som gjennomgår jevnlige sikkerhetskontroller og revisjoner for å beskytte dine data.'
       }
     ]
   },
@@ -132,23 +137,44 @@ const sections = [
     title: 'Deling og eksport',
     content: [
       {
-        title: 'Del opptak',
-        steps: [
-          'Åpne opptaket du vil dele',
-          'Klikk på "Del" knappen',
-          'Velg delingsalternativer',
-          'Kopier og del lenken'
-        ]
+        title: 'Del møtesammendrag på e-post',
+        description: 'Du kan sende sammendraget direkte på e-post til opptil 10 mottakere samtidig. Klikk på dele-ikonet øverst på møtesiden, skriv inn e-postadressene, og velg om du vil inkludere fullstendig referat.'
       },
       {
-        title: 'Eksportformater',
-        description: 'Eksporter transkripsjoner og sammendrag i PDF, DOCX eller CSV format.'
+        title: 'Eksporter møte',
+        description: 'Last ned møtedokumentasjon i PDF eller Word (.docx) format. Du kan velge å eksportere kun sammendraget, kun transkripsjonen, eller begge deler sammen.'
       }
     ]
   }
 ];
 
 export default function DocsPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter sections based on search query
+  const filteredSections = sections.filter(section => {
+    if (!searchQuery.trim()) return true;
+
+    const query = searchQuery.toLowerCase();
+
+    // Check if section title matches
+    if (section.title.toLowerCase().includes(query)) return true;
+
+    // Check if any content item matches
+    return section.content.some(item => {
+      // Check title
+      if (item.title?.toLowerCase().includes(query)) return true;
+
+      // Check description
+      if (item.description?.toLowerCase().includes(query)) return true;
+
+      // Check steps
+      if (item.steps?.some(step => step.toLowerCase().includes(query))) return true;
+
+      return false;
+    });
+  });
+
   return (
     <main className="pt-16">
       {/* Hero Section */}
@@ -169,6 +195,8 @@ export default function DocsPage() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Søk i dokumentasjonen..."
                 className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
@@ -177,31 +205,33 @@ export default function DocsPage() {
         </div>
       </section>
 
-      {/* Quick Links */}
-      <section className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {quickLinks.map((link, index) => (
-              <a
-                key={index}
-                href={link.to}
-                className="feature-card group flex items-start space-x-4"
-              >
-                <div className="feature-icon">
-                  <link.icon className="h-5 w-5" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold mb-1 group-hover:text-blue-600 transition-colors">
-                    {link.title}
-                  </h3>
-                  <p className="text-sm text-gray-600">{link.description}</p>
-                </div>
-                <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
-              </a>
-            ))}
+      {/* Quick Links - Hide when searching */}
+      {!searchQuery.trim() && (
+        <section className="py-12 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {quickLinks.map((link, index) => (
+                <a
+                  key={index}
+                  href={link.to}
+                  className="feature-card group flex items-start space-x-4"
+                >
+                  <div className="feature-icon">
+                    <link.icon className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold mb-1 group-hover:text-blue-600 transition-colors">
+                      {link.title}
+                    </h3>
+                    <p className="text-sm text-gray-600">{link.description}</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                </a>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Main Content */}
       <section className="py-24">
@@ -211,7 +241,7 @@ export default function DocsPage() {
             <div className="lg:col-span-1">
               <div className="sticky top-24 space-y-8">
                 <nav className="space-y-1">
-                  {sections.map((section) => (
+                  {filteredSections.map((section) => (
                     <a
                       key={section.id}
                       href={`#${section.id}`}
@@ -242,33 +272,44 @@ export default function DocsPage() {
 
             {/* Documentation Content */}
             <div className="lg:col-span-3 space-y-16">
-              {sections.map((section) => (
-                <div key={section.id} id={section.id} className="scroll-mt-24">
-                  <h2 className="text-3xl font-bold mb-8">{section.title}</h2>
-                  <div className="space-y-8">
-                    {section.content.map((item, index) => (
-                      <div key={index} className="feature-card">
-                        <h3 className="text-xl font-semibold mb-4">{item.title}</h3>
-                        {item.description && (
-                          <p className="text-gray-600 mb-4">{item.description}</p>
-                        )}
-                        {item.steps && (
-                          <ol className="space-y-3">
-                            {item.steps.map((step, stepIndex) => (
-                              <li key={stepIndex} className="flex items-start">
-                                <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-sm font-medium mr-3">
-                                  {stepIndex + 1}
-                                </span>
-                                <span className="text-gray-600">{step}</span>
-                              </li>
-                            ))}
-                          </ol>
-                        )}
-                      </div>
-                    ))}
+              {filteredSections.length > 0 ? (
+                filteredSections.map((section) => (
+                  <div key={section.id} id={section.id} className="scroll-mt-24">
+                    <h2 className="text-3xl font-bold mb-8">{section.title}</h2>
+                    <div className="space-y-8">
+                      {section.content.map((item, index) => (
+                        <div key={index} className="feature-card">
+                          <h3 className="text-xl font-semibold mb-4">{item.title}</h3>
+                          {item.description && (
+                            <p className="text-gray-600 mb-4">{item.description}</p>
+                          )}
+                          {item.steps && (
+                            <ol className="space-y-3">
+                              {item.steps.map((step, stepIndex) => (
+                                <li key={stepIndex} className="flex items-start">
+                                  <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-sm font-medium mr-3">
+                                    {stepIndex + 1}
+                                  </span>
+                                  <span className="text-gray-600">{step}</span>
+                                </li>
+                              ))}
+                            </ol>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-500 text-lg">
+                    Ingen resultater funnet for "{searchQuery}"
+                  </p>
+                  <p className="text-gray-400 text-sm mt-2">
+                    Prøv et annet søkeord eller bla gjennom dokumentasjonen
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

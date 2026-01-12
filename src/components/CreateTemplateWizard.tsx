@@ -6,63 +6,127 @@ import {
   ArrowLeft,
   Sparkles,
   Check,
+  ChevronDown,
   Edit3,
+  Eye,
   Wand2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Template } from '@/lib/mockTemplates';
-import { generateCustomPrompt } from '@/lib/mockTemplateWizard';
+import {
+  generateTemplateProposals,
+  TemplateProposal,
+  TemplateSection,
+  generateAdjustedSection
+} from '@/lib/mockTemplateWizard';
 
 interface CreateTemplateWizardProps {
   onClose: () => void;
   onCreate: (template: Template) => void;
 }
 
-type WizardStep = 1 | 2;
+type WizardStep = 1 | 3 | 4;
 
 const availableIcons = ['📝', '📊', '📋', '💼', '🎯', '📌', '✅', '📁', '🗂️', '📑', '🏷️', '⭐'];
 
 export default function CreateTemplateWizard({ onClose, onCreate }: CreateTemplateWizardProps) {
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
   const [description, setDescription] = useState('');
-  const [generatedPrompt, setGeneratedPrompt] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
+  const [proposals, setProposals] = useState<TemplateProposal[]>([]);
+  const [selectedProposal, setSelectedProposal] = useState<TemplateProposal | null>(null);
+  const [customizedSections, setCustomizedSections] = useState<TemplateSection[]>([]);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [editingSection, setEditingSection] = useState<string | null>(null);
+  const [editingInstructionId, setEditingInstructionId] = useState<string | null>(null);
+  const [adjustingSection, setAdjustingSection] = useState<string | null>(null);
+  const [sectionAdjustment, setSectionAdjustment] = useState('');
   const [templateName, setTemplateName] = useState('');
   const [templateIcon, setTemplateIcon] = useState('📝');
   const [showIconPicker, setShowIconPicker] = useState(false);
+  const [previewProposal, setPreviewProposal] = useState<TemplateProposal | null>(null);
+  const [showFullInstruction, setShowFullInstruction] = useState<Record<string, boolean>>({});
 
-  // Step 1: Generate custom prompt
-  const handleGeneratePrompt = () => {
+  // Step 1: Generate proposal and go directly to customization
+  const handleGenerateProposals = () => {
     if (!description.trim()) return;
 
-    const prompt = generateCustomPrompt(description);
-    setGeneratedPrompt(prompt.content);
-    setTemplateName(prompt.name);
-    setTemplateIcon(prompt.icon);
-    setCurrentStep(2);
+    const generatedProposals = generateTemplateProposals(description);
+    const firstProposal = generatedProposals[0];
+
+    setProposals(generatedProposals);
+    setSelectedProposal(firstProposal);
+    setCustomizedSections([...firstProposal.sections]);
+    setTemplateName(firstProposal.name);
+    setTemplateIcon(firstProposal.icon);
+    setCurrentStep(3);
   };
 
-  // Step 2: Create template
+  // Step 3: Adjust a section
+  const handleAdjustSection = (sectionId: string) => {
+    if (!sectionAdjustment.trim()) return;
+
+    const sectionToAdjust = customizedSections.find(s => s.id === sectionId);
+    if (!sectionToAdjust) return;
+
+    // Start the magical AI animation
+    setAdjustingSection(sectionId);
+
+    // Simulate AI processing with a delay for the magical effect
+    setTimeout(() => {
+      const adjustedSection = generateAdjustedSection(sectionToAdjust, sectionAdjustment);
+
+      setCustomizedSections(prev =>
+        prev.map(s => s.id === sectionId ? adjustedSection : s)
+      );
+
+      setSectionAdjustment('');
+      setEditingSection(null);
+      setAdjustingSection(null);
+    }, 1800); // 1.8 seconds for a magical feel
+  };
+
+  // Direct edit AI instruction
+  const handleDirectEditInstruction = (sectionId: string, newInstruction: string) => {
+    setCustomizedSections(prev =>
+      prev.map(s => s.id === sectionId ? { ...s, aiInstruction: newInstruction } : s)
+    );
+    setEditingInstructionId(null);
+  };
+
+  // Truncate text helper
+  const truncateText = (text: string, maxLength: number = 150) => {
+    if (text.length <= maxLength) return text;
+    const truncated = text.slice(0, maxLength);
+    const lastSpace = truncated.lastIndexOf(' ');
+    return lastSpace > 0 ? truncated.slice(0, lastSpace) + '...' : truncated + '...';
+  };
+
+  // Step 4: Create template
   const handleCreateTemplate = () => {
-    if (!templateName.trim() || !generatedPrompt.trim()) return;
+    if (!templateName.trim()) return;
+
+    const sectionTitles = customizedSections.map(s => s.title);
 
     const newTemplate: Template = {
       id: `wizard-${Date.now()}`,
       name: templateName.trim(),
-      description: 'AI-generert mal med egendefinert prompt',
+      description: selectedProposal?.description || 'AI-generert mal',
       category: 'standard',
-      sections: [],
+      sections: sectionTitles,
       icon: templateIcon,
       isCustom: true,
-      isCustomPrompt: true,
-      customPrompt: generatedPrompt.trim()
+      metadata: {
+        aiGenerated: true,
+        originalDescription: description,
+        sectionsDetail: customizedSections
+      }
     };
 
     onCreate(newTemplate);
   };
 
   const canProceedStep1 = description.trim().length > 10;
-  const canProceedStep2 = templateName.trim().length > 0 && generatedPrompt.trim().length > 0;
+  const canProceedStep3 = templateName.trim().length > 0;
 
   return (
     <AnimatePresence>
@@ -89,7 +153,7 @@ export default function CreateTemplateWizard({ onClose, onCreate }: CreateTempla
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Lag mal med AI-hjelp</h2>
-                  <p className="text-sm text-gray-600">Beskriv hva du trenger, vi hjelper deg å bygge den perfekte malen</p>
+                  <p className="text-sm text-gray-600">La oss lage den perfekte malen sammen</p>
                 </div>
               </div>
               <button
@@ -103,7 +167,7 @@ export default function CreateTemplateWizard({ onClose, onCreate }: CreateTempla
 
             {/* Progress indicator */}
             <div className="flex items-center space-x-2">
-              {[1, 2].map((step) => (
+              {[1, 3, 4].map((step, index) => (
                 <div key={step} className="flex items-center flex-1">
                   <div className={cn(
                     "flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold transition-all",
@@ -113,9 +177,9 @@ export default function CreateTemplateWizard({ onClose, onCreate }: CreateTempla
                       ? "bg-green-500 text-white"
                       : "bg-gray-200 text-gray-500"
                   )}>
-                    {currentStep > step ? <Check className="h-4 w-4" /> : step}
+                    {currentStep > step ? <Check className="h-4 w-4" /> : (index + 1)}
                   </div>
-                  {step < 2 && (
+                  {index < 2 && (
                     <div className={cn(
                       "flex-1 h-1 mx-2 rounded-full transition-all",
                       currentStep > step ? "bg-green-500" : "bg-gray-200"
@@ -126,7 +190,8 @@ export default function CreateTemplateWizard({ onClose, onCreate }: CreateTempla
             </div>
             <div className="flex justify-between mt-2 text-xs text-gray-500">
               <span className={currentStep === 1 ? "font-semibold text-blue-600" : ""}>Beskriv</span>
-              <span className={currentStep === 2 ? "font-semibold text-blue-600" : ""}>Bekreft</span>
+              <span className={currentStep === 3 ? "font-semibold text-blue-600" : ""}>Finjuster</span>
+              <span className={currentStep === 4 ? "font-semibold text-blue-600" : ""}>Forhåndsvis</span>
             </div>
           </div>
 
@@ -152,7 +217,7 @@ export default function CreateTemplateWizard({ onClose, onCreate }: CreateTempla
                       </h3>
                       <p className="text-gray-600 text-sm">
                         Beskriv hvilken type møter du holder, hva som er viktig å dokumentere, og hvem som skal lese referatene.
-                        Jo mer detaljert du er, jo bedre prompt får du.
+                        Jo mer detaljert du er, jo bedre forslag får du.
                       </p>
                     </div>
                   </div>
@@ -210,10 +275,10 @@ Vi møter kunder ukentlig for å diskutere prosjektfremdrift. Viktig å dokument
                 </motion.div>
               )}
 
-              {/* Step 2: Review and edit prompt */}
-              {currentStep === 2 && (
+              {/* Step 3: Fine-tune sections */}
+              {currentStep === 3 && selectedProposal && (
                 <motion.div
-                  key="step2"
+                  key="step3"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -221,14 +286,14 @@ Vi møter kunder ukentlig for å diskutere prosjektfremdrift. Viktig å dokument
                 >
                   <div className="flex items-start space-x-4">
                     <div className="p-3 bg-blue-50 rounded-xl">
-                      <Wand2 className="h-6 w-6 text-blue-600" />
+                      <Edit3 className="h-6 w-6 text-blue-600" />
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        Slik kommer malen din til å se ut
+                        Finjuster seksjonene
                       </h3>
                       <p className="text-gray-600 text-sm">
-                        Vi har laget en AI-instruksjon basert på din beskrivelse. Du kan bekrefte eller redigere den.
+                        Klikk på en seksjon for å se hvordan AI-en vil generere innholdet. Du kan justere hver seksjon etter dine behov.
                       </p>
                     </div>
                   </div>
@@ -277,64 +342,338 @@ Vi møter kunder ukentlig for å diskutere prosjektfremdrift. Viktig å dokument
                         type="text"
                         value={templateName}
                         onChange={(e) => setTemplateName(e.target.value)}
-                        placeholder="F.eks. Prosjektmøte - møtereferat"
+                        placeholder="F.eks. Ukentlig statusmøte"
                         className="flex-1 px-4 py-2 text-lg font-semibold bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
                   </div>
 
-                  {/* Generated prompt display/edit */}
+                  {/* Sections list */}
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-sm font-medium text-gray-700">
-                        AI-instruksjon for malen
-                      </label>
-                      <button
-                        onClick={() => setIsEditing(!isEditing)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    {customizedSections.map((section, index) => (
+                      <div
+                        key={section.id}
+                        className="border-2 border-gray-200 rounded-xl overflow-hidden transition-all hover:border-blue-300"
                       >
-                        <Edit3 className="h-3.5 w-3.5" />
-                        {isEditing ? 'Ferdig' : 'Rediger'}
-                      </button>
+                        <button
+                          onClick={() => setExpandedSection(expandedSection === section.id ? null : section.id)}
+                          className="w-full flex items-center justify-between p-4 bg-white hover:bg-gray-50 transition-colors text-left"
+                        >
+                          <div className="flex items-center space-x-3 flex-1">
+                            <span className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-lg text-sm font-semibold">
+                              {index + 1}
+                            </span>
+                            <span className="text-2xl">{section.icon}</span>
+                            <span className="font-medium text-gray-900">{section.title}</span>
+                          </div>
+                          <ChevronDown className={cn(
+                            "h-5 w-5 text-gray-400 transition-transform",
+                            expandedSection === section.id && "rotate-180"
+                          )} />
+                        </button>
+
+                        <AnimatePresence>
+                          {expandedSection === section.id && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="p-4 bg-gray-50 border-t border-gray-200 space-y-4">
+                                {/* AI Instructions */}
+                                <div>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center space-x-2">
+                                      <Wand2 className="h-4 w-4 text-blue-600" />
+                                      <h5 className="text-sm font-semibold text-gray-700">AI-instruksjon:</h5>
+                                    </div>
+                                    {editingInstructionId !== section.id && (
+                                      <button
+                                        onClick={() => setEditingInstructionId(section.id)}
+                                        className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
+                                      >
+                                        <Edit3 className="h-3 w-3" />
+                                        <span>Rediger</span>
+                                      </button>
+                                    )}
+                                  </div>
+                                  {editingInstructionId === section.id ? (
+                                    <div className="space-y-2">
+                                      <textarea
+                                        defaultValue={section.aiInstruction}
+                                        onBlur={(e) => handleDirectEditInstruction(section.id, e.target.value)}
+                                        rows={5}
+                                        className="w-full px-3 py-2 text-sm rounded-lg border-2 border-blue-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                                        autoFocus
+                                      />
+                                      <button
+                                        onClick={() => setEditingInstructionId(null)}
+                                        className="px-3 py-1.5 text-xs text-gray-600 hover:text-gray-900"
+                                      >
+                                        Ferdig
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <div className="relative">
+                                      <div className="text-sm text-gray-600 bg-white p-3 rounded-lg border border-gray-200">
+                                        <p>
+                                          {showFullInstruction[section.id]
+                                            ? section.aiInstruction
+                                            : truncateText(section.aiInstruction, 150)}
+                                        </p>
+                                        {section.aiInstruction.length > 150 && (
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setShowFullInstruction(prev => ({
+                                                ...prev,
+                                                [section.id]: !prev[section.id]
+                                              }));
+                                            }}
+                                            className="mt-2 text-xs text-blue-600 hover:text-blue-700 font-medium"
+                                          >
+                                            {showFullInstruction[section.id] ? 'Vis mindre' : 'Vis mer'}
+                                          </button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Example Output */}
+                                <div>
+                                  <div className="flex items-center space-x-2 mb-2">
+                                    <Eye className="h-4 w-4 text-green-600" />
+                                    <h5 className="text-sm font-semibold text-gray-700">Eksempel på output:</h5>
+                                  </div>
+                                  <p className="text-sm text-gray-700 bg-green-50 p-3 rounded-lg border border-green-200 italic">
+                                    "{section.exampleOutput}"
+                                  </p>
+                                </div>
+
+                                {/* Custom adjustment */}
+                                {adjustingSection === section.id ? (
+                                  <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-100 via-fuchsia-100 to-purple-100 p-6 border-2 border-blue-300"
+                                  >
+                                    {/* Animated background shimmer */}
+                                    <motion.div
+                                      animate={{
+                                        backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                                      }}
+                                      transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        ease: "linear"
+                                      }}
+                                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                                      style={{ backgroundSize: '200% 100%' }}
+                                    />
+
+                                    {/* Content */}
+                                    <div className="relative z-10 flex flex-col items-center justify-center space-y-4">
+                                      {/* Animated wand icon */}
+                                      <motion.div
+                                        animate={{
+                                          rotate: [0, -10, 10, -10, 0],
+                                          scale: [1, 1.1, 1, 1.1, 1],
+                                        }}
+                                        transition={{
+                                          duration: 2,
+                                          repeat: Infinity,
+                                          ease: "easeInOut"
+                                        }}
+                                        className="relative"
+                                      >
+                                        <Wand2 className="h-8 w-8 text-blue-600" />
+
+                                        {/* Sparkles around the wand */}
+                                        {[...Array(3)].map((_, i) => (
+                                          <motion.div
+                                            key={i}
+                                            initial={{ opacity: 0, scale: 0 }}
+                                            animate={{
+                                              opacity: [0, 1, 0],
+                                              scale: [0, 1, 0],
+                                              x: [0, (i - 1) * 20],
+                                              y: [0, -20 - i * 10],
+                                            }}
+                                            transition={{
+                                              duration: 1.5,
+                                              repeat: Infinity,
+                                              delay: i * 0.2,
+                                              ease: "easeOut"
+                                            }}
+                                            className="absolute top-0 left-1/2"
+                                          >
+                                            <Sparkles className="h-4 w-4 text-fuchsia-500" />
+                                          </motion.div>
+                                        ))}
+                                      </motion.div>
+
+                                      {/* Pulsing text */}
+                                      <motion.div
+                                        animate={{
+                                          opacity: [0.7, 1, 0.7],
+                                        }}
+                                        transition={{
+                                          duration: 2,
+                                          repeat: Infinity,
+                                          ease: "easeInOut"
+                                        }}
+                                        className="text-center"
+                                      >
+                                        <p className="text-sm font-semibold text-gray-900 mb-1">
+                                          ✨ AI justerer seksjonen...
+                                        </p>
+                                        <p className="text-xs text-gray-600">
+                                          Dette tar bare et øyeblikk
+                                        </p>
+                                      </motion.div>
+
+                                      {/* Animated dots */}
+                                      <div className="flex space-x-1">
+                                        {[0, 1, 2].map((i) => (
+                                          <motion.div
+                                            key={i}
+                                            animate={{
+                                              scale: [1, 1.5, 1],
+                                              opacity: [0.3, 1, 0.3],
+                                            }}
+                                            transition={{
+                                              duration: 1,
+                                              repeat: Infinity,
+                                              delay: i * 0.2,
+                                            }}
+                                            className="w-2 h-2 bg-blue-600 rounded-full"
+                                          />
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                ) : editingSection === section.id ? (
+                                  <div className="space-y-2">
+                                    <label className="block text-xs font-medium text-gray-700">
+                                      Beskriv hva som må endres:
+                                    </label>
+                                    <textarea
+                                      value={sectionAdjustment}
+                                      onChange={(e) => setSectionAdjustment(e.target.value)}
+                                      placeholder="F.eks. 'Gjør det kortere' eller 'Legg til fokus på tekniske detaljer'"
+                                      rows={2}
+                                      className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                      autoFocus
+                                    />
+                                    <div className="flex gap-2">
+                                      <button
+                                        onClick={() => handleAdjustSection(section.id)}
+                                        disabled={adjustingSection === section.id}
+                                        className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                      >
+                                        Juster
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          setEditingSection(null);
+                                          setSectionAdjustment('');
+                                        }}
+                                        disabled={adjustingSection === section.id}
+                                        className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                      >
+                                        Avbryt
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => setEditingSection(section.id)}
+                                    className="w-full px-3 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                                  >
+                                    Be AI om å gjøre endringer
+                                  </button>
+                                )}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Step 4: Preview */}
+              {currentStep === 4 && selectedProposal && (
+                <motion.div
+                  key="step4"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div className="flex items-start space-x-4">
+                    <div className="p-3 bg-green-50 rounded-xl">
+                      <Eye className="h-6 w-6 text-green-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        Forhåndsvisning av din mal
+                      </h3>
+                      <p className="text-gray-600 text-sm">
+                        Sjekk at alt ser bra ut før du oppretter malen. Du kan alltid redigere eller slette den senere.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Template preview card */}
+                  <div className="bg-gradient-to-br from-blue-50 to-fuchsia-50 rounded-xl p-6 border-2 border-blue-200">
+                    <div className="flex items-start space-x-4 mb-6">
+                      <div className="text-5xl">{templateIcon}</div>
+                      <div className="flex-1">
+                        <h3 className="text-2xl font-bold text-gray-900 mb-2">{templateName}</h3>
+                        <p className="text-gray-600">{selectedProposal.description}</p>
+                        <div className="flex items-center space-x-4 mt-3 text-sm text-gray-500">
+                          <span className="inline-flex items-center">
+                            <Sparkles className="h-4 w-4 mr-1 text-blue-600" />
+                            AI-generert
+                          </span>
+                          <span>{customizedSections.length} seksjoner</span>
+                        </div>
+                      </div>
                     </div>
 
-                    {isEditing ? (
-                      <textarea
-                        value={generatedPrompt}
-                        onChange={(e) => setGeneratedPrompt(e.target.value)}
-                        rows={18}
-                        className="w-full px-4 py-3 rounded-xl border-2 border-blue-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm font-mono resize-none transition-all"
-                      />
-                    ) : (
-                      <div className="p-4 bg-white border-2 border-gray-200 rounded-xl max-h-[400px] overflow-y-auto">
-                        <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono leading-relaxed">
-{generatedPrompt}
-                        </pre>
-                      </div>
-                    )}
-
-                    <p className="text-xs text-gray-500">
-                      {isEditing
-                        ? '✏️ Du kan justere instruksjonen for å få akkurat det resultatet du ønsker'
-                        : '👁️ Slik vil AI-en generere møtereferatet ditt'
-                      }
-                    </p>
+                    {/* Sections preview */}
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-gray-900 mb-3">Seksjoner som inkluderes:</h4>
+                      {customizedSections.map((section, index) => (
+                        <div
+                          key={section.id}
+                          className="flex items-start space-x-3 p-4 bg-white rounded-xl border border-gray-200"
+                        >
+                          <span className="flex items-center justify-center w-7 h-7 bg-blue-100 text-blue-600 rounded-lg text-sm font-semibold flex-shrink-0">
+                            {index + 1}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2 mb-1">
+                              <span className="text-xl">{section.icon}</span>
+                              <span className="font-medium text-gray-900">{section.title}</span>
+                            </div>
+                            <p className="text-xs text-gray-500 line-clamp-2">{section.aiInstruction}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Info box */}
-                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                    <div className="flex items-start gap-2">
-                      <Wand2 className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm text-amber-900 font-medium mb-1">
-                          Om denne maltypen
-                        </p>
-                        <p className="text-sm text-amber-800">
-                          Denne malen genererer ett sammenhengende referat basert på AI-instruksjonen over,
-                          i stedet for separate moduler/seksjoner. Perfekt for kraftbrukere som vil ha full kontroll.
-                        </p>
-                      </div>
-                    </div>
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                    <p className="text-sm text-blue-900">
+                      <strong>💡 Tips:</strong> Når du bruker denne malen vil AI-en automatisk generere innhold for hver seksjon basert på instruksjonene du har sett i forrige steg.
+                    </p>
                   </div>
                 </motion.div>
               )}
@@ -346,7 +685,7 @@ Vi møter kunder ukentlig for å diskutere prosjektfremdrift. Viktig å dokument
             <div>
               {currentStep > 1 && (
                 <button
-                  onClick={() => setCurrentStep(1)}
+                  onClick={() => setCurrentStep((prev) => (prev - 1) as WizardStep)}
                   className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
@@ -356,33 +695,36 @@ Vi møter kunder ukentlig for å diskutere prosjektfremdrift. Viktig å dokument
             </div>
 
             <div className="flex items-center space-x-3">
-              {currentStep === 1 ? (
+              {currentStep < 4 ? (
                 <button
-                  onClick={handleGeneratePrompt}
-                  disabled={!canProceedStep1}
+                  onClick={() => {
+                    if (currentStep === 1) {
+                      handleGenerateProposals();
+                    } else if (currentStep === 3) {
+                      setCurrentStep(4);
+                    }
+                  }}
+                  disabled={
+                    (currentStep === 1 && !canProceedStep1) ||
+                    (currentStep === 3 && !canProceedStep3)
+                  }
                   className={cn(
                     "inline-flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold transition-all",
-                    canProceedStep1
+                    (currentStep === 1 && canProceedStep1) || (currentStep === 3 && canProceedStep3)
                       ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 shadow-lg shadow-blue-200"
                       : "bg-gray-200 text-gray-400 cursor-not-allowed"
                   )}
                 >
-                  Generer mal
+                  {currentStep === 1 ? 'Generer forslag' : 'Neste'}
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </button>
               ) : (
                 <button
                   onClick={handleCreateTemplate}
-                  disabled={!canProceedStep2}
-                  className={cn(
-                    "inline-flex items-center px-6 py-2.5 rounded-xl text-sm font-semibold transition-all",
-                    canProceedStep2
-                      ? "bg-gradient-to-r from-green-600 to-green-500 text-white hover:from-green-700 hover:to-green-600 shadow-lg shadow-green-200"
-                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  )}
+                  className="inline-flex items-center px-6 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-green-600 to-green-500 text-white hover:from-green-700 hover:to-green-600 shadow-lg shadow-green-200 transition-all"
                 >
                   <Check className="h-4 w-4 mr-2" />
-                  Lagre mal
+                  Opprett mal
                 </button>
               )}
             </div>

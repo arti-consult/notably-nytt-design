@@ -50,28 +50,28 @@ const statusMeetingProposals: TemplateProposal[] = [
       {
         id: 'summary',
         title: 'Oppsummering',
-        aiInstruction: 'Skriv et kort sammendrag (2-3 setninger) som oppsummerer møtets hovedpunkter og overordnet status for teamet.',
+        aiInstruction: 'Skriv et konsist sammendrag på 2-3 setninger som oppsummerer møtets hovedpunkter og overordnet status for teamet. Fokuser på det viktigste som ble diskutert og unngå unødvendige detaljer. Inkluder kun konkrete resultater eller beslutninger som ble tatt, ikke generelle diskusjoner eller småprat. Hvis møtet hadde et spesifikt formål eller mål, nevn kort hvordan det ble adressert.',
         exampleOutput: 'I dagens statusmøte diskuterte vi fremgang på Q1-målene. Teamet ligger godt an med 75% av målene på grønt, men vi identifiserte to kritiske blokkere som må løses før neste sprint.',
         icon: '📝'
       },
       {
         id: 'per-person',
         title: 'Status per person',
-        aiInstruction: 'List opp hvert teammedlem med navn, hva de jobber med nå, og deres progresjon. Inkluder eventuelle utfordringer de møter.',
+        aiInstruction: 'List opp hvert teammedlem med navn, hva de jobber med nå, og deres progresjon. Inkluder eventuelle utfordringer eller blokkere de møter. Hvis noen ikke sa noe i møtet, ikke nevn dem. Bruk fet tekst for navn. Strukturer hver persons status med følgende elementer hvis tilgjengelig: (1) Hva de jobber med akkurat nå, (2) Progresjonen deres (ferdigstillelsesgrad eller estimert ferdigdato), (3) Eventuelle utfordringer eller ting de venter på. Hold hver persons oppdatering konsis men informativ.',
         exampleOutput: '**Anna Olsen** - Jobber med brukerautentisering. 80% ferdig, venter på API-dokumentasjon fra backend-teamet.\n\n**Per Hansen** - Implementerer ny dashboard. På skjema, estimert ferdig på fredag.',
         icon: '👤'
       },
       {
         id: 'blockers',
         title: 'Blokkere og utfordringer',
-        aiInstruction: 'Identifiser og list opp alle hindringer som ble nevnt. For hver blocker, inkluder hvem det påvirker og foreslått løsning hvis diskutert.',
+        aiInstruction: 'Identifiser og list opp alle hindringer, problemer eller blokkere som ble nevnt i møtet. For hver blocker, strukturer informasjonen som følger: (1) En kort beskrivelse av problemet med fet tekst, (2) Hvem eller hva det påvirker, (3) Foreslått løsning eller handling hvis dette ble diskutert, (4) Tidslinje eller frist hvis nevnt. Hvis ingen blokkere ble diskutert, skriv "Ingen blokkere eller utfordringer ble rapportert i møtet". Ikke spekuler eller legg til informasjon som ikke eksplisitt ble nevnt.',
         exampleOutput: '- **API-dokumentasjon mangler**: Påvirker Anna. Martin tar ansvar for å følge opp med backend-teamet innen tirsdag.\n- **Testmiljø nede**: Påvirker hele teamet. IT-avdelingen varslet, estimert løst i morgen.',
         icon: '🚧'
       },
       {
         id: 'action-items',
         title: 'Handlingspunkter',
-        aiInstruction: 'Ekstraher alle konkrete oppgaver som ble tildelt. Inkluder ansvarlig person og frist hvis nevnt.',
+        aiInstruction: 'Ekstraher alle konkrete oppgaver, handlingspunkter eller TODOs som ble tildelt eller avtalt i møtet. Formater som en checklist hvor hvert punkt starter med "- [ ]". Strukturer hvert punkt som følger: Ansvarlig persons navn etterfulgt av oppgavebeskrivelse, og inkluder frist i parentes hvis nevnt. Eksempel: "- [ ] Anna setter opp testcase for login-flow (frist: torsdag)". Prioriter oppgaver som har tydelig ansvarlig og frist. Hvis ingen konkrete handlingspunkter ble avtalt, skriv "Ingen spesifikke handlingspunkter ble tildelt i møtet".',
         exampleOutput: '- [ ] Martin følger opp API-dokumentasjon med backend (frist: tirsdag)\n- [ ] Anna setter opp testcase for login-flow (frist: torsdag)\n- [ ] Per booker møte med design-teamet (frist: innen uke 23)',
         icon: '✅'
       }
@@ -287,7 +287,7 @@ const generalMeetingProposals: TemplateProposal[] = [
       {
         id: 'participants-general',
         title: 'Deltakere',
-        aiInstruction: 'List opp alle som deltok i møtet.',
+        aiInstruction: 'List opp alle som deltok i møtet med fullt navn og rolle/tittel hvis nevnt i transkripsjonen. Hvis noen presenterte seg med kun fornavn, skriv bare det. Formater som en bullet-liste hvor hvert punkt inneholder navnet etterfulgt av rollen i parentes. Sorter alfabetisk etter fornavn. Hvis ingen navngir seg selv eller andre i møtet, skriv "Deltakere ble ikke eksplisitt navngitt i møtet".',
         exampleOutput: '- Anna Olsen (Prosjektleder)\n- Per Hansen (Utvikler)\n- Lisa Berg (Designer)\n- Tom Lie (Produkteier)',
         icon: '👥'
       },
