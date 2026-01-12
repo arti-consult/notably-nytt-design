@@ -106,7 +106,7 @@ export default function ShareSummaryModal({
                 <Check className="h-8 w-8 text-emerald-600" />
               </motion.div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Sammendrag sendt!
+                Møte sendt!
               </h3>
               <p className="text-gray-500">
                 {validCount === 1
@@ -122,7 +122,7 @@ export default function ShareSummaryModal({
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      Del sammendrag
+                      Del møtet
                     </h3>
                     <p className="text-sm text-gray-500 mt-0.5">
                       {meetingTitle}
@@ -140,6 +140,11 @@ export default function ShareSummaryModal({
 
               {/* Content */}
               <div className="p-5 space-y-4">
+                {/* Description */}
+                <p className="text-sm text-gray-600 bg-blue-50 border border-blue-100 rounded-lg p-3">
+                  Vi sender møtereferatet til de e-postadressene du velger.
+                </p>
+
                 {/* Email rows */}
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">

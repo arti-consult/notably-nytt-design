@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { X, Calendar, Clock, Users, Video, ExternalLink, Sparkles, Check, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { X, Calendar, Clock, Users, Video, ExternalLink, Sparkles, Check, ChevronRight, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
@@ -16,13 +17,17 @@ interface CalendarMeetingsModalProps {
 }
 
 type FilterType = 'today' | 'week' | 'all';
+type CalendarProvider = 'google' | 'microsoft';
 
 export default function CalendarMeetingsModal({
   isOpen,
   onClose,
   onInviteAssistant,
 }: CalendarMeetingsModalProps) {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState<FilterType>('week');
+  const [selectedCalendar, setSelectedCalendar] = useState<CalendarProvider>('google');
+  const [isCalendarDropdownOpen, setIsCalendarDropdownOpen] = useState(false);
   const [autoRecordToggles, setAutoRecordToggles] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     mockCalendarMeetings.forEach(m => {
@@ -30,6 +35,10 @@ export default function CalendarMeetingsModal({
     });
     return initial;
   });
+
+  // Mock: Check which calendars are connected (based on settings)
+  const hasGoogleCalendar = true; // TODO: Get from user settings/integrations
+  const hasMicrosoftCalendar = false; // TODO: Get from user settings/integrations
 
   const filteredMeetings = useMemo(() => {
     const today = new Date();
@@ -128,6 +137,87 @@ export default function CalendarMeetingsModal({
               >
                 <X className="h-5 w-5 text-gray-500" />
               </button>
+            </div>
+
+            {/* Calendar provider selector */}
+            <div className="mt-4 relative">
+              <button
+                onClick={() => setIsCalendarDropdownOpen(!isCalendarDropdownOpen)}
+                className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl transition-all"
+              >
+                <div className="flex items-center space-x-2">
+                  <Calendar className="h-4 w-4 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-700">
+                    {selectedCalendar === 'google' ? 'Google Calendar' : 'Microsoft 365'}
+                  </span>
+                </div>
+                <ChevronDown className={cn(
+                  "h-4 w-4 text-gray-500 transition-transform",
+                  isCalendarDropdownOpen && "rotate-180"
+                )} />
+              </button>
+
+              {/* Dropdown menu */}
+              <AnimatePresence>
+                {isCalendarDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-10"
+                  >
+                    <button
+                      onClick={() => {
+                        if (hasGoogleCalendar) {
+                          setSelectedCalendar('google');
+                          setIsCalendarDropdownOpen(false);
+                        } else {
+                          navigate('/settings?tab=integrations');
+                          setIsCalendarDropdownOpen(false);
+                        }
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors",
+                        selectedCalendar === 'google' && hasGoogleCalendar && "bg-blue-50"
+                      )}
+                    >
+                      <span className="text-sm font-medium text-gray-700">Google Calendar</span>
+                      {hasGoogleCalendar ? (
+                        selectedCalendar === 'google' && (
+                          <Check className="h-4 w-4 text-[#2C64E3]" />
+                        )
+                      ) : (
+                        <span className="text-sm text-[#2C64E3] font-medium">Koble til</span>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (hasMicrosoftCalendar) {
+                          setSelectedCalendar('microsoft');
+                          setIsCalendarDropdownOpen(false);
+                        } else {
+                          navigate('/settings?tab=integrations');
+                          setIsCalendarDropdownOpen(false);
+                        }
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors border-t border-gray-100",
+                        selectedCalendar === 'microsoft' && hasMicrosoftCalendar && "bg-blue-50"
+                      )}
+                    >
+                      <span className="text-sm font-medium text-gray-700">Microsoft 365</span>
+                      {hasMicrosoftCalendar ? (
+                        selectedCalendar === 'microsoft' && (
+                          <Check className="h-4 w-4 text-[#2C64E3]" />
+                        )
+                      ) : (
+                        <span className="text-sm text-[#2C64E3] font-medium">Koble til</span>
+                      )}
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Filter tabs */}
@@ -298,7 +388,9 @@ export default function CalendarMeetingsModal({
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center space-x-2 text-gray-500">
                 <Check className="h-4 w-4 text-emerald-500" />
-                <span>Synkronisert med Google Calendar</span>
+                <span>
+                  Synkronisert med {selectedCalendar === 'google' ? 'Google Calendar' : 'Microsoft 365'}
+                </span>
               </div>
               <button
                 onClick={onClose}

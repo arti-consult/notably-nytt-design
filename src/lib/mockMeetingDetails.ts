@@ -24,6 +24,7 @@ interface MockMeetingDetail {
     content: Array<{
       text: string;
       timestamp: number;
+      speaker?: string;
     }>;
     summary_text?: string;
     summary_topics?: string[];
@@ -51,27 +52,27 @@ export const mockMeetingDetails: Record<string, MockMeetingDetail> = {
     transcription: {
       id: 'trans-1',
       content: [
-        { text: 'Velkommen til styremøtet for Q4 2024. I dag skal vi gå gjennom budsjettforslaget for neste år.', timestamp: 0 },
-        { text: 'Takk. La oss starte med å se på inntektsprognosene. Vi forventer en vekst på 15% sammenlignet med i år.', timestamp: 5 },
-        { text: 'Det er ambisiøst. Kan du fortelle oss mer om grunnlaget for denne prognosen?', timestamp: 12 },
-        { text: 'Selvfølgelig. Vi har identifisert tre nye markedssegmenter som vi ønsker å satse på i 2025.', timestamp: 18 },
-        { text: 'Det første segmentet er små og mellomstore bedrifter i teknologisektoren.', timestamp: 25 },
-        { text: 'Vi ser at de har et stort behov for digitalisering og automatisering.', timestamp: 32 },
-        { text: 'Det høres fornuftig ut. Hva er de to andre segmentene?', timestamp: 38 },
-        { text: 'Det andre segmentet er offentlig sektor, spesielt kommuner som ønsker å modernisere sine systemer.', timestamp: 43 },
-        { text: 'Og det tredje segmentet er konsulentselskaper som trenger verktøy for prosjektstyring.', timestamp: 52 },
-        { text: 'Utmerket. La oss gå videre til kostnadssiden. Hva er de viktigste investeringene vi må gjøre?', timestamp: 60 },
-        { text: 'Vi foreslår å øke budsjettet til produktutvikling med 30%. Dette vil hjelpe oss med å levere nye funksjoner raskere.', timestamp: 67 },
-        { text: 'Vi må også investere i markedsføring for å nå de nye målgruppene. Vi foreslår en økning på 20%.', timestamp: 76 },
-        { text: 'I tillegg trenger vi å ansette flere folk i kundestøtte for å håndtere den forventede veksten.', timestamp: 85 },
-        { text: 'Hvor mange nye ansettelser snakker vi om?', timestamp: 92 },
-        { text: 'Vi foreslår å ansette 5 nye personer i produktutvikling og 3 i kundestøtte.', timestamp: 96 },
-        { text: 'Det virker som en solid plan. Er det noen risikoer vi bør være klar over?', timestamp: 103 },
-        { text: 'Den største risikoen er at markedsveksten ikke blir så stor som forventet. Men vi har bygget inn en buffer i budsjettet.', timestamp: 109 },
-        { text: 'Bra. La oss gå til avstemning. Alle som er for budsjettet?', timestamp: 118 },
-        { text: 'Jeg stemmer for.', timestamp: 123 },
-        { text: 'Jeg også.', timestamp: 125 },
-        { text: 'Da er budsjettet vedtatt. Tusen takk for innsatsen.', timestamp: 127 }
+        { text: 'Velkommen til styremøtet for Q4 2024. I dag skal vi gå gjennom budsjettforslaget for neste år.', timestamp: 0, speaker: 'Kari Nordmann' },
+        { text: 'Takk. La oss starte med å se på inntektsprognosene. Vi forventer en vekst på 15% sammenlignet med i år.', timestamp: 5, speaker: 'Ole Hansen' },
+        { text: 'Det er ambisiøst. Kan du fortelle oss mer om grunnlaget for denne prognosen?', timestamp: 12, speaker: 'Lisa Johansen' },
+        { text: 'Selvfølgelig. Vi har identifisert tre nye markedssegmenter som vi ønsker å satse på i 2025.', timestamp: 18, speaker: 'Ole Hansen' },
+        { text: 'Det første segmentet er små og mellomstore bedrifter i teknologisektoren.', timestamp: 25, speaker: 'Ole Hansen' },
+        { text: 'Vi ser at de har et stort behov for digitalisering og automatisering.', timestamp: 32, speaker: 'Ole Hansen' },
+        { text: 'Det høres fornuftig ut. Hva er de to andre segmentene?', timestamp: 38, speaker: 'Kari Nordmann' },
+        { text: 'Det andre segmentet er offentlig sektor, spesielt kommuner som ønsker å modernisere sine systemer.', timestamp: 43, speaker: 'Ole Hansen' },
+        { text: 'Og det tredje segmentet er konsulentselskaper som trenger verktøy for prosjektstyring.', timestamp: 52, speaker: 'Ole Hansen' },
+        { text: 'Utmerket. La oss gå videre til kostnadssiden. Hva er de viktigste investeringene vi må gjøre?', timestamp: 60, speaker: 'Kari Nordmann' },
+        { text: 'Vi foreslår å øke budsjettet til produktutvikling med 30%. Dette vil hjelpe oss med å levere nye funksjoner raskere.', timestamp: 67, speaker: 'Ole Hansen' },
+        { text: 'Vi må også investere i markedsføring for å nå de nye målgruppene. Vi foreslår en økning på 20%.', timestamp: 76, speaker: 'Ole Hansen' },
+        { text: 'I tillegg trenger vi å ansette flere folk i kundestøtte for å håndtere den forventede veksten.', timestamp: 85, speaker: 'Ole Hansen' },
+        { text: 'Hvor mange nye ansettelser snakker vi om?', timestamp: 92, speaker: 'Lisa Johansen' },
+        { text: 'Vi foreslår å ansette 5 nye personer i produktutvikling og 3 i kundestøtte.', timestamp: 96, speaker: 'Ole Hansen' },
+        { text: 'Det virker som en solid plan. Er det noen risikoer vi bør være klar over?', timestamp: 103, speaker: 'Kari Nordmann' },
+        { text: 'Den største risikoen er at markedsveksten ikke blir så stor som forventet. Men vi har bygget inn en buffer i budsjettet.', timestamp: 109, speaker: 'Ole Hansen' },
+        { text: 'Bra. La oss gå til avstemning. Alle som er for budsjettet?', timestamp: 118, speaker: 'Kari Nordmann' },
+        { text: 'Jeg stemmer for.', timestamp: 123, speaker: 'Lisa Johansen' },
+        { text: 'Jeg også.', timestamp: 125, speaker: 'Ole Hansen' },
+        { text: 'Da er budsjettet vedtatt. Tusen takk for innsatsen.', timestamp: 127, speaker: 'Kari Nordmann' }
       ],
       summary_text: 'Styremøtet for Q4 2024 fokuserte på budsjettforslaget for neste år. Selskapet forventer 15% vekst ved å satse på tre nye markedssegmenter: små og mellomstore teknologibedrifter, offentlig sektor, og konsulentselskaper. Budsjettforslaget inkluderer økte investeringer i produktutvikling (30%), markedsføring (20%), og 8 nye ansettelser. Budsjettet ble enstemmig vedtatt av styret.',
       summary_topics: [

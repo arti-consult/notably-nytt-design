@@ -196,7 +196,7 @@ export default function DownloadModal({
                       Original lydfil fra møtet
                     </p>
                     <div className="flex flex-wrap gap-2 mt-3">
-                      <DownloadButton type="audio-mp3" label="MP3" variant="primary" />
+                      <DownloadButton type="audio-mp3" label="Last ned lydfil" variant="primary" />
                     </div>
                   </div>
                 </div>

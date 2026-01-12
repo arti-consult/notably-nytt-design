@@ -785,7 +785,7 @@ export default function DashboardPage() {
           <div className="lg:col-span-1 space-y-6">
             {/* Meny - Quick Access */}
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <div className="px-4 py-3 bg-gradient-to-r from-[#E4ECFF] to-[#F0F5FF] border-b border-[#CFE0FF]">
+              <div className="px-4 py-3 bg-[#E4ECFF] border-b border-[#CFE0FF]">
                 <div className="flex items-center space-x-2">
                   <div className="p-1 bg-gradient-to-br from-[#2C64E3] to-[#5A8DF8] rounded-md">
                     <Zap className="h-3.5 w-3.5 text-white" />

@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft,
+  ChevronRight,
   Download,
   Share2,
   Trash2,
@@ -15,7 +16,8 @@ import {
   X,
   ChevronDown,
   Sparkles,
-  Wand2
+  Wand2,
+  Search
 } from 'lucide-react';
 import DownloadModal from '@/components/DownloadModal';
 import ShareSummaryModal from '@/components/ShareSummaryModal';
@@ -47,6 +49,7 @@ interface Transcription {
   content: Array<{
     text: string;
     timestamp: number;
+    speaker?: string;
   }>;
   summary_text?: string;
   summary_topics?: string[];
@@ -79,6 +82,39 @@ const tabs = [
   { id: 'ai' as const, label: 'AI-assistent', icon: MessageSquare },
   { id: 'transcription' as const, label: 'Transkripsjon', icon: Captions },
 ];
+
+// Helper function to get consistent color for speaker
+// Colors are prioritized from most fitting to least fitting with the app design
+const getSpeakerColor = (speakerName: string): { bg: string; text: string; border: string } => {
+  const colors = [
+    // Primary app colors (highest priority)
+    { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200' },
+    { bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200' },
+    { bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200' },
+
+    // Secondary complementary colors
+    { bg: 'bg-sky-100', text: 'text-sky-700', border: 'border-sky-200' },
+    { bg: 'bg-teal-100', text: 'text-teal-700', border: 'border-teal-200' },
+    { bg: 'bg-indigo-100', text: 'text-indigo-700', border: 'border-indigo-200' },
+
+    // Warm accents (use sparingly)
+    { bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-200' },
+    { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200' },
+    { bg: 'bg-rose-100', text: 'text-rose-700', border: 'border-rose-200' },
+
+    // Additional colors for many speakers
+    { bg: 'bg-cyan-100', text: 'text-cyan-700', border: 'border-cyan-200' },
+    { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-200' },
+    { bg: 'bg-fuchsia-100', text: 'text-fuchsia-700', border: 'border-fuchsia-200' },
+    { bg: 'bg-pink-100', text: 'text-pink-700', border: 'border-pink-200' },
+    { bg: 'bg-lime-100', text: 'text-lime-700', border: 'border-lime-200' },
+    { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200' },
+  ];
+
+  // Generate consistent index based on speaker name
+  const hash = speakerName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return colors[hash % colors.length];
+};
 
 export default function MeetingDetailsPage() {
   const { id } = useParams();
@@ -119,6 +155,59 @@ export default function MeetingDetailsPage() {
 
   const transcriptionContainerRef = useRef<HTMLDivElement>(null);
   const lastHighlightedRef = useRef<HTMLDivElement | null>(null);
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentSearchIndex, setCurrentSearchIndex] = useState(0);
+
+  // Find search matches in transcription
+  const searchMatches = useMemo(() => {
+    if (!searchQuery.trim() || !transcription?.content) return [];
+
+    const query = searchQuery.toLowerCase();
+    const matches: Array<{ index: number; timestamp: number }> = [];
+
+    transcription.content.forEach((segment, index) => {
+      if (segment.text.toLowerCase().includes(query)) {
+        matches.push({ index, timestamp: segment.timestamp });
+      }
+    });
+
+    return matches;
+  }, [searchQuery, transcription?.content]);
+
+  // Navigate to search result
+  const goToSearchMatch = (direction: 'next' | 'prev') => {
+    if (searchMatches.length === 0) return;
+
+    let newIndex = currentSearchIndex;
+    if (direction === 'next') {
+      newIndex = (currentSearchIndex + 1) % searchMatches.length;
+    } else {
+      newIndex = currentSearchIndex === 0 ? searchMatches.length - 1 : currentSearchIndex - 1;
+    }
+
+    setCurrentSearchIndex(newIndex);
+    handleSeek(searchMatches[newIndex].timestamp);
+  };
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchQuery('');
+    setCurrentSearchIndex(0);
+  };
+
+  // Highlight search query in text
+  const highlightText = (text: string, query: string) => {
+    if (!query.trim()) return text;
+
+    const parts = text.split(new RegExp(`(${query})`, 'gi'));
+    return parts.map((part, index) =>
+      part.toLowerCase() === query.toLowerCase()
+        ? `<mark class="bg-yellow-200 text-gray-900 px-0.5 rounded">${part}</mark>`
+        : part
+    ).join('');
+  };
 
   // Last inn mock-data ved oppstart
   useEffect(() => {
@@ -869,32 +958,133 @@ Møtet konkluderte med klare handlingspunkter og en felles forståelse av veien 
                       />
                     </motion.div>
 
+                    {/* Search Bar */}
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="bg-white rounded-xl border border-gray-200 p-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        {/* Search Input */}
+                        <div className="flex-1 relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => {
+                              setSearchQuery(e.target.value);
+                              setCurrentSearchIndex(0);
+                            }}
+                            placeholder="Søk i transkripsjon..."
+                            className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2C64E3] focus:border-transparent transition-all"
+                          />
+                          {searchQuery && (
+                            <button
+                              onClick={clearSearch}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded transition-colors"
+                            >
+                              <X className="h-3.5 w-3.5 text-gray-400" />
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Search Results Info & Navigation */}
+                        {searchMatches.length > 0 && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600 whitespace-nowrap">
+                              <span className="font-semibold text-[#2C64E3]">{currentSearchIndex + 1}</span>
+                              {' av '}
+                              <span className="font-semibold">{searchMatches.length}</span>
+                            </span>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => goToSearchMatch('prev')}
+                                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="Forrige treff"
+                              >
+                                <ChevronLeft className="h-4 w-4 text-gray-600" />
+                              </button>
+                              <button
+                                onClick={() => goToSearchMatch('next')}
+                                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="Neste treff"
+                              >
+                                <ChevronRight className="h-4 w-4 text-gray-600" />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* No Results Message */}
+                        {searchQuery && searchMatches.length === 0 && (
+                          <span className="text-sm text-gray-500">Ingen treff</span>
+                        )}
+                      </div>
+                    </motion.div>
+
                     {/* Transcription Content */}
                     {transcription?.content && transcription.content.length > 0 ? (
                       <div
                         ref={transcriptionContainerRef}
-                        className="space-y-4 max-h-[500px] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-[#CFE0FF] scrollbar-track-gray-100"
+                        className="space-y-3 max-h-[500px] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-[#CFE0FF] scrollbar-track-gray-100"
                       >
-                        {transcription.content.map((segment, index) => (
-                          <div
-                            key={index}
-                            className={cn(
-                              "flex items-start space-x-4 p-2 rounded-lg transition-colors",
-                              currentTimestamp >= segment.timestamp &&
-                              currentTimestamp < (transcription.content[index + 1]?.timestamp || Infinity)
-                                ? "bg-[#F0F5FF]"
-                                : "hover:bg-gray-50"
-                            )}
-                          >
-                            <button
-                              onClick={() => handleSeek(segment.timestamp)}
-                              className="w-16 flex-shrink-0 text-sm text-[#2C64E3] hover:text-[#1F49C6] cursor-pointer hover:underline"
+                        {transcription.content.map((segment, index) => {
+                          const speakerColors = segment.speaker ? getSpeakerColor(segment.speaker) : null;
+                          const isActive = currentTimestamp >= segment.timestamp &&
+                            currentTimestamp < (transcription.content[index + 1]?.timestamp || Infinity);
+
+                          // Filter out segments that don't match search query
+                          const matchesSearch = !searchQuery.trim() || segment.text.toLowerCase().includes(searchQuery.toLowerCase());
+                          if (!matchesSearch) return null;
+
+                          return (
+                            <div
+                              key={index}
+                              className={cn(
+                                "flex items-start space-x-3 p-4 rounded-xl transition-all duration-200",
+                                isActive
+                                  ? "bg-blue-50/50 border-l-4 border-[#2C64E3]"
+                                  : "hover:bg-gray-50"
+                              )}
                             >
-                              {new Date(segment.timestamp * 1000).toISOString().substr(14, 5)}
-                            </button>
-                            <p className="text-gray-600">{segment.text}</p>
-                          </div>
-                        ))}
+                              {/* Timestamp */}
+                              <button
+                                onClick={() => handleSeek(segment.timestamp)}
+                                className="flex-shrink-0 text-sm font-medium text-[#2C64E3] hover:text-[#1F49C6] cursor-pointer hover:underline transition-colors pt-0.5"
+                              >
+                                {new Date(segment.timestamp * 1000).toISOString().substr(14, 5)}
+                              </button>
+
+                              {/* Content Container */}
+                              <div className="flex-1 min-w-0 space-y-1.5">
+                                {/* Speaker Name */}
+                                {segment.speaker && speakerColors && (
+                                  <div className="flex items-center">
+                                    <span
+                                      className={cn(
+                                        "text-sm font-semibold",
+                                        speakerColors.text
+                                      )}
+                                    >
+                                      {segment.speaker}
+                                    </span>
+                                  </div>
+                                )}
+
+                                {/* Text Content */}
+                                <p
+                                  className="text-gray-700 leading-relaxed"
+                                  dangerouslySetInnerHTML={{
+                                    __html: searchQuery
+                                      ? highlightText(segment.text, searchQuery)
+                                      : segment.text
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     ) : (
                       <div className="text-center py-12">
@@ -928,7 +1118,7 @@ Møtet konkluderte med klare handlingspunkter og en felles forståelse av veien 
                   className="w-full button-secondary justify-center py-3 flex items-center"
                 >
                   <Share2 className="h-5 w-5 mr-2" />
-                  Del sammendrag
+                  Del møtet
                 </button>
                 <button
                   onClick={() => setShowDeleteDialog(true)}
