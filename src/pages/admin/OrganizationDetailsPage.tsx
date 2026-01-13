@@ -9,7 +9,13 @@ import {
   Plus,
   X,
   Shield,
-  UserCheck
+  UserCheck,
+  CreditCard,
+  Receipt,
+  CheckCircle,
+  XCircle,
+  Clock,
+  FileText
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -29,6 +35,23 @@ interface Invitation {
   sent_at: string;
 }
 
+interface Invoice {
+  id: string;
+  period: string;
+  amount: number;
+  status: 'paid' | 'unpaid' | 'overdue';
+  due_date: string;
+  paid_date?: string;
+}
+
+interface BillingInfo {
+  billing_period: 'monthly' | 'yearly';
+  cost_per_seat: number;
+  next_payment_date: string;
+  payment_status: 'paid' | 'unpaid' | 'due_soon';
+  invoices: Invoice[];
+}
+
 interface OrganizationDetails {
   id: string;
   name: string;
@@ -36,6 +59,7 @@ interface OrganizationDetails {
   created_at: string;
   members: Member[];
   invitations: Invitation[];
+  billing: BillingInfo;
 }
 
 // Mock data
@@ -55,7 +79,46 @@ const mockOrgDetails: OrganizationDetails = {
     email: `pending${i + 1}@bedrift1.no`,
     role: 'member',
     sent_at: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()
-  }))
+  })),
+  billing: {
+    billing_period: 'monthly',
+    cost_per_seat: 299,
+    next_payment_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+    payment_status: 'due_soon',
+    invoices: [
+      {
+        id: 'inv-1',
+        period: 'Januar 2025',
+        amount: 2990,
+        status: 'paid',
+        due_date: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString(),
+        paid_date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'inv-2',
+        period: 'Desember 2024',
+        amount: 2990,
+        status: 'paid',
+        due_date: new Date(Date.now() - 43 * 24 * 60 * 60 * 1000).toISOString(),
+        paid_date: new Date(Date.now() - 44 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'inv-3',
+        period: 'November 2024',
+        amount: 2990,
+        status: 'paid',
+        due_date: new Date(Date.now() - 73 * 24 * 60 * 60 * 1000).toISOString(),
+        paid_date: new Date(Date.now() - 70 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'inv-4',
+        period: 'Oktober 2024',
+        amount: 2990,
+        status: 'unpaid',
+        due_date: new Date(Date.now() - 103 * 24 * 60 * 60 * 1000).toISOString()
+      }
+    ]
+  }
 };
 
 export default function OrganizationDetailsPage() {
@@ -77,6 +140,8 @@ export default function OrganizationDetailsPage() {
   });
   const [emailInput, setEmailInput] = useState('');
   const [emailChips, setEmailChips] = useState<string[]>([]);
+  const [isUpdatePaymentStatusModalOpen, setIsUpdatePaymentStatusModalOpen] = useState(false);
+  const [invoiceToUpdate, setInvoiceToUpdate] = useState<Invoice | null>(null);
 
   useEffect(() => {
     setTimeout(() => {
@@ -92,6 +157,68 @@ export default function OrganizationDetailsPage() {
       month: '2-digit',
       day: '2-digit'
     });
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('no-NO', {
+      style: 'currency',
+      currency: 'NOK',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+
+  const getDaysUntilPayment = (nextPaymentDate: string) => {
+    const days = Math.ceil((new Date(nextPaymentDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    return days;
+  };
+
+  const getPaymentStatusInfo = (status: 'paid' | 'unpaid' | 'due_soon') => {
+    switch (status) {
+      case 'paid':
+        return {
+          label: 'Betalt',
+          color: 'text-green-700',
+          bgColor: 'bg-green-100',
+          icon: CheckCircle
+        };
+      case 'unpaid':
+        return {
+          label: 'Ikke betalt',
+          color: 'text-red-700',
+          bgColor: 'bg-red-100',
+          icon: XCircle
+        };
+      case 'due_soon':
+        return {
+          label: 'Forfaller snart',
+          color: 'text-amber-700',
+          bgColor: 'bg-amber-100',
+          icon: Clock
+        };
+    }
+  };
+
+  const getInvoiceStatusInfo = (status: 'paid' | 'unpaid' | 'overdue') => {
+    switch (status) {
+      case 'paid':
+        return {
+          label: 'Betalt',
+          color: 'text-green-700',
+          bgColor: 'bg-green-100'
+        };
+      case 'unpaid':
+        return {
+          label: 'Ubetalt',
+          color: 'text-red-700',
+          bgColor: 'bg-red-100'
+        };
+      case 'overdue':
+        return {
+          label: 'Forfalt',
+          color: 'text-red-700',
+          bgColor: 'bg-red-100'
+        };
+    }
   };
 
   const handleUpdateSeats = () => {
@@ -184,6 +311,15 @@ export default function OrganizationDetailsPage() {
     console.log('Canceling invitation:', invitationToCancel.id);
     setIsCancelInvitationModalOpen(false);
     setInvitationToCancel(null);
+  };
+
+  const handleUpdatePaymentStatus = (newStatus: 'paid' | 'unpaid') => {
+    if (!invoiceToUpdate) return;
+
+    // TODO: Implement API call
+    console.log('Updating invoice payment status:', invoiceToUpdate.id, 'to', newStatus);
+    setIsUpdatePaymentStatusModalOpen(false);
+    setInvoiceToUpdate(null);
   };
 
   if (isLoading || !organization) {
@@ -381,6 +517,154 @@ export default function OrganizationDetailsPage() {
             </div>
           </div>
         )}
+
+        {/* Billing & Subscription */}
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="px-6 py-5 border-b border-gray-200">
+            <h2 className="text-lg font-semibold">Fakturering & Abonnement</h2>
+          </div>
+
+          {/* Billing Overview Cards */}
+          <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Payment Status */}
+            <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-gray-600">Betalingsstatus</p>
+                {(() => {
+                  const statusInfo = getPaymentStatusInfo(organization.billing.payment_status);
+                  const StatusIcon = statusInfo.icon;
+                  return (
+                    <div className={cn("p-2 rounded-lg", statusInfo.bgColor)}>
+                      <StatusIcon className={cn("h-4 w-4", statusInfo.color)} />
+                    </div>
+                  );
+                })()}
+              </div>
+              <p className={cn(
+                "text-lg font-semibold",
+                getPaymentStatusInfo(organization.billing.payment_status).color
+              )}>
+                {getPaymentStatusInfo(organization.billing.payment_status).label}
+              </p>
+            </div>
+
+            {/* Next Payment Date */}
+            <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-gray-600">Neste betaling</p>
+                <div className="p-2 bg-blue-200 rounded-lg">
+                  <Calendar className="h-4 w-4 text-blue-700" />
+                </div>
+              </div>
+              <p className="text-lg font-semibold text-gray-900">
+                {formatDate(organization.billing.next_payment_date)}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                om {getDaysUntilPayment(organization.billing.next_payment_date)} dager
+              </p>
+            </div>
+
+            {/* Billing Period */}
+            <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-gray-600">Faktureringsperiode</p>
+                <div className="p-2 bg-purple-200 rounded-lg">
+                  <Clock className="h-4 w-4 text-purple-700" />
+                </div>
+              </div>
+              <p className="text-lg font-semibold text-gray-900">
+                {organization.billing.billing_period === 'monthly' ? 'Månedlig' : 'Årlig'}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {formatCurrency(organization.billing.cost_per_seat)} per plass
+              </p>
+            </div>
+
+            {/* Total Cost */}
+            <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-gray-600">Total kostnad</p>
+                <div className="p-2 bg-green-200 rounded-lg">
+                  <CreditCard className="h-4 w-4 text-green-700" />
+                </div>
+              </div>
+              <p className="text-lg font-semibold text-gray-900">
+                {formatCurrency(organization.billing.cost_per_seat * organization.seats)}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                per {organization.billing.billing_period === 'monthly' ? 'måned' : 'år'}
+              </p>
+            </div>
+          </div>
+
+          {/* Invoice History */}
+          <div className="border-t border-gray-200">
+            <div className="px-6 py-4 bg-gray-50">
+              <h3 className="font-semibold text-gray-900">Fakturahistorikk</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">
+                      <div className="flex items-center">
+                        <Receipt className="h-4 w-4 mr-1" />
+                        Periode
+                      </div>
+                    </th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Beløp</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Forfallsdato</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Betalt dato</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Status</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Handlinger</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {organization.billing.invoices.map((invoice) => {
+                    const statusInfo = getInvoiceStatusInfo(invoice.status);
+                    return (
+                      <tr key={invoice.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{invoice.period}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900 font-semibold">
+                          {formatCurrency(invoice.amount)}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{formatDate(invoice.due_date)}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          {invoice.paid_date ? formatDate(invoice.paid_date) : '-'}
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <span className={cn(
+                            "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                            statusInfo.bgColor,
+                            statusInfo.color
+                          )}>
+                            {statusInfo.label}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <div className="flex items-center space-x-3">
+                            <button
+                              onClick={() => {
+                                setInvoiceToUpdate(invoice);
+                                setIsUpdatePaymentStatusModalOpen(true);
+                              }}
+                              className="text-blue-600 hover:text-blue-700 font-medium"
+                            >
+                              {invoice.status === 'paid' ? 'Merk ubetalt' : 'Merk betalt'}
+                            </button>
+                            <button className="text-gray-600 hover:text-gray-700 font-medium">
+                              <FileText className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
         {/* Danger Zone */}
         <div className="bg-white rounded-xl shadow-sm border-2 border-red-200">
@@ -624,6 +908,69 @@ export default function OrganizationDetailsPage() {
                 >
                   Ja, avbryt
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Update Payment Status Modal */}
+      {isUpdatePaymentStatusModalOpen && invoiceToUpdate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mx-auto mb-4">
+                <Receipt className="h-6 w-6 text-blue-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-center mb-2">Oppdater betalingsstatus</h2>
+              <p className="text-gray-600 text-center mb-6">
+                Vil du endre betalingsstatus for fakturaen for <span className="font-semibold">{invoiceToUpdate.period}</span>?
+              </p>
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Periode:</span>
+                  <span className="text-sm font-medium">{invoiceToUpdate.period}</span>
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Beløp:</span>
+                  <span className="text-sm font-medium">{formatCurrency(invoiceToUpdate.amount)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Nåværende status:</span>
+                  <span className={cn(
+                    "text-xs font-medium px-2 py-0.5 rounded-full",
+                    getInvoiceStatusInfo(invoiceToUpdate.status).bgColor,
+                    getInvoiceStatusInfo(invoiceToUpdate.status).color
+                  )}>
+                    {getInvoiceStatusInfo(invoiceToUpdate.status).label}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => {
+                    setIsUpdatePaymentStatusModalOpen(false);
+                    setInvoiceToUpdate(null);
+                  }}
+                  className="flex-1 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Avbryt
+                </button>
+                {invoiceToUpdate.status === 'paid' ? (
+                  <button
+                    onClick={() => handleUpdatePaymentStatus('unpaid')}
+                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Merk som ubetalt
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleUpdatePaymentStatus('paid')}
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    Merk som betalt
+                  </button>
+                )}
               </div>
             </div>
           </div>

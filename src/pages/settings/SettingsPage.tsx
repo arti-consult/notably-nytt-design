@@ -807,7 +807,6 @@ function PreferencesTab() {
   // Recording settings
   const [autoRecord, setAutoRecord] = useState(true);
   const [defaultTemplate, setDefaultTemplate] = useState('template-1');
-  const [defaultLanguage, setDefaultLanguage] = useState('auto');
 
   // Interface settings
   const [language, setLanguage] = useState('no');
@@ -820,12 +819,6 @@ function PreferencesTab() {
     label: t.name,
     description: t.description
   }));
-
-  const meetingLanguageOptions = [
-    { value: 'auto', label: 'Oppdag automatisk', description: 'Vi gjenkjenner språket fra samtalen' },
-    { value: 'no', label: 'Norsk' },
-    { value: 'en', label: 'English' }
-  ];
 
   const interfaceLanguageOptions = [
     { value: 'no', label: 'Norsk' },
@@ -891,22 +884,6 @@ function PreferencesTab() {
               options={templateOptions}
               onChange={setDefaultTemplate}
               icon={FileText}
-            />
-          </div>
-
-          {/* Language selection */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h3 className="font-medium text-gray-900">Språk i møter</h3>
-                <p className="text-sm text-gray-500">Hvilket språk snakkes det i møtene dine?</p>
-              </div>
-            </div>
-            <StyledDropdown
-              value={defaultLanguage}
-              options={meetingLanguageOptions}
-              onChange={setDefaultLanguage}
-              icon={Languages}
             />
           </div>
         </div>

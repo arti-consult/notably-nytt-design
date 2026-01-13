@@ -6,10 +6,10 @@ import {
   Clock3,
   ArrowUp,
   ArrowDown,
-  AlertTriangle,
   Activity,
   Timer,
-  Calendar
+  Calendar,
+  Building2
 } from 'lucide-react';
 import { Line, Bar } from 'react-chartjs-2';
 import {
@@ -151,15 +151,15 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Error Rate */}
+          {/* Active Organizations */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Feilrate (siste 30 dager)</p>
-                <p className="text-2xl font-semibold">{(Math.random() * 2).toFixed(2)}%</p>
+                <p className="text-sm text-gray-600 mb-1">Antall aktive organisasjoner</p>
+                <p className="text-2xl font-semibold">{Math.floor(Math.random() * 50) + 80}</p>
               </div>
-              <div className="p-3 bg-amber-100 rounded-lg">
-                <AlertTriangle className="h-6 w-6 text-amber-600" />
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <Building2 className="h-6 w-6 text-purple-600" />
               </div>
             </div>
           </div>
