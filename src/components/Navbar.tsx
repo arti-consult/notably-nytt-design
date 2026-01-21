@@ -182,7 +182,7 @@ export default function Navbar() {
                         Logg inn
                       </Link>
                       <Link
-                        to="/register"
+                        to="/onboarding"
                         className="flex items-center px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
                         onClick={() => setShowUserMenu(false)}
                       >

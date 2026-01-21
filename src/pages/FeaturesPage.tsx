@@ -146,8 +146,8 @@ export default function FeaturesPage() {
             <p className="text-lg mb-8 opacity-90">
               Start din 14-dagers gratis prøveperiode i dag.
             </p>
-            <Link 
-              to="/register" 
+            <Link
+              to="/onboarding"
               className="inline-flex items-center justify-center px-8 py-3 text-lg font-medium rounded-xl bg-white text-blue-600 hover:bg-gray-50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-white/20"
             >
               Start gratis prøveperiode

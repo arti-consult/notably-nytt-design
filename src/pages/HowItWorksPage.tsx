@@ -173,7 +173,7 @@ export default function HowItWorksPage() {
               Start din 14-dagers gratis prøveperiode i dag
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/register" className="button-primary">
+              <Link to="/onboarding" className="button-primary">
                 Start gratis prøveperiode
               </Link>
               <Link to="/contact" className="button-secondary inline-flex items-center">

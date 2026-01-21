@@ -67,6 +67,19 @@
   .dashboard-card {
     @apply hover:shadow-xl hover:shadow-[#2C64E3]/10;
   }
+
+  /* Onboarding classes */
+  .onboarding-step {
+    @apply bg-white rounded-2xl p-8 shadow-xl;
+  }
+
+  .progress-step-active {
+    @apply bg-blue-600 text-white ring-4 ring-blue-100;
+  }
+
+  .progress-step-completed {
+    @apply bg-green-600 text-white;
+  }
 }
 
 @keyframes gradient-shift {

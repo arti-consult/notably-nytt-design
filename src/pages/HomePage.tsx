@@ -126,8 +126,8 @@ export default function HomePage() {
               Enkelt, sikkert og effektivt.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link 
-                to="/register" 
+              <Link
+                to="/onboarding"
                 className="w-full sm:w-auto px-8 py-3 rounded-xl font-medium transition-all duration-300
                          bg-gradient-to-r from-[#2C64E3] via-[#4A81EB] to-[#6EA0FF]
                          hover:scale-105 hover:shadow-xl hover:shadow-[#2C64E3]/20
@@ -332,8 +332,8 @@ export default function HomePage() {
               Start din 14-dagers gratis prøveperiode i dag
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link 
-                to="/register" 
+              <Link
+                to="/onboarding"
                 className="px-8 py-3 rounded-xl font-medium transition-all duration-300
                          bg-gradient-to-r from-[#2C64E3] via-[#4A81EB] to-[#6EA0FF]
                          hover:scale-105 hover:shadow-xl hover:shadow-[#2C64E3]/20

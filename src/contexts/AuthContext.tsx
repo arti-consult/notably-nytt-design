@@ -15,6 +15,7 @@ interface AuthContextType {
   user: MockUser | null;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<{ requiresEmailConfirmation: boolean }>;
+  confirmEmail: (token: string) => Promise<void>;
   logout: () => Promise<void>;
   isLoading: boolean;
 }
@@ -22,8 +23,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // Start med mock-bruker innlogget for demo
-  const [user, setUser] = useState<MockUser | null>(mockUser);
+  // Start som utlogget - brukeren må logge inn eller registrere seg
+  const [user, setUser] = useState<MockUser | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -37,14 +38,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     navigate('/dashboard');
   };
 
-  // Mock register - alltid suksess
+  // Mock register - alltid suksess, redirect to onboarding
   const register = async (_email: string, _password: string) => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 500));
     setUser(mockUser);
     setIsLoading(false);
-    navigate('/dashboard');
-    return { requiresEmailConfirmation: false };
+    navigate('/onboarding');
+    return { requiresEmailConfirmation: true };
+  };
+
+  // Mock email confirmation
+  const confirmEmail = async (_token: string) => {
+    setIsLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    // Email confirmed - user is already set
+    setIsLoading(false);
   };
 
   // Mock logout
@@ -57,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, register, confirmEmail, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

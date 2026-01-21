@@ -33,7 +33,7 @@ const plans: PricingPlan[] = [
     ],
     cta: {
       text: 'Start gratis prøveperiode',
-      link: '/register'
+      link: '/onboarding'
     }
   },
   {

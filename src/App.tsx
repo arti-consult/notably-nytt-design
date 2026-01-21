@@ -18,6 +18,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import MeetingDetailsPage from './pages/MeetingDetailsPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import FeaturesPage from './pages/FeaturesPage';
 import PricingPage from './pages/PricingPage';
 import EnterprisePage from './pages/EnterprisePage';
@@ -31,6 +32,7 @@ import SupportPage from './pages/SupportPage';
 import HelpPage from './pages/HelpPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
+import OnboardingPage from './pages/OnboardingPage';
 
 function AppRoutes() {
   const location = useLocation();
@@ -38,6 +40,9 @@ function AppRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        {/* Onboarding route - uses its own layout */}
+        <Route path="/onboarding" element={<OnboardingPage />} />
+
         <Route path="/" element={<RootLayout />}>
           <Route index element={<HomePage />} />
           <Route path="admin" element={
@@ -74,6 +79,7 @@ function AppRoutes() {
           } />
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
+          <Route path="forgot-password" element={<ForgotPasswordPage />} />
           <Route path="features" element={<FeaturesPage />} />
           <Route path="pricing" element={<PricingPage />} />
           <Route path="enterprise" element={<EnterprisePage />} />
